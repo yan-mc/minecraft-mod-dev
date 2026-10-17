@@ -96,11 +96,20 @@ mcdev_use x=0 y=64 z=0 face=up
 
 ## 文档
 
+- [安装与快速开始](docs/INSTALL.md)
+- [mcdev_* 工具参考](docs/TOOLS.md)
+- [团队模式](docs/TEAM.md)
+- [常见问题](docs/TROUBLESHOOTING.md)
+- [当前状态与路线图](docs/STATUS.md)
+- [10 分钟演示](docs/DEMO.md)
+
+### 方案与报告
+
 - [方案冻结 v1.1](方案冻结-v1.1-1.20.1Forge-Windows.md)：范围、团队编制、工具契约、路线图。
 - [v2 方案](MC模组开发模式-方案v2-1.20.1Forge.md)：1.20.1 Forge 设计。
 - [通用调研](MC模组开发模式-可行性与方案.md)：先例与可行性。
 - [M1 报告](lab/forge-1.20.1-test/M1-REPORT.md)、[M2 记录](lab/forge-1.20.1-test/M2-NOTES.md)、[M3 记录](lab/mcdev-probe/M3-NOTES.md)。
-- [M4 计划](lab/forge-1.20.1-test/M4-PLAN.md)、[SPEC](lab/forge-1.20.1-test/SPEC.md)、[TESTPLAN](lab/forge-1.20.1-test/TESTPLAN.md)。
+- [M4 计划](lab/forge-1.20.1-test/M4-PLAN.md)、[SPEC](lab/forge-1.20.1-test/SPEC.md)、[TESTPLAN](lab/forge-1.20.1-test/TESTPLAN.md)、[REPORT](lab/forge-1.20.1-test/REPORT.md)、[团队工作流](lab/forge-1.20.1-test/M4-TEAM-WORKFLOW.md)、[团队修 bug](lab/forge-1.20.1-test/M4-TEAM-BUGFIX.md)。
 
 ## License
 

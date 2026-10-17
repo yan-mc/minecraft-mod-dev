@@ -1,0 +1,58 @@
+# 当前状态与路线图
+
+更新：2026-10-18
+
+## 已完成
+
+| 里程碑 | 结果 |
+|---|---|
+| M1 Forge 构建 + GameTest | `gradlew build` / `runGameTestServer` 3/3，exit 0 |
+| M2 服务端 probe | HTTP `/status` `/log/tail` `/command` `/world/block`；fake player；tick freeze/step；run dump |
+| M2b 外部 jar/Mixin | dev-mapped jar + `MixinConfigs` 才能在外部 dev run 生效 |
+| M2c run DB | snapshot JSON → SQLite（`runs`/`logs`） |
+| M3 客户端 probe | UI 控件树、鼠标/槽位/shift-click、截图；容器 63 槽实测 |
+| M3b 连接/容器 | 独立 `run-server`/`run-client`；39001/39002；箱子 shift-click 1→2 |
+| 插件 v0.3.0 | 14 个 `mcdev_*` 工具；团队模式；`mcmod` preset |
+| M4 Charger | GameTest **12/12**；5 个注入 bug 5/5 检出并修复 |
+| M4 团队流程 | Builder/Tester 实现 F-006；Builder/Reviewer 修 bug 演练 |
+
+## 关键数字
+
+```text
+mcdev_gametest → exit 0, All 12 required tests passed
+mcdev_build    → exit 0
+bug drill      → 1 failure → fix → 12/12
+```
+
+## 已知缺口
+
+1. `/charger info` 的玩家 raycast 路径、advancement toast、tooltip 视觉未测。
+2. 探针 Mixin 是 dev-only（`remap=false` + 字面量 `tick`）；生产 SRG 未支持。
+3. `mcdev_prepare`/`mcdev_scenario` 只在 `lab/forge-1.20.1-test` 实测过。
+4. `mcdev_scenario` 目前吃 JSON steps，不直接解析 `cards/*.yml`。
+5. Agent Teams 是实验性的，可能有成员/任务状态不同步。
+6. 公开 beta 的安装包/版本化还未做；目前是本地 link 安装。
+
+## 路线图
+
+### M5：可重复演示
+
+- `mcdev_scenario` 接卡片解析（YAML→steps）。
+- 把“注入 bug → 建任务 → builder/reviewer → 报告”做成可重复脚本。
+- 录一段从空项目到可玩模组的 demo。
+
+### 公开 beta
+
+- 打包/版本化插件（npm 包或 GitHub Release）。
+- 安装文档、工具文档、已知限制（本 `docs/`）。
+- 一个 reference mod（Charger）+ 5～6 张卡作为模板。
+- 收集外部项目反馈：Forge 版本、目录结构、Gradle 差异。
+
+## 相关文档
+
+- [安装](INSTALL.md)
+- [工具](TOOLS.md)
+- [团队](TEAM.md)
+- [排错](TROUBLESHOOTING.md)
+- [演示](DEMO.md)
+- [M4 报告](../lab/forge-1.20.1-test/REPORT.md)
