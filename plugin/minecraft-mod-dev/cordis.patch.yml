@@ -1,0 +1,31 @@
+# Agent Teams (official experimental bundle) — team mode is the default.
+# Copy of @deepseek-ai/dsh-experimental-agent-team-profile's patch, plus mcdev.
+- id: tool-subagent-control
+  disabled: true
+- id: tool-subagent-list-agents
+  disabled: true
+- id: tool-subagent
+  disabled: true
+- id: tool-subagent-fork
+  disabled: true
+
+- insert:
+    - id: agent-team
+      name: '@deepseek-ai/dsh-experimental-agent-team'
+      config:
+        maxMembers: 8
+        maxTasks: 256
+        maxMessageBytes: 65536
+        disposalTimeoutMs: 5000
+
+    - id: tool-agent-team
+      name: '@deepseek-ai/dsh-experimental-tool-agent-team'
+      config:
+        freshProvider: spawn
+        forkProvider: fork
+
+    - id: ui-agent-team
+      name: '@deepseek-ai/dsh-experimental-client-ui-agent-team'
+
+    - id: mcdev
+      name: 'minecraft-mod-dev'

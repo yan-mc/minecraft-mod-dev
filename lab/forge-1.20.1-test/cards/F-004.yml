@@ -1,0 +1,24 @@
+id: F-004
+title: 配方与掉落
+spec:
+  - 有序配方输出 examplemod:charger，数量 1
+  - loot table 普通破坏掉落 1 个 charger
+  - recipe/loot JSON 通过静态审计
+tiers:
+  static: true
+  gametest: true
+  server_scenario: false
+  client_ui: false
+setup:
+  commands:
+    - "give Dev minecraft:iron_ingot 4"
+    - "give Dev minecraft:redstone 2"
+    - "give Dev minecraft:copper_ingot 1"
+actions:
+  - {craft: {recipe: "examplemod:charger"}}
+assert:
+  - {recipe_output: {recipe: "examplemod:charger", item: "examplemod:charger", count: 1}}
+  - {loot_drop: {block: "examplemod:charger", item: "examplemod:charger", count: 1}}
+  - {no_exception: true}
+evidence: []
+status: pending

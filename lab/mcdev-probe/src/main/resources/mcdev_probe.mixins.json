@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.mcdev.probe.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "mcdev_probe.refmap.json",
+  "mixins": [
+    "ServerLevelMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

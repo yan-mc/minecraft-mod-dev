@@ -1,0 +1,23 @@
+id: F-005
+title: 命令与进度
+spec:
+  - /charger info 打印看向的 charger 能量
+  - 看向非 charger 时给明确反馈
+  - advancement examplemod:charger/root JSON 合法
+  - 命令在单人/服务端均可执行，无权限崩溃
+tiers:
+  static: true
+  gametest: true
+  server_scenario: true
+  client_ui: false
+setup:
+  commands:
+    - "setblock 0 64 0 examplemod:charger"
+    - "tp Dev 0.5 64 1.5 180 0"
+actions:
+  - {command: "charger info"}
+assert:
+  - {log_contains: "Charger energy"}
+  - {no_exception: true}
+evidence: []
+status: pending

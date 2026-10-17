@@ -1,0 +1,30 @@
+id: F-002
+title: 充能 GUI
+spec:
+  - 空手右键 charger 打开标题 Charger 的容器界面
+  - 界面有 1 个充能槽、能量条、玩家背包
+  - shift-click 在充能槽与背包之间移动，不复制/丢失
+  - 关闭再打开，能量与槽位内容保持
+tiers:
+  static: true
+  gametest: false
+  server_scenario: true
+  client_ui: true
+setup:
+  commands:
+    - "setblock 0 64 0 examplemod:charger"
+    - "tp Dev 0.5 64 1.5 180 0"
+actions:
+  - {use_on: {x: 0, y: 64, z: 0, face: up}}
+assert:
+  - {screen_title: "Charger"}
+  - {slot_exists: 0}
+  - {no_exception: true}
+ui:
+  open: true
+  slots: true
+  click:
+    - {slot: 0, button: 0, shift: true}
+  screenshot: true
+evidence: []
+status: pending

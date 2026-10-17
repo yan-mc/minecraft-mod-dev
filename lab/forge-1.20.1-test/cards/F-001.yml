@@ -1,0 +1,25 @@
+id: F-001
+title: 充能方块
+spec:
+  - 方块 examplemod:charger 存在且有方块实体
+  - 能量范围 0..10000，NBT Energy 保存/加载不丢
+  - 手持 charged_item 右键转移 100 FE，方块不超过 10000，物品不低于 0
+  - 比较器输出 floor(energy * 15 / 10000)
+  - 破坏掉落自身
+tiers:
+  static: true
+  gametest: true
+  server_scenario: true
+  client_ui: false
+setup:
+  commands:
+    - "setblock 0 64 0 examplemod:charger"
+actions:
+  - {give: {player: Dev, item: "examplemod:charged_item", count: 1}}
+  - {use_item_on: {x: 0, y: 64, z: 0, face: up}}
+assert:
+  - {block_entity_nbt: {pos: [0, 64, 0], path: "Energy", op: ">=", value: 100}}
+  - {comparator: {pos: [0, 64, 0], op: ">", value: 0}}
+  - {no_exception: true}
+evidence: []
+status: pending

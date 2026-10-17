@@ -1,0 +1,31 @@
+# Gradle / build outputs
+**/build/
+**/.gradle/
+**/out/
+**/classes/
+
+# Minecraft run directories (worlds, logs, screenshots, probe jars)
+**/run/
+**/run-server/
+**/run-client/
+**/run-gametest/
+**/run-data/
+**/saves/
+**/logs/
+**/crash-reports/
+**/.mcdev/
+**/screenshots/
+**/config/
+**/mods/
+
+# Local-only artifacts
+lab/*.zip
+lab/carpet-disabled/
+lab/*.sqlite
+**/*.log
+**/*.class
+**/__pycache__/
+**/node_modules/
+
+# Scratch / personal notes
+临时文件.txt

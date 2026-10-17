@@ -1,0 +1,27 @@
+id: F-003
+title: 充能物品
+spec:
+  - 物品 examplemod:charged_item，最大堆叠 1
+  - NBT Energy 范围 0..10000
+  - tooltip 显示 Energy: N/10000
+  - 右键空中消耗 100 FE，不低于 0
+  - 模型/贴图/语言键齐全
+tiers:
+  static: true
+  gametest: true
+  server_scenario: true
+  client_ui: true
+setup:
+  commands:
+    - "give Dev examplemod:charged_item 1"
+actions:
+  - {use_in_air: {}}
+assert:
+  - {item_nbt: {player: Dev, item: "examplemod:charged_item", path: "Energy", op: "==", value: 100}}
+  - {tooltip_contains: "Energy: 100/10000"}
+  - {no_exception: true}
+ui:
+  open: false
+  screenshot: false
+evidence: []
+status: pending

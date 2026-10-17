@@ -1,0 +1,35 @@
+{
+  "name": "minecraft-mod-dev",
+  "version": "0.2.0",
+  "private": true,
+  "description": "Minecraft 1.20.1 Forge mod development harness for DeepSeek Harness",
+  "type": "module",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./package.json": "./package.json",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg",
+    "./presets/*.patch.yml": "./presets/*.patch.yml"
+  },
+  "files": [
+    "index.js",
+    "cordis.patch.yml",
+    "presets/*.patch.yml",
+    "locale/*.json",
+    "icon.svg"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": [
+        "./cordis.patch.yml",
+        "./presets/mcmod.patch.yml"
+      ]
+    }
+  },
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "~4.0.5",
+    "@deepseek-ai/dsh-tools": "0.2.1-rc.2",
+    "@deepseek-ai/dsh-agent-preset": "0.2.1-rc.2"
+  }
+}
