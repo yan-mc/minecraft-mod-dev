@@ -102,6 +102,7 @@ mcdev_use x=0 y=64 z=0 face=up
 - [常见问题](docs/TROUBLESHOOTING.md)
 - [当前状态与路线图](docs/STATUS.md)
 - [10 分钟演示](docs/DEMO.md)
+- [发布说明](docs/RELEASE.md)
 
 ### 方案与报告
 
