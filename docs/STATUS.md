@@ -29,7 +29,7 @@ bug drill      → 1 failure → fix → 12/12
 1. `/charger info` 的玩家 raycast 路径、advancement toast、tooltip 视觉未测。
 2. 探针 Mixin 是 dev-only（`remap=false` + 字面量 `tick`）；生产 SRG 未支持。
 3. `mcdev_prepare`/`mcdev_scenario` 只在 `lab/forge-1.20.1-test` 实测过。
-4. `mcdev_scenario` 已支持 YAML 卡片子集（setup/actions/screen_title/slot/block_entity_nbt/comparator），recipe/loot/item_bar 等 assert 仍未覆盖。
+4. `mcdev_scenario` 已支持 setup/actions/screen_title/slot/block_entity_nbt/comparator/recipe/loot/item_bar；`craft` action 仍未支持。
 5. Agent Teams 是实验性的，可能有成员/任务状态不同步。
 6. 公开 beta 的安装包/版本化还未做；目前是本地 link 安装。
 7. quickPlay 偶发 handshake 卡死：已加 `clean devJar`、`mcdev_prepare` 最多 3 次等待/重试、`attempts` 诊断；已演练“前两次 Disconnected、第三次 joined”，根因仍未完全定位。
@@ -38,7 +38,7 @@ bug drill      → 1 failure → fix → 12/12
 
 ### M5：可重复演示
 
-- `mcdev_scenario` 卡片解析已完成；扩展 recipe/loot/item_bar assert。
+- `mcdev_scenario` 卡片解析 + recipe/loot/item_bar assert 已完成；补 `craft` action。
 - 把“注入 bug → 建任务 → builder/reviewer → 报告”做成可重复脚本。
 - 录一段从空项目到可玩模组的 demo。
 

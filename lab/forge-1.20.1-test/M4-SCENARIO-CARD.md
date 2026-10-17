@@ -59,13 +59,14 @@ mcdev_scenario card=<...>/cards/F-002.yml
 |---|---|---|
 | F-001 | dryRun + live | `warnings=[]`；give.select + use + data get（5200 ≥ 100）+ block analog=7 全过 |
 | F-002 | dryRun + live | `warnings=[]`；wait + use + wait + ui/title/slot 全过 |
-| F-006 | dryRun | set_item_energy / item_bar_* 警告，只生成 give |
+| F-004 | dryRun + live | recipe=examplemod:charger×1、loot total=1；craft action warning |
+| F-006 | dryRun + live | item_bar visible/width=6/color=65280，warnings=[] |
 | S-001 | live（server） | setblock + data merge + data get + assert 123 全过 |
 
 ## 5. 限制
 
 1. `actions.give` 新增 `select=true`（放主手）；也可以用独立 `select_item` action。F-001 已用 `give.select` + `use` live 通过。
-2. `comparator` 已支持（`block` 步骤 + `data.analog`）；`recipe_output`、`loot_drop`、`item_nbt`、`item_bar_*` 仍会进 `warnings`。
+2. `comparator`/`recipe_output`/`loot_drop`/`item_bar` 已支持（`block`/`recipe`/`loot`/`item` 步骤）；`item_nbt`、`craft` action 仍未支持，会进 `warnings`。
 3. 客户端卡片要求 client 已进服（不是只在 `ConnectScreen`）。
 4. 卡片的 `spec`/`tiers`/`ui` 字段只作为文档，不参与执行。
 

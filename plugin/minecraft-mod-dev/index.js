@@ -675,6 +675,49 @@ function cardToSteps(card) {
       } else {
         warnings.push('comparator requires pos=[x,y,z]');
       }
+    } else if (check.recipe_output) {
+      const recipe = check.recipe_output;
+      const id = recipe.recipe ?? recipe.id;
+      if (typeof id === 'string') {
+        steps.push({ type: 'recipe', id });
+        if (recipe.item !== undefined) {
+          steps.push({ type: 'assert', path: 'data.item', op: 'eq', value: String(recipe.item) });
+        }
+        if (recipe.count !== undefined) {
+          steps.push({ type: 'assert', path: 'data.count', op: 'eq', value: String(recipe.count) });
+        }
+      } else {
+        warnings.push('recipe_output requires recipe id');
+      }
+    } else if (check.loot_drop) {
+      const loot = check.loot_drop;
+      if (typeof loot.block === 'string') {
+        steps.push({ type: 'loot', block: loot.block });
+        if (loot.item !== undefined) {
+          steps.push({ type: 'assert', path: 'data.drops.0.item', op: 'eq', value: String(loot.item) });
+        }
+        if (loot.count !== undefined) {
+          steps.push({ type: 'assert', path: 'data.total', op: 'eq', value: String(loot.count) });
+        }
+      } else {
+        warnings.push('loot_drop requires block');
+      }
+    } else if (check.item_bar) {
+      const bar = check.item_bar;
+      if (typeof bar.item === 'string') {
+        steps.push({ type: 'item', item: bar.item, nbt: bar.nbt });
+        if (bar.visible !== undefined) {
+          steps.push({ type: 'assert', path: 'data.visible', op: 'eq', value: String(bar.visible) });
+        }
+        if (bar.width !== undefined) {
+          steps.push({ type: 'assert', path: 'data.width', op: 'eq', value: String(bar.width) });
+        }
+        if (bar.color !== undefined) {
+          steps.push({ type: 'assert', path: 'data.color', op: 'eq', value: String(bar.color) });
+        }
+      } else {
+        warnings.push('item_bar requires item');
+      }
     } else if (check.no_exception !== undefined) {
       // no-op: the executor already fails on probe errors
     } else {
@@ -1017,7 +1060,7 @@ export function apply(ctx) {
             type: {
               type: 'string',
               required: true,
-              enum: ['status', 'command', 'block', 'use', 'ui', 'click', 'screenshot', 'run_dump', 'wait', 'assert'],
+              enum: ['status', 'command', 'block', 'recipe', 'loot', 'item', 'use', 'ui', 'click', 'screenshot', 'run_dump', 'wait', 'assert'],
             },
             side: { type: 'string', enum: ['server', 'client'] },
             port: { type: 'integer' },
@@ -1036,6 +1079,10 @@ export function apply(ctx) {
             value: { type: 'string' },
             label: { type: 'string' },
             n: { type: 'integer' },
+            id: { type: 'string' },
+            block: { type: 'string' },
+            item: { type: 'string' },
+            nbt: { type: 'string' },
           },
         },
       },
@@ -1147,6 +1194,15 @@ export function apply(ctx) {
               break;
             case 'block':
               data = await probeJson('server', `/world/block?x=${step.x ?? 0}&y=${step.y ?? 64}&z=${step.z ?? 0}`, {}, step.port);
+              break;
+            case 'recipe':
+              data = await probeJson('server', `/recipe?id=${encodeURIComponent(step.id ?? '')}`, {}, step.port);
+              break;
+            case 'loot':
+              data = await probeJson('server', `/loot?block=${encodeURIComponent(step.block ?? '')}&x=${step.x ?? 0}&y=${step.y ?? 64}&z=${step.z ?? 0}`, {}, step.port);
+              break;
+            case 'item':
+              data = await probeJson('server', `/item?item=${encodeURIComponent(step.item ?? '')}&nbt=${encodeURIComponent(step.nbt ?? '')}`, {}, step.port);
               break;
             case 'use':
               data = await probeJson('client', '/player/use', {

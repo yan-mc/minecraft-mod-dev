@@ -92,6 +92,9 @@
 - `assert.slot_exists` → `ui` + `data.slots.<n>.index`；
 - `assert.block_entity_nbt` → `data get block ...` + `data.result`；
 - `assert.comparator` → `block` 步骤 + `data.analog`；
+- `assert.recipe_output` → `recipe` 步骤 + `data.item/count`；
+- `assert.loot_drop` → `loot` 步骤 + `data.drops.0.item/total`；
+- `assert.item_bar` → `item` 步骤 + `data.visible/width/color`；
 - `assert.no_exception` → 跳过（probe 错误本身会让步骤失败）。
 
 暂不支持的 action/assert 会进入 `warnings`，不会静默当通过。
@@ -103,6 +106,9 @@
 | `status` | `side`, `port` |
 | `command` | `side`, `cmd`, `port` |
 | `block` | `x`, `y`, `z`（server `/world/block`，含 `analog` 比较器输出） |
+| `recipe` | `id`（server `/recipe`，返回 result item/count） |
+| `loot` | `block`, `x/y/z`（server `/loot`，返回 drops/total） |
+| `item` | `item`, `nbt`（server `/item`，返回 item bar visible/width/color） |
 | `use` | `x`, `y`, `z`, `face`, `port` |
 | `ui` | `port` |
 | `click` | `slot` 或 `x/y`, `button`, `shift`, `port` |

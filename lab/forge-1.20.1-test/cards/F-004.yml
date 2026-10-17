@@ -23,5 +23,6 @@ assert:
 evidence:
   - "Recipe JSON + GameTest chargerRecipeExists"
   - "Loot JSON + GameTest chargerLootDrop (1 charger)"
-  - "All 11 required tests passed"
+  - "All 12 required tests passed"
+  - "mcdev_scenario card=F-004 live: recipe item/count + loot total=1; warnings=[craft]"
 status: passed

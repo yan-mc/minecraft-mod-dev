@@ -8,11 +8,17 @@ import com.sun.net.httpserver.HttpServer;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.TagParser;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -22,7 +28,9 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -51,6 +59,9 @@ public final class ProbeServer {
             server.createContext("/log/tail", ProbeServer::handleLogTail);
             server.createContext("/command", ProbeServer::handleCommand);
             server.createContext("/world/block", ProbeServer::handleWorldBlock);
+            server.createContext("/recipe", ProbeServer::handleRecipe);
+            server.createContext("/loot", ProbeServer::handleLoot);
+            server.createContext("/item", ProbeServer::handleItem);
             server.createContext("/run/dump", ProbeServer::handleRunDump);
             server.createContext("/screenshot", ProbeServer::handleNotClient);
             server.createContext("/ui/snapshot", ProbeServer::handleNotClient);
@@ -176,6 +187,135 @@ public final class ProbeServer {
             ok(ex, future.get(10, TimeUnit.SECONDS));
         } catch (Exception e) {
             error(ex, 500, "world query failed: " + e.getMessage());
+        }
+    }
+
+    private static void handleRecipe(HttpExchange ex) throws IOException {
+        if (!authorized(ex)) {
+            return;
+        }
+        String id = strQuery(ex, "id", "");
+        CompletableFuture<Map<String, Object>> future = new CompletableFuture<>();
+        mc.execute(() -> {
+            try {
+                Map<String, Object> data = new LinkedHashMap<>();
+                data.put("id", id);
+                ResourceLocation rl = ResourceLocation.tryParse(id);
+                if (rl == null) {
+                    data.put("found", false);
+                    data.put("error", "invalid recipe id");
+                    future.complete(data);
+                    return;
+                }
+                var optional = mc.getRecipeManager().byKey(rl);
+                if (optional.isEmpty()) {
+                    data.put("found", false);
+                    future.complete(data);
+                    return;
+                }
+                Recipe<?> recipe = optional.get();
+                ItemStack result = recipe.getResultItem(mc.registryAccess());
+                data.put("found", true);
+                data.put("item", result.isEmpty() ? null
+                        : String.valueOf(ForgeRegistries.ITEMS.getKey(result.getItem())));
+                data.put("count", result.getCount());
+                future.complete(data);
+            } catch (Throwable t) {
+                future.completeExceptionally(t);
+            }
+        });
+        try {
+            ok(ex, future.get(10, TimeUnit.SECONDS));
+        } catch (Exception e) {
+            error(ex, 500, "recipe query failed: " + e.getMessage());
+        }
+    }
+
+    private static void handleLoot(HttpExchange ex) throws IOException {
+        if (!authorized(ex)) {
+            return;
+        }
+        String blockId = strQuery(ex, "block", "");
+        int x = intQuery(ex, "x", 0);
+        int y = intQuery(ex, "y", 64);
+        int z = intQuery(ex, "z", 0);
+        CompletableFuture<Map<String, Object>> future = new CompletableFuture<>();
+        mc.execute(() -> {
+            try {
+                Map<String, Object> data = new LinkedHashMap<>();
+                data.put("block", blockId);
+                ResourceLocation rl = ResourceLocation.tryParse(blockId);
+                Block block = rl == null ? null : ForgeRegistries.BLOCKS.getValue(rl);
+                if (block == null) {
+                    data.put("found", false);
+                    future.complete(data);
+                    return;
+                }
+                ServerLevel level = mc.overworld();
+                List<ItemStack> drops = Block.getDrops(
+                        block.defaultBlockState(), level, new BlockPos(x, y, z),
+                        null, null, ItemStack.EMPTY);
+                List<Map<String, Object>> list = new ArrayList<>();
+                int total = 0;
+                for (ItemStack stack : drops) {
+                    Map<String, Object> drop = new LinkedHashMap<>();
+                    drop.put("item", String.valueOf(ForgeRegistries.ITEMS.getKey(stack.getItem())));
+                    drop.put("count", stack.getCount());
+                    list.add(drop);
+                    total += stack.getCount();
+                }
+                data.put("found", true);
+                data.put("drops", list);
+                data.put("total", total);
+                future.complete(data);
+            } catch (Throwable t) {
+                future.completeExceptionally(t);
+            }
+        });
+        try {
+            ok(ex, future.get(10, TimeUnit.SECONDS));
+        } catch (Exception e) {
+            error(ex, 500, "loot query failed: " + e.getMessage());
+        }
+    }
+
+    private static void handleItem(HttpExchange ex) throws IOException {
+        if (!authorized(ex)) {
+            return;
+        }
+        String itemId = strQuery(ex, "item", "");
+        String nbt = strQuery(ex, "nbt", "");
+        CompletableFuture<Map<String, Object>> future = new CompletableFuture<>();
+        mc.execute(() -> {
+            try {
+                Map<String, Object> data = new LinkedHashMap<>();
+                data.put("item", itemId);
+                ResourceLocation rl = ResourceLocation.tryParse(itemId);
+                Item item = rl == null ? null : ForgeRegistries.ITEMS.getValue(rl);
+                if (item == null) {
+                    data.put("found", false);
+                    future.complete(data);
+                    return;
+                }
+                ItemStack stack = new ItemStack(item);
+                if (!nbt.isEmpty()) {
+                    String snbt = nbt.startsWith("{") ? nbt : "{" + nbt + "}";
+                    CompoundTag tag = TagParser.parseTag(snbt);
+                    stack.setTag(tag);
+                }
+                data.put("found", true);
+                data.put("visible", item.isBarVisible(stack));
+                data.put("width", item.getBarWidth(stack));
+                data.put("color", item.getBarColor(stack));
+                future.complete(data);
+            } catch (Throwable t) {
+                future.completeExceptionally(t);
+            }
+        });
+        try {
+            ok(ex, future.get(10, TimeUnit.SECONDS));
+        } catch (Exception e) {
+            error(ex, 500, "item query failed: " + e.getMessage());
         }
     }
 
