@@ -23,5 +23,6 @@ evidence:
   - "ChargerCommand + advancement JSON; GameTest chargerCommandInfo"
   - "Server log: Charger energy: 777/10000 at 1, -59, 11"
   - "AdvancementList: Loaded 1272 advancements"
-  - "M4-F005-REPORT.md"
+  - "Server log: Dev has made the advancement [Charger]"
+  - "M4-F005-REPORT.md; M4-CLIENT-CHECKS.md"
 status: in_progress

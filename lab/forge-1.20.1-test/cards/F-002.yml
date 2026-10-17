@@ -29,6 +29,7 @@ ui:
 evidence:
   - "ChargerScreen open: 37 slots, title Charger"
   - "shift-click 0->36 and 36->0, Charged Item count stays 1"
-  - "screenshot run-client/screenshots/mcdev-1792257239553.png + read_image"
-  - "M4-F002-REPORT.md"
-status: in_progress
+  - "Energy 5000/10000 bar + text; close/reopen keeps item + energy"
+  - "screenshots mcdev-1792258312165.png / mcdev-1792258351039.png + read_image"
+  - "M4-F002-REPORT.md; M4-CLIENT-CHECKS.md"
+status: passed

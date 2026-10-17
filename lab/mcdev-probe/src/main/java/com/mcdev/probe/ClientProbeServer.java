@@ -60,8 +60,10 @@ public final class ClientProbeServer {
             server.createContext("/log/tail", ClientProbeServer::handleLogTail);
             server.createContext("/ui/snapshot", ClientProbeServer::handleUiSnapshot);
             server.createContext("/ui/click", ClientProbeServer::handleUiClick);
+            server.createContext("/ui/close", ClientProbeServer::handleUiClose);
             server.createContext("/command", ClientProbeServer::handleCommand);
             server.createContext("/player/use", ClientProbeServer::handlePlayerUse);
+            server.createContext("/player/use_item", ClientProbeServer::handlePlayerUseItem);
             server.createContext("/screenshot", ClientProbeServer::handleScreenshot);
             server.createContext("/quit", ClientProbeServer::handleQuit);
             executor = Executors.newFixedThreadPool(2);
@@ -249,6 +251,35 @@ public final class ClientProbeServer {
         }
     }
 
+    private static void handleUiClose(HttpExchange ex) throws IOException {
+        if (!authorized(ex)) {
+            return;
+        }
+        if (!"POST".equalsIgnoreCase(ex.getRequestMethod())) {
+            error(ex, 405, "POST required");
+            return;
+        }
+        try {
+            Map<String, Object> data = onClient(() -> {
+                Minecraft mc = Minecraft.getInstance();
+                Map<String, Object> d = new LinkedHashMap<>();
+                if (mc.player == null) {
+                    d.put("closed", false);
+                    d.put("reason", "no player");
+                    return d;
+                }
+                mc.player.closeContainer();
+                mc.setScreen(null);
+                d.put("closed", true);
+                d.put("screen", mc.screen == null ? null : mc.screen.getClass().getName());
+                return d;
+            });
+            ok(ex, data);
+        } catch (Exception e) {
+            error(ex, 500, "ui close failed: " + e.getMessage());
+        }
+    }
+
     private static void handleCommand(HttpExchange ex) throws IOException {
         if (!authorized(ex)) {
             return;
@@ -341,6 +372,35 @@ public final class ClientProbeServer {
             ok(ex, data);
         } catch (Exception e) {
             error(ex, 500, "use failed: " + e.getMessage());
+        }
+    }
+
+    private static void handlePlayerUseItem(HttpExchange ex) throws IOException {
+        if (!authorized(ex)) {
+            return;
+        }
+        if (!"POST".equalsIgnoreCase(ex.getRequestMethod())) {
+            error(ex, 405, "POST required");
+            return;
+        }
+        try {
+            Map<String, Object> data = onClient(() -> {
+                Minecraft mc = Minecraft.getInstance();
+                Map<String, Object> d = new LinkedHashMap<>();
+                if (mc.player == null) {
+                    d.put("used", false);
+                    d.put("reason", "no player");
+                    return d;
+                }
+                InteractionResult result = mc.gameMode.useItem(
+                        mc.player, InteractionHand.MAIN_HAND);
+                d.put("used", true);
+                d.put("result", result.toString());
+                return d;
+            });
+            ok(ex, data);
+        } catch (Exception e) {
+            error(ex, 500, "use item failed: " + e.getMessage());
         }
     }
 

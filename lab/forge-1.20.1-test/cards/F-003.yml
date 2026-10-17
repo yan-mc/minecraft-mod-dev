@@ -25,4 +25,5 @@ ui:
   screenshot: false
 evidence:
   - "ChargedItem class + GameTest chargedItemEnergy (M4-F001-REPORT.md)"
+  - "Client use in air: Energy 500->400"
 status: in_progress
