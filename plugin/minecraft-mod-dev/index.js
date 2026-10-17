@@ -2,6 +2,7 @@ import { defineTool } from '@deepseek-ai/dsh-tools';
 import { spawn, spawnSync } from 'node:child_process';
 import {
   copyFileSync,
+  createWriteStream,
   existsSync,
   mkdirSync,
   mkdtempSync,
@@ -10,10 +11,11 @@ import {
   statSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { basename, join } from 'node:path';
+import { basename, dirname, join } from 'node:path';
 
 const DEFAULT_PORTS = { server: 39001, client: 39002 };
 const TOKEN = 'mcdev';
+const processes = new Map();
 
 export const name = 'mcdev';
 export const inject = ['tools'];
@@ -162,7 +164,244 @@ async function probeJson(side, path, init = {}, port) {
   }
 }
 
+async function probeStatusOnce(kind, port, timeoutMs = 2000) {
+  try {
+    const response = await fetch(`http://127.0.0.1:${port}/status`, {
+      headers: { 'X-Mcdev-Token': TOKEN },
+      signal: AbortSignal.timeout(timeoutMs),
+    });
+    if (!response.ok) {
+      return false;
+    }
+    const body = await response.json();
+    return body?.data?.side === kind;
+  } catch {
+    return false;
+  }
+}
+
+async function waitForProbe(kind, port, timeoutMs) {
+  const deadline = Date.now() + Math.max(1000, timeoutMs);
+  while (Date.now() < deadline) {
+    if (await probeStatusOnce(kind, port, 2000)) {
+      return true;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+  }
+  return false;
+}
+
+async function launchKind(kind, projectDir, timeoutMs) {
+  const port = DEFAULT_PORTS[kind];
+  if (await probeStatusOnce(kind, port, 1000)) {
+    return { kind, alreadyRunning: true, port };
+  }
+  const win = process.platform === 'win32';
+  const task = kind === 'server' ? 'runServer' : 'runClient';
+  const logDir = join(projectDir, '.mcdev');
+  mkdirSync(logDir, { recursive: true });
+  const logPath = join(logDir, `launch-${kind}-${Date.now()}.log`);
+  const logStream = createWriteStream(logPath, { flags: 'a' });
+  const child = spawn(win ? 'gradlew.bat' : './gradlew', [task, '--console=plain'], {
+    cwd: projectDir,
+    shell: win,
+    windowsHide: true,
+  });
+  const entry = {
+    kind,
+    child,
+    pid: child.pid,
+    projectDir,
+    logPath,
+    port,
+    startedAt: Date.now(),
+    running: true,
+    exitCode: null,
+    tail: '',
+  };
+  const capture = (chunk) => {
+    entry.tail = (entry.tail + chunk.toString()).slice(-8000);
+  };
+  child.stdout.on('data', capture);
+  child.stderr.on('data', capture);
+  child.stdout.pipe(logStream);
+  child.stderr.pipe(logStream);
+  child.on('error', (error) => {
+    entry.running = false;
+    entry.error = String(error?.message ?? error);
+  });
+  child.on('close', (code) => {
+    entry.running = false;
+    entry.exitCode = code;
+    try {
+      logStream.end();
+    } catch {
+      // ignore
+    }
+  });
+  processes.set(kind, entry);
+
+  const ready = await waitForProbe(kind, port, timeoutMs);
+  if (!ready) {
+    entry.running = false;
+    try {
+      child.kill();
+    } catch {
+      // ignore
+    }
+    processes.delete(kind);
+    throw new Error(
+      `probe ${kind} did not become ready within ${timeoutMs}ms; log=${logPath}; tail=${entry.tail.slice(-2000)}`,
+    );
+  }
+  return {
+    kind,
+    alreadyRunning: false,
+    pid: child.pid,
+    port,
+    logPath,
+    ready: true,
+  };
+}
+
+async function stopTracked(kind) {
+  const entry = processes.get(kind);
+  if (!entry) {
+    return { kind, stopped: false, reason: 'not tracked' };
+  }
+  const warnings = [];
+  try {
+    if (kind === 'server') {
+      await probe('server', '/command', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cmd: 'stop' }),
+      }, entry.port);
+    } else {
+      await probe('client', '/quit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: '{}',
+      }, entry.port);
+    }
+  } catch (error) {
+    warnings.push(String(error?.message ?? error));
+  }
+  await new Promise((resolve) => setTimeout(resolve, 2000));
+  if (entry.running) {
+    try {
+      if (process.platform === 'win32' && entry.child.pid) {
+        spawnSync('taskkill', ['/PID', String(entry.child.pid), '/T', '/F'], {
+          windowsHide: true,
+        });
+      } else {
+        entry.child.kill('SIGKILL');
+      }
+    } catch (error) {
+      warnings.push(String(error?.message ?? error));
+    }
+  }
+  processes.delete(kind);
+  return {
+    kind,
+    stopped: true,
+    pid: entry.pid,
+    logPath: entry.logPath,
+    warnings,
+  };
+}
+
 export function apply(ctx) {
+  if (typeof ctx.effect === 'function') {
+    try {
+      ctx.effect(() => () => {
+        for (const entry of processes.values()) {
+          try {
+            entry.child.kill();
+          } catch {
+            // ignore
+          }
+        }
+        processes.clear();
+      });
+    } catch {
+      // cleanup registration is best-effort
+    }
+  }
+
+  ctx.tools.register(stringTool(
+    'mcdev_prepare',
+    'Start a Forge dev server/client via "gradlew runServer/runClient", wait until the probe is ready, and return PIDs/ports/log paths. Uses the project run directories configured in build.gradle.',
+    {
+      projectDir: {
+        type: 'string',
+        required: true,
+        description: 'Absolute Forge project directory containing gradlew.bat.',
+      },
+      kind: {
+        type: 'string',
+        enum: ['server', 'client', 'both'],
+        required: true,
+        description: 'Which process(es) to start. "both" starts server, waits, then client.',
+      },
+      timeoutMs: {
+        type: 'integer',
+        description: 'Per-process readiness timeout. Default 180000 ms.',
+      },
+    },
+    async (args) => {
+      if (!existsSync(args.projectDir)) {
+        throw new Error(`projectDir not found: ${args.projectDir}`);
+      }
+      if (!['server', 'client', 'both'].includes(args.kind)) {
+        throw new Error(`invalid kind: ${args.kind}`);
+      }
+      const timeoutMs = Math.max(5000, Math.min(Number(args.timeoutMs) || 180000, 600000));
+      const results = [];
+      if (args.kind === 'server' || args.kind === 'both') {
+        results.push(await launchKind('server', args.projectDir, timeoutMs));
+      }
+      if (args.kind === 'client' || args.kind === 'both') {
+        results.push(await launchKind('client', args.projectDir, timeoutMs));
+      }
+      return JSON.stringify({ ok: true, results });
+    },
+  ));
+
+  ctx.tools.register(stringTool(
+    'mcdev_stop',
+    'Stop a server/client launched by mcdev_prepare. Sends probe stop/quit first, then force-kills the process tree if needed.',
+    {
+      side: {
+        type: 'string',
+        enum: ['server', 'client', 'all'],
+        required: true,
+        description: 'Which launched process(es) to stop.',
+      },
+    },
+    async (args) => {
+      const kinds = args.side === 'all' ? ['client', 'server'] : [args.side];
+      const results = [];
+      for (const kind of kinds) {
+        results.push(await stopTracked(kind));
+      }
+      return JSON.stringify({ ok: true, results });
+    },
+  ));
+
+  ctx.tools.register(stringTool(
+    'mcdev_launch_status',
+    'List processes launched by mcdev_prepare with pid/port/logPath/running.',
+    {},
+    () => JSON.stringify({
+      processes: [...processes.values()].map(({
+        kind, pid, projectDir, logPath, port, startedAt, running, exitCode,
+      }) => ({
+        kind, pid, projectDir, logPath, port, startedAt, running, exitCode,
+      })),
+    }),
+  ));
+
   ctx.tools.register(stringTool(
     'mcdev_status',
     'Read the Minecraft probe status. Returns JSON with side, tick/gameTime (server) or screen/fps/player (client).',

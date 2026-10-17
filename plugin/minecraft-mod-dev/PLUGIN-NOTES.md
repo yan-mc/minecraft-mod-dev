@@ -1,4 +1,4 @@
-# minecraft-mod-dev plugin v0.2.4
+# minecraft-mod-dev plugin v0.3.0
 
 日期：2026-10-18
 位置：`plugin/minecraft-mod-dev`
@@ -7,11 +7,11 @@
 
 ```text
 plugin_manager install_bundle target=...\plugin\minecraft-mod-dev
-application=applied, version=0.2.4
+application=applied, version=0.3.0
 ```
 
-v0.2.4 包含：
-- 11 个 `mcdev_*` 工具；
+v0.3.0 包含：
+- 14 个 `mcdev_*` 工具；
 - `mcmod` preset（团队默认，Agent Teams 9 工具）；
 - 内置官方实验 Agent Teams 挂载（禁用传统 subagent 四行）。
 
@@ -30,6 +30,9 @@ v0.2.4 包含：
 | `mcdev_gametest` | 跑 `gradlew runGameTestServer` |
 | `mcdev_install_probe` | 校验并把 dev probe jar 放进一个或多个 `<runDir>/mods` |
 | `mcdev_scenario` | 顺序执行 status/command/use/ui/click/screenshot/run_dump/wait/assert，返回每步结果 |
+| `mcdev_prepare` | 启动 `runServer`/`runClient`，等待 probe ready，返回 pid/port/logPath |
+| `mcdev_stop` | 停止 prepare 启动的进程（先 probe stop/quit，再强杀进程树） |
+| `mcdev_launch_status` | 查看 prepare 启动的进程列表/pid/port/logPath/running |
 
 ## 实测
 
@@ -45,6 +48,9 @@ v0.2.4 包含：
 | `mcdev_install_probe`（普通 jar） | 被拒绝：`probe jar must be a *-dev.jar` |
 | `mcdev_scenario` 成功 | 8 步全过：status/assert/command/wait/status/assert/run_dump/assert |
 | `mcdev_scenario` 失败 | `ok=false, failedAt=1`，错误 `expected eq "1.12.2"`，第 3 步未执行 |
+| `mcdev_prepare kind=server` | pid=12620, port=39001, logPath=`.mcdev/launch-server-*.log`, ready=true |
+| `mcdev_prepare kind=both` | server pid=26068 + client pid=7944，两个 probe 都 ready |
+| `mcdev_stop side=all` | 两个进程都 stopped，之后 `launch_status=[]`，无 Java 残留 |
 
 ## install_probe 的校验
 
@@ -63,6 +69,6 @@ Windows 下 `spawnSync` 用 `shell: false`，避免 `C:\Program Files\...` 被 s
 
 ## 待办
 
-1. `mcdev_prepare`：自动启动 server/client 并等待 probe ready。
-2. 用 Charger 作为 reference mod，跑完整团队流程。
-3. `mcdev_scenario` 接 YAML 卡片解析（目前传 JSON steps）。
+1. 用 Charger 作为 reference mod，跑完整团队流程。
+2. `mcdev_scenario` 接 YAML 卡片解析（目前传 JSON steps）。
+3. 公开 beta 的安装/文档/演示。 

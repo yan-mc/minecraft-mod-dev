@@ -55,6 +55,15 @@ mcdev_install_probe probeJar=<...>/mcdev_probe-0.1.0-dev.jar runDirs=["<...>/run
 
 ### 4. 启动服务端 / 客户端
 
+推荐：
+
+```text
+mcdev_prepare projectDir=<repo>/lab/forge-1.20.1-test kind=both
+mcdev_stop side=all
+```
+
+也可以手动：
+
 ```text
 # 服务端（run-server，端口 25566；probe 39001）
 cd lab/mcdev-probe
