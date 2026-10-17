@@ -51,6 +51,7 @@
 - F-004 live：`recipe` 返回 examplemod:charger×1、`loot` total=1，warnings=[]
 - F-006 live：`item` 返回 visible=true/width=6/color=65280，warnings=[]
 - 启动稳定性：`mcdev_prepare` 最多 3 次尝试；恢复演练 attempt1/2 Disconnected、attempt3 `joined=true`；无 server 失败演练 `joined=false, retry=true, attempts[]`
+- 团队卡片执行：Tester（tester-cards）跑 F-004/F-006，Reviewer（reviewer-cards）复核；发现 server-only `give` 静默失败后，Lead 删除无意义 setup 并重跑 warnings=[]（见 `M4-TEAM-CARD-DEMO.md`）
 - 客户端截图：
   - `run-client/screenshots/mcdev-1792257239553.png`（GUI 第一版）
   - `run-client/screenshots/mcdev-1792258312165.png`（Energy 5000/10000）
@@ -64,4 +65,6 @@
 1. `/charger info` 玩家 raycast 路径（本轮客户端重连时 `Timed out`，未完成；命令 pos 路径已测）。
 2. F-003 tooltip 视觉。
 3. advancement toast 视觉。
-4. 收口后把 Charger 作为参考实现，接 reference-mod 沙箱。
+4. F-006 客户端视觉（物品栏/手持能量条）未验证；`item_bar` 是服务端 Item 方法级检查。
+5. F-004 loot 是 `Block.getDrops` 数据包级校验，不是玩家真实破坏 E2E。
+6. 收口后把 Charger 作为参考实现，接 reference-mod 沙箱。

@@ -7,13 +7,9 @@ spec:
 tiers:
   static: true
   gametest: true
-  server_scenario: false
+  server_scenario: true
   client_ui: false
-setup:
-  commands:
-    - "give Dev minecraft:iron_ingot 4"
-    - "give Dev minecraft:redstone 2"
-    - "give Dev minecraft:copper_ingot 1"
+setup: {}
 actions: []
 assert:
   - {recipe_output: {recipe: "examplemod:charger", item: "examplemod:charger", count: 1}}
@@ -23,5 +19,5 @@ evidence:
   - "Recipe JSON + GameTest chargerRecipeExists"
   - "Loot JSON + GameTest chargerLootDrop (1 charger)"
   - "All 12 required tests passed"
-  - "mcdev_scenario card=F-004 live: recipe item/count + loot total=1; warnings=[]"
+  - "mcdev_scenario card=F-004 live: recipe item/count + loot total=1; warnings=[]（server-only，无 setup give）"
 status: passed

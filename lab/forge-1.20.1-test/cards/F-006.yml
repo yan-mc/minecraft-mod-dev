@@ -9,11 +9,9 @@ spec:
 tiers:
   static: true
   gametest: true
-  server_scenario: false
+  server_scenario: true
   client_ui: true
-setup:
-  commands:
-    - "give Dev examplemod:charged_item 1"
+setup: {}
 actions: []
 assert:
   - {item_bar: {item: "examplemod:charged_item", nbt: "Energy:5000", visible: true, width: 6, color: 65280}}
@@ -25,6 +23,6 @@ evidence:
   - "builder-item: ChargedItem isBarVisible/getBarWidth/getBarColor; mcdev_build exit 0"
   - "tester-item: GameTest chargedItemBar, 11 assertions"
   - "Lead verification: mcdev_gametest All 12 required tests passed"
-  - "mcdev_scenario card=F-006 live: item_bar visible/width=6/color=65280; warnings=[]"
+  - "mcdev_scenario card=F-006 live: item_bar visible/width=6/color=65280; warnings=[]（server-only，无 setup give）"
   - "M4-TEAM-WORKFLOW.md"
 status: passed

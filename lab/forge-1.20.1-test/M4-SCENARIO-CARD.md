@@ -69,6 +69,8 @@ mcdev_scenario card=<...>/cards/F-002.yml
 2. `comparator`/`recipe_output`/`loot_drop`/`item_bar` 已支持（`block`/`recipe`/`loot`/`item` 步骤）；`item_nbt`、`craft` action 仍未支持；F-004 用 `recipe_output` 断言，不模拟合成界面。
 3. 客户端卡片要求 client 已进服（不是只在 `ConnectScreen`）。
 4. 卡片的 `spec`/`tiers`/`ui` 字段只作为文档，不参与执行。
+5. server-only 卡片不再放 `give` setup（无玩家会静默失败）；command 步骤本身不对 `result` 断言。
+6. F-006 `item_bar` 是服务端 Item 方法级检查，不是客户端物品栏视觉证据；F-004 `loot` 是 `Block.getDrops` 数据包级，不是玩家破坏 E2E。
 
 ## 6. 客户端 handshake 排查
 
