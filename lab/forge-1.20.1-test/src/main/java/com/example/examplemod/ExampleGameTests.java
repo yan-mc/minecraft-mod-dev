@@ -4,6 +4,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -97,6 +98,17 @@ public final class ExampleGameTests {
         helper.assertTrue(ChargedItem.getEnergy(stack) == 500, "item energy should be 500");
         ChargedItem.setEnergy(stack, 20000);
         helper.assertTrue(ChargedItem.getEnergy(stack) == 10000, "item energy should clamp");
+        helper.succeed();
+    }
+
+    @GameTest(template = "empty")
+    public static void chargerRecipeExists(GameTestHelper helper) {
+        var recipe = helper.getLevel().getRecipeManager()
+                .byKey(new ResourceLocation(ExampleMod.MODID, "charger"));
+        helper.assertTrue(recipe.isPresent(), "charger recipe missing");
+        ItemStack result = recipe.get().getResultItem(helper.getLevel().registryAccess());
+        helper.assertTrue(result.is(ModRegistry.CHARGER_ITEM.get()), "recipe result should be charger");
+        helper.assertTrue(result.getCount() == 1, "recipe count should be 1");
         helper.succeed();
     }
 }

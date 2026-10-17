@@ -20,5 +20,6 @@ assert:
   - {recipe_output: {recipe: "examplemod:charger", item: "examplemod:charger", count: 1}}
   - {loot_drop: {block: "examplemod:charger", item: "examplemod:charger", count: 1}}
   - {no_exception: true}
-evidence: []
-status: pending
+evidence:
+  - "Recipe JSON + GameTest chargerRecipeExists (All 8 required tests passed)"
+status: in_progress

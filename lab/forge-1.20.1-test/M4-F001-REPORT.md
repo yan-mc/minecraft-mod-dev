@@ -1,4 +1,4 @@
-# M4 F-001 报告：充能方块 + 充能物品（第一版）
+# M4 F-001/F-004 报告：充能方块 + 充能物品 + 配方（第一版）
 
 日期：2026-10-18
 工程：`lab/forge-1.20.1-test`
@@ -27,10 +27,11 @@
   - `models/item/charged_item.json`（复用 `minecraft:item/redstone` 贴图）
   - `lang/en_us.json`
   - `loot_tables/blocks/charger.json`
+- F-004 配方：`recipes/charger.json`（铁锭 + 红石 + 铜锭 → `examplemod:charger` ×1）。
 
 ## GameTest
 
-新增 4 个测试：
+新增 5 个测试：
 
 | 测试 | 覆盖 |
 |---|---|
@@ -38,18 +39,19 @@
 | `chargerComparator` | 5000 → 比较器 7 |
 | `chargerNbtRoundTrip` | 1234 写入 NBT 可读 |
 | `chargedItemEnergy` | 物品能量 500 / clamp 10000 |
+| `chargerRecipeExists` | recipe 注册、结果 `examplemod:charger`、数量 1 |
 
 结果：
 
 ```text
 mcdev_gametest projectDir=lab/forge-1.20.1-test
 exitCode=0
-summary=All 7 required tests passed
+summary=All 8 required tests passed
 ```
 
 ## 未覆盖 / 下一步
 
 1. 玩家右键交互（把 `charged_item` 的 100 FE 转给方块）——需要服务端 scenario/假玩家。
 2. `ChargedItem.use` 右键空中 100 FE——需要服务端 scenario。
-3. F-004 配方；F-002 GUI；F-005 命令/进度。
+3. F-002 GUI；F-005 命令/进度。
 4. 注入 5 个 bug 后回归。
