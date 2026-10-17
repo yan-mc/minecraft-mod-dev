@@ -1,5 +1,7 @@
 package com.example.examplemod;
 
+import net.minecraft.world.flag.FeatureFlags;
+import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -16,6 +18,8 @@ public final class ModRegistry {
             DeferredRegister.create(ForgeRegistries.ITEMS, ExampleMod.MODID);
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES =
             DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, ExampleMod.MODID);
+    public static final DeferredRegister<MenuType<?>> MENUS =
+            DeferredRegister.create(ForgeRegistries.MENU_TYPES, ExampleMod.MODID);
 
     public static final RegistryObject<Block> CHARGER =
             BLOCKS.register("charger", ChargerBlock::new);
@@ -26,6 +30,8 @@ public final class ModRegistry {
     public static final RegistryObject<BlockEntityType<ChargerBlockEntity>> CHARGER_BE =
             BLOCK_ENTITIES.register("charger",
                     () -> BlockEntityType.Builder.of(ChargerBlockEntity::new, CHARGER.get()).build(null));
+    public static final RegistryObject<MenuType<ChargerMenu>> CHARGER_MENU =
+            MENUS.register("charger", () -> new MenuType<>(ChargerMenu::new, FeatureFlags.VANILLA_SET));
 
     private ModRegistry() {
     }
@@ -34,5 +40,6 @@ public final class ModRegistry {
         BLOCKS.register(bus);
         ITEMS.register(bus);
         BLOCK_ENTITIES.register(bus);
+        MENUS.register(bus);
     }
 }

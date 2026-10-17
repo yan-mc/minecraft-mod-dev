@@ -26,5 +26,9 @@ ui:
   click:
     - {slot: 0, button: 0, shift: true}
   screenshot: true
-evidence: []
-status: pending
+evidence:
+  - "ChargerScreen open: 37 slots, title Charger"
+  - "shift-click 0->36 and 36->0, Charged Item count stays 1"
+  - "screenshot run-client/screenshots/mcdev-1792257239553.png + read_image"
+  - "M4-F002-REPORT.md"
+status: in_progress

@@ -4,6 +4,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -46,9 +47,9 @@ public class ChargerBlock extends Block implements EntityBlock {
             return InteractionResult.SUCCESS;
         }
         if (!level.isClientSide) {
-            player.displayClientMessage(Component.literal(
-                    "Charger energy: " + charger.getEnergy()
-                            + "/" + ChargerBlockEntity.MAX_ENERGY), true);
+            player.openMenu(new SimpleMenuProvider(
+                    (id, inventory, p) -> new ChargerMenu(id, inventory, charger, charger),
+                    Component.translatable("block.examplemod.charger")));
         }
         return InteractionResult.SUCCESS;
     }

@@ -82,11 +82,14 @@ minecraft {
         }
 
         client {
+            workingDirectory project.file('run-client')
             // Comma-separated list of namespaces to load gametests from. Empty = all namespaces.
             property 'forge.enabledGameTestNamespaces', mod_id
+            args '--quickPlayMultiplayer', '127.0.0.1:25566'
         }
 
         server {
+            workingDirectory project.file('run-server')
             property 'forge.enabledGameTestNamespaces', mod_id
             args '--nogui'
         }
