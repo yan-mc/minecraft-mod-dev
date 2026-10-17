@@ -4,7 +4,7 @@
 
 - 插件版本在 `plugin/minecraft-mod-dev/package.json`；
 - 文档/仓库里程碑版本用 git tag `vX.Y.Z`；
-- 当前：插件 `0.3.7`，tag `v0.3.7`，标记为 **pre-release**（公开 beta）。
+- 当前：插件 `0.3.8`，tag `v0.3.8`，标记为 **pre-release**（公开 beta）。
 
 ## 发布前检查
 
@@ -17,8 +17,8 @@ git status                                        → clean
 ## 打 tag
 
 ```powershell
-git tag -a v0.3.7 -m "v0.3.7 public beta: client join recovery, card YAML, comparator"
-git push origin v0.3.7
+git tag -a v0.3.8 -m "v0.3.8 public beta: recipe/loot/item_bar card asserts"
+git push origin v0.3.8
 ```
 
 ## GitHub Release
@@ -28,8 +28,8 @@ git push origin v0.3.7
 ```text
 POST /repos/yan-mc/minecraft-mod-dev/releases
 {
-  "tag_name": "v0.3.7",
-  "name": "v0.3.7 — public beta",
+  "tag_name": "v0.3.8",
+  "name": "v0.3.8 — public beta",
   "prerelease": true,
   "body": "..."
 }
@@ -38,7 +38,8 @@ POST /repos/yan-mc/minecraft-mod-dev/releases
 Release notes 应包含：
 
 - 14 个工具列表；
-- `mcdev_scenario` YAML 卡片 + F-001/F-002 live；
+- `mcdev_scenario` YAML 卡片 + recipe/loot/item_bar assert；
+- F-001/F-002/F-004/F-006 live；
 - `mcdev_prepare` 最多 3 次等待/重试，恢复演练 attempt3 joined；
 - Charger 12/12、5/5 bug；
 - 安装入口 `docs/INSTALL.md`；
