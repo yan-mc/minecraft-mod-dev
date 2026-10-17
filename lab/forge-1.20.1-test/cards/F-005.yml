@@ -19,5 +19,9 @@ actions:
 assert:
   - {log_contains: "Charger energy"}
   - {no_exception: true}
-evidence: []
-status: pending
+evidence:
+  - "ChargerCommand + advancement JSON; GameTest chargerCommandInfo"
+  - "Server log: Charger energy: 777/10000 at 1, -59, 11"
+  - "AdvancementList: Loaded 1272 advancements"
+  - "M4-F005-REPORT.md"
+status: in_progress

@@ -1,4 +1,6 @@
 {
   "block.examplemod.charger": "Charger",
-  "item.examplemod.charged_item": "Charged Item"
+  "item.examplemod.charged_item": "Charged Item",
+  "advancements.examplemod.charger.root.title": "Charger",
+  "advancements.examplemod.charger.root.description": "Obtain a Charged Item"
 }

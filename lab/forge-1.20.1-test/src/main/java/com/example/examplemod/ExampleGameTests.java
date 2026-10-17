@@ -111,4 +111,21 @@ public final class ExampleGameTests {
         helper.assertTrue(result.getCount() == 1, "recipe count should be 1");
         helper.succeed();
     }
+
+    @GameTest(template = "empty")
+    public static void chargerCommandInfo(GameTestHelper helper) {
+        helper.setBlock(1, 1, 1, ModRegistry.CHARGER.get());
+        BlockPos pos = helper.absolutePos(new BlockPos(1, 1, 1));
+        BlockEntity be = helper.getLevel().getBlockEntity(pos);
+        if (!(be instanceof ChargerBlockEntity charger)) {
+            helper.assertTrue(false, "charger block entity missing");
+            return;
+        }
+        charger.setEnergy(777);
+        var source = helper.getLevel().getServer().createCommandSourceStack();
+        int result = helper.getLevel().getServer().getCommands().performPrefixedCommand(
+                source, "charger info " + pos.getX() + " " + pos.getY() + " " + pos.getZ());
+        helper.assertTrue(result == 1, "charger info command should return 1");
+        helper.succeed();
+    }
 }

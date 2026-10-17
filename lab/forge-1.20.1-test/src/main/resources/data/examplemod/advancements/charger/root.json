@@ -1,0 +1,37 @@
+{
+  "display": {
+    "icon": {
+      "item": "examplemod:charged_item"
+    },
+    "title": {
+      "translate": "advancements.examplemod.charger.root.title"
+    },
+    "description": {
+      "translate": "advancements.examplemod.charger.root.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false,
+    "background": "minecraft:textures/gui/advancements/backgrounds/stone.png"
+  },
+  "criteria": {
+    "has_charged_item": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "examplemod:charged_item"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_charged_item"
+    ]
+  ]
+}
