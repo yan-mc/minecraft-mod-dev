@@ -14,6 +14,7 @@ setup:
   commands:
     - "setblock 0 64 0 examplemod:charger"
     - "tp Dev 0.5 64 1.5 180 0"
+    - "item replace entity Dev weapon.mainhand with minecraft:air"
 actions:
   - {use_on: {x: 0, y: 64, z: 0, face: up}}
 assert:
@@ -31,5 +32,6 @@ evidence:
   - "shift-click 0->36 and 36->0, Charged Item count stays 1"
   - "Energy 5000/10000 bar + text; close/reopen keeps item + energy"
   - "screenshots mcdev-1792258312165.png / mcdev-1792258351039.png + read_image"
-  - "M4-F002-REPORT.md; M4-CLIENT-CHECKS.md"
+  - "mcdev_scenario card=F-002 live: ok=true, warnings=[]"
+  - "M4-F002-REPORT.md; M4-CLIENT-CHECKS.md; M4-SCENARIO-CARD.md"
 status: passed

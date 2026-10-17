@@ -45,6 +45,7 @@
 - GameTest：`All 12 required tests passed`
 - F-006：builder-item + tester-item 团队实现，Lead 复核 12/12（见 `M4-TEAM-WORKFLOW.md`）
 - 团队修 bug：注入 `getBarWidth=14` 回归 → gametest 1 失败 → builder-fix 修复 → reviewer-fix 只读复核通过 → Lead 重跑 12/12（见 `M4-TEAM-BUGFIX.md`）
+- 卡片执行：`mcdev_scenario card=cards/F-002.yml` 客户端 live 8 步全过，warnings=[]（见 `M4-SCENARIO-CARD.md`）
 - 客户端截图：
   - `run-client/screenshots/mcdev-1792257239553.png`（GUI 第一版）
   - `run-client/screenshots/mcdev-1792258312165.png`（Energy 5000/10000）

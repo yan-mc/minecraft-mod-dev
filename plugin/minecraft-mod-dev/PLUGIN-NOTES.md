@@ -54,6 +54,7 @@ v0.3.1 包含：
 | `mcdev_stop side=all` | 两个进程都 stopped，之后 `launch_status=[]`，无 Java 残留 |
 | YAML card dryRun | F-001/F-002 正常翻译；F-006 对不支持的 action/assert 给 warnings |
 | YAML card live | S-001：setblock + data merge + data get + assert 123 全过 |
+| YAML card live F-002 | 客户端 `card=F-002`：8 步全过，打开 ChargerScreen，title/slot 断言通过，warnings=[] |
 
 ## install_probe 的校验
 
