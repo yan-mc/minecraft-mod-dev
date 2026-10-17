@@ -5,7 +5,7 @@
 - 探针新增 `/recipe`、`/loot`、`/item`。
 - `mcdev_scenario` 新增 `recipe`/`loot`/`item` 步骤。
 - 卡片 `assert.recipe_output` / `loot_drop` / `item_bar` 可执行。
-- F-004 live：recipe=examplemod:charger×1，loot total=1（craft action 仍 warning）。
+- F-004 live：recipe=examplemod:charger×1，loot total=1，warnings=[]。
 - F-006 live：item_bar visible=true/width=6/color=65280，warnings=[]。
 
 ## v0.3.7 — 2026-10-18

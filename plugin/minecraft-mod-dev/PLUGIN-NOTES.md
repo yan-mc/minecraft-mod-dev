@@ -64,7 +64,7 @@ v0.3.8 包含：
 | prepare 成功诊断 | `kind=both` → `joined=true, lastScreen=""`，attempts 长度 1 |
 | F-001 card live | `warnings=[]`，give.select/use/data get/assert 5200≥100、block analog=7 全过 |
 | F-002 card live | `warnings=[]`，wait+use+wait+ui/title/slot 全过 |
-| F-004 card live | `recipe` 返回 examplemod:charger ×1；`loot` total=1；warnings=[craft] |
+| F-004 card live | `recipe` 返回 examplemod:charger ×1；`loot` total=1；warnings=[] |
 | F-006 card live | `item` 返回 visible=true/width=6/color=65280；warnings=[] |
 
 ## install_probe 的校验
@@ -102,4 +102,4 @@ Windows 下 `spawnSync` 用 `shell: false`，避免 `C:\Program Files\...` 被 s
 
 1. 用 Charger 作为 reference mod，跑完整团队流程。
 2. 公开 beta 的安装包/版本化（v0.3.8 release）。
-3. 卡片 `craft` action（当前 F-004 给 warning）。
+3. `craft` action 仍未实现；F-004 用 `recipe_output` 断言验证配方，不模拟合成界面。

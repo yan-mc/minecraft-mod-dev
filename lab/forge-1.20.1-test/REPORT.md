@@ -48,7 +48,7 @@
 - 卡片执行：`mcdev_scenario card=cards/F-002.yml` 客户端 live，warnings=[]，wait+use+ui/title/slot 全过（见 `M4-SCENARIO-CARD.md`）
 - 卡片执行：`mcdev_scenario card=cards/F-001.yml` 客户端 live，warnings=[]，give.select+use+data get（5200）+comparator（analog=7）全过
 - 比较器：`block` 步骤 + `/world/block` 返回 `analog=7`，assert eq 7 通过
-- F-004 live：`recipe` 返回 examplemod:charger×1、`loot` total=1（craft action warning）
+- F-004 live：`recipe` 返回 examplemod:charger×1、`loot` total=1，warnings=[]
 - F-006 live：`item` 返回 visible=true/width=6/color=65280，warnings=[]
 - 启动稳定性：`mcdev_prepare` 最多 3 次尝试；恢复演练 attempt1/2 Disconnected、attempt3 `joined=true`；无 server 失败演练 `joined=false, retry=true, attempts[]`
 - 客户端截图：

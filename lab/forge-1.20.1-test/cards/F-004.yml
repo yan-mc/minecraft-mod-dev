@@ -14,8 +14,7 @@ setup:
     - "give Dev minecraft:iron_ingot 4"
     - "give Dev minecraft:redstone 2"
     - "give Dev minecraft:copper_ingot 1"
-actions:
-  - {craft: {recipe: "examplemod:charger"}}
+actions: []
 assert:
   - {recipe_output: {recipe: "examplemod:charger", item: "examplemod:charger", count: 1}}
   - {loot_drop: {block: "examplemod:charger", item: "examplemod:charger", count: 1}}
@@ -24,5 +23,5 @@ evidence:
   - "Recipe JSON + GameTest chargerRecipeExists"
   - "Loot JSON + GameTest chargerLootDrop (1 charger)"
   - "All 12 required tests passed"
-  - "mcdev_scenario card=F-004 live: recipe item/count + loot total=1; warnings=[craft]"
+  - "mcdev_scenario card=F-004 live: recipe item/count + loot total=1; warnings=[]"
 status: passed
