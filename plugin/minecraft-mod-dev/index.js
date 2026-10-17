@@ -138,6 +138,30 @@ function runGradle(projectDir, task, timeoutMs = 900000) {
   });
 }
 
+function getPath(value, path) {
+  if (!path) {
+    return value;
+  }
+  return String(path).split('.').filter(Boolean).reduce((current, key) => {
+    if (current === null || current === undefined) {
+      return undefined;
+    }
+    if (Array.isArray(current) && /^\d+$/.test(key)) {
+      return current[Number(key)];
+    }
+    return current[key];
+  }, value);
+}
+
+async function probeJson(side, path, init = {}, port) {
+  const text = await probe(side, path, init, port);
+  try {
+    return JSON.parse(text);
+  } catch {
+    return { raw: text };
+  }
+}
+
 export function apply(ctx) {
   ctx.tools.register(stringTool(
     'mcdev_status',
@@ -314,6 +338,174 @@ export function apply(ctx) {
         face: args.face ?? 'up',
       }),
     }, args.port),
+  ));
+
+  ctx.tools.register(stringTool(
+    'mcdev_scenario',
+    'Execute an ordered list of probe/scenario steps and return per-step results. Steps: status, command, use, ui, click, screenshot, run_dump, wait, assert. Stops at the first failure (ok=false). assert uses path/op/value against the latest data step or an explicit step index.',
+    {
+      steps: {
+        type: 'array',
+        required: true,
+        description: 'Ordered scenario steps.',
+        items: {
+          type: 'object',
+          additionalProperties: true,
+          properties: {
+            type: {
+              type: 'string',
+              required: true,
+              enum: ['status', 'command', 'use', 'ui', 'click', 'screenshot', 'run_dump', 'wait', 'assert'],
+            },
+            side: { type: 'string', enum: ['server', 'client'] },
+            port: { type: 'integer' },
+            cmd: { type: 'string' },
+            x: { type: 'integer' },
+            y: { type: 'integer' },
+            z: { type: 'integer' },
+            face: { type: 'string', enum: ['up', 'down', 'north', 'south', 'east', 'west'] },
+            slot: { type: 'integer' },
+            button: { type: 'integer' },
+            shift: { type: 'boolean' },
+            ms: { type: 'integer' },
+            step: { type: 'integer' },
+            path: { type: 'string' },
+            op: { type: 'string', enum: ['eq', 'ne', 'contains', 'gt', 'lt', 'exists'] },
+            value: { type: 'string' },
+            label: { type: 'string' },
+            n: { type: 'integer' },
+          },
+        },
+      },
+    },
+    async (args) => {
+      const steps = Array.isArray(args.steps) ? args.steps : [];
+      if (steps.length === 0) {
+        throw new Error('steps must be a non-empty array');
+      }
+      const results = [];
+      let lastDataIndex = -1;
+
+      for (let i = 0; i < steps.length; i += 1) {
+        const step = steps[i] ?? {};
+        const type = step.type;
+        try {
+          if (type === 'wait') {
+            const ms = Math.max(0, Math.min(Number(step.ms) || 0, 60000));
+            await new Promise((resolve) => setTimeout(resolve, ms));
+            results.push({ index: i, type, ok: true, ms });
+            continue;
+          }
+
+          if (type === 'assert') {
+            const stepIndex = typeof step.step === 'number' ? step.step : lastDataIndex;
+            const target = results[stepIndex]?.data;
+            const actual = getPath(target, step.path);
+            const expected = step.value;
+            const op = step.op ?? 'eq';
+            let ok;
+            switch (op) {
+              case 'eq':
+                ok = String(actual) === String(expected);
+                break;
+              case 'ne':
+                ok = String(actual) !== String(expected);
+                break;
+              case 'contains':
+                ok = String(actual).includes(String(expected));
+                break;
+              case 'gt':
+                ok = Number(actual) > Number(expected);
+                break;
+              case 'lt':
+                ok = Number(actual) < Number(expected);
+                break;
+              case 'exists':
+                ok = actual !== undefined;
+                break;
+              default:
+                throw new Error(`unknown assert op: ${op}`);
+            }
+            if (!ok) {
+              throw new Error(
+                `assert failed${step.label ? ` (${step.label})` : ''}: actual=${JSON.stringify(actual)} expected ${op} ${JSON.stringify(expected)}`,
+              );
+            }
+            results.push({ index: i, type, ok: true, actual });
+            continue;
+          }
+
+          let data;
+          switch (type) {
+            case 'status':
+              data = await probeJson(step.side ?? 'server', '/status', {}, step.port);
+              break;
+            case 'command':
+              if (typeof step.cmd !== 'string' || step.cmd.length === 0) {
+                throw new Error('command step requires cmd');
+              }
+              data = await probeJson(step.side ?? 'server', '/command', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ cmd: step.cmd }),
+              }, step.port);
+              break;
+            case 'use':
+              data = await probeJson('client', '/player/use', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  x: step.x,
+                  y: step.y,
+                  z: step.z,
+                  face: step.face ?? 'up',
+                }),
+              }, step.port);
+              break;
+            case 'ui':
+              data = await probeJson('client', '/ui/snapshot', {}, step.port);
+              break;
+            case 'click': {
+              const body = { button: step.button ?? 0 };
+              if (typeof step.slot === 'number' && step.slot >= 0) {
+                body.slot = step.slot;
+              } else {
+                body.x = step.x ?? 0;
+                body.y = step.y ?? 0;
+              }
+              if (step.shift) {
+                body.shift = true;
+              }
+              data = await probeJson('client', '/ui/click', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body),
+              }, step.port);
+              break;
+            }
+            case 'screenshot':
+              data = await probeJson('client', '/screenshot', {}, step.port);
+              break;
+            case 'run_dump':
+              data = await probeJson(step.side ?? 'server', `/run/dump?n=${step.n ?? 200}`, {}, step.port);
+              break;
+            default:
+              throw new Error(`unknown step type: ${String(type)}`);
+          }
+          results.push({ index: i, type, ok: true, data });
+          lastDataIndex = results.length - 1;
+        } catch (error) {
+          results.push({
+            index: i,
+            type,
+            ok: false,
+            error: String(error?.message ?? error),
+          });
+          return JSON.stringify({ ok: false, failedAt: i, steps: results });
+        }
+      }
+      return JSON.stringify({ ok: true, steps: results });
+    },
   ));
 
   ctx.tools.register(stringTool(

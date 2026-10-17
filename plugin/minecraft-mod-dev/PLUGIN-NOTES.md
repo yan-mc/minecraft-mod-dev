@@ -1,4 +1,4 @@
-# minecraft-mod-dev plugin v0.2.3
+# minecraft-mod-dev plugin v0.2.4
 
 日期：2026-10-18
 位置：`plugin/minecraft-mod-dev`
@@ -7,11 +7,11 @@
 
 ```text
 plugin_manager install_bundle target=...\plugin\minecraft-mod-dev
-application=applied, version=0.2.3
+application=applied, version=0.2.4
 ```
 
-v0.2.3 包含：
-- 10 个 `mcdev_*` 工具；
+v0.2.4 包含：
+- 11 个 `mcdev_*` 工具；
 - `mcmod` preset（团队默认，Agent Teams 9 工具）；
 - 内置官方实验 Agent Teams 挂载（禁用传统 subagent 四行）。
 
@@ -29,6 +29,7 @@ v0.2.3 包含：
 | `mcdev_build` | 在指定 Forge 项目跑 `gradlew build` |
 | `mcdev_gametest` | 跑 `gradlew runGameTestServer` |
 | `mcdev_install_probe` | 校验并把 dev probe jar 放进一个或多个 `<runDir>/mods` |
+| `mcdev_scenario` | 顺序执行 status/command/use/ui/click/screenshot/run_dump/wait/assert，返回每步结果 |
 
 ## 实测
 
@@ -42,6 +43,8 @@ v0.2.3 包含：
 | `mcdev_gametest` | exitCode=0，11/11 GameTests |
 | `mcdev_install_probe`（dev jar） | `manifestChecked=true, hasMixinConfigs=true`，3 个 runDir 已复制 |
 | `mcdev_install_probe`（普通 jar） | 被拒绝：`probe jar must be a *-dev.jar` |
+| `mcdev_scenario` 成功 | 8 步全过：status/assert/command/wait/status/assert/run_dump/assert |
+| `mcdev_scenario` 失败 | `ok=false, failedAt=1`，错误 `expected eq "1.12.2"`，第 3 步未执行 |
 
 ## install_probe 的校验
 
@@ -60,6 +63,6 @@ Windows 下 `spawnSync` 用 `shell: false`，避免 `C:\Program Files\...` 被 s
 
 ## 待办
 
-1. `mcdev_scenario`：执行 feature card 的 setup/actions/assert。
-2. `mcdev_prepare`：自动启动 server/client 并等待 probe ready。
-3. 用 Charger 作为 reference mod，跑完整团队流程。
+1. `mcdev_prepare`：自动启动 server/client 并等待 probe ready。
+2. 用 Charger 作为 reference mod，跑完整团队流程。
+3. `mcdev_scenario` 接 YAML 卡片解析（目前传 JSON steps）。
