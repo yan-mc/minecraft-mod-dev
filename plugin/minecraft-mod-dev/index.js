@@ -1,6 +1,16 @@
 import { defineTool } from '@deepseek-ai/dsh-tools';
-import { spawn } from 'node:child_process';
-import { existsSync } from 'node:fs';
+import { spawn, spawnSync } from 'node:child_process';
+import {
+  copyFileSync,
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  statSync,
+} from 'node:fs';
+import { tmpdir } from 'node:os';
+import { basename, join } from 'node:path';
 
 const DEFAULT_PORTS = { server: 39001, client: 39002 };
 const TOKEN = 'mcdev';
@@ -57,6 +67,35 @@ const portParam = {
   type: 'integer',
   description: 'Override the probe port. Defaults: server 39001, client 39002.',
 };
+
+function readJarManifest(jarPath) {
+  const win = process.platform === 'win32';
+  const jar = process.env.JAVA_HOME
+    ? join(process.env.JAVA_HOME, 'bin', win ? 'jar.exe' : 'jar')
+    : 'jar';
+  const dir = mkdtempSync(join(tmpdir(), 'mcdev-jar-'));
+  try {
+    const result = spawnSync(jar, ['xf', jarPath, 'META-INF/MANIFEST.MF'], {
+      cwd: dir,
+      encoding: 'utf8',
+      shell: false,
+      windowsHide: true,
+    });
+    if (result.error || result.status !== 0) {
+      return {
+        checked: false,
+        error: result.error?.message || result.stderr || `jar exit ${result.status}`,
+      };
+    }
+    const manifestPath = join(dir, 'META-INF', 'MANIFEST.MF');
+    if (!existsSync(manifestPath)) {
+      return { checked: false, error: 'MANIFEST.MF missing after extract' };
+    }
+    return { checked: true, text: readFileSync(manifestPath, 'utf8') };
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+}
 
 function runGradle(projectDir, task, timeoutMs = 900000) {
   return new Promise((resolve, reject) => {
@@ -179,6 +218,76 @@ export function apply(ctx) {
       port: portParam,
     },
     (args) => probe(args.side, `/run/dump?n=${args.n ?? 200}`, {}, args.port),
+  ));
+
+  ctx.tools.register(stringTool(
+    'mcdev_install_probe',
+    'Install a dev-mapped probe jar into one or more Forge run directories (<runDir>/mods). Validates META-INF/MANIFEST.MF contains "MixinConfigs: mcdev_probe.mixins.json" when the jar tool is available.',
+    {
+      probeJar: {
+        type: 'string',
+        required: true,
+        description: 'Absolute path to mcdev_probe-*-dev.jar.',
+      },
+      runDirs: {
+        type: 'array',
+        required: true,
+        description: 'Absolute run directories; each gets <runDir>/mods/<jar>.',
+        items: { type: 'string' },
+      },
+    },
+    (args) => {
+      const jarPath = args.probeJar;
+      if (!existsSync(jarPath)) {
+        throw new Error(`probe jar not found: ${jarPath}`);
+      }
+      const info = statSync(jarPath);
+      if (!info.isFile()) {
+        throw new Error(`not a file: ${jarPath}`);
+      }
+      const runDirs = Array.isArray(args.runDirs) ? args.runDirs : [];
+      if (runDirs.length === 0) {
+        throw new Error('runDirs must be a non-empty array');
+      }
+      const name = basename(jarPath);
+      if (!/-dev\.jar$/i.test(name)) {
+        throw new Error(
+          'probe jar must be a *-dev.jar (dev-mapped); normal build/reobf jars fail in dev',
+        );
+      }
+      const manifest = readJarManifest(jarPath);
+      const hasMixin = manifest.checked
+        ? /MixinConfigs\s*:\s*mcdev_probe\.mixins\.json/.test(manifest.text)
+        : false;
+      if (manifest.checked && !hasMixin) {
+        throw new Error(
+          'not a dev-mapped probe jar: MANIFEST.MF missing "MixinConfigs: mcdev_probe.mixins.json"',
+        );
+      }
+      const targets = [];
+      const warnings = [];
+      if (!manifest.checked) {
+        warnings.push(`manifest not verified: ${manifest.error}`);
+      }
+      for (const runDir of runDirs) {
+        if (typeof runDir !== 'string' || runDir.trim() === '') {
+          continue;
+        }
+        const modsDir = join(runDir, 'mods');
+        mkdirSync(modsDir, { recursive: true });
+        const dest = join(modsDir, name);
+        copyFileSync(jarPath, dest);
+        targets.push({ runDir, dest });
+      }
+      return JSON.stringify({
+        probeJar: jarPath,
+        size: info.size,
+        manifestChecked: manifest.checked,
+        hasMixinConfigs: hasMixin,
+        targets,
+        warnings,
+      });
+    },
   ));
 
   ctx.tools.register(stringTool(

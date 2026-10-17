@@ -45,7 +45,15 @@ cd lab/mcdev-probe
 产出 `build/libs/mcdev_probe-0.1.0-dev.jar`。**必须用这个 dev-mapped jar**：
 普通 `build` 的 reobf jar 在 dev 环境会 `NoSuchMethodError`；且 jar 的 manifest 必须带 `MixinConfigs: mcdev_probe.mixins.json`。
 
-### 3. 启动服务端 / 客户端
+### 3. 安装探针到 run 目录
+
+```text
+mcdev_install_probe probeJar=<...>/mcdev_probe-0.1.0-dev.jar runDirs=["<...>/run-server", "<...>/run-client"]
+```
+
+工具会校验 `*-dev.jar` 文件名 + `MixinConfigs` manifest，再复制到 `<runDir>/mods/`。
+
+### 4. 启动服务端 / 客户端
 
 ```text
 # 服务端（run-server，端口 25566；probe 39001）
@@ -56,7 +64,7 @@ cd lab/mcdev-probe
 .\gradlew.bat runClient
 ```
 
-### 4. 调用工具
+### 5. 调用工具
 
 ```text
 mcdev_status side=server
