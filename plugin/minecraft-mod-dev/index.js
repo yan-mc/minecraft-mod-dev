@@ -205,6 +205,9 @@ async function waitForClientJoin(timeoutMs) {
         const data = body?.data;
         const screen = data?.screen ?? '';
         lastScreen = screen;
+        if (screen.endsWith('DisconnectedScreen')) {
+          return { joined: false, lastScreen, disconnected: true };
+        }
         if (data?.player && !/ConnectScreen|DisconnectedScreen|ReceivingLevelScreen/.test(screen)) {
           return { joined: true, lastScreen };
         }
@@ -745,25 +748,43 @@ export function apply(ctx) {
         if (args.waitJoin === false) {
           results.push(client);
         } else {
-          const join = await waitForClientJoin(Math.min(timeoutMs, 90000));
-          if (join.joined) {
-            client.joined = true;
-            client.lastScreen = join.lastScreen;
-            results.push(client);
-          } else {
+          const attempts = [];
+          let current = client;
+          let joined = false;
+          for (let attempt = 0; attempt < 3; attempt += 1) {
+            if (attempt > 0) {
+              await new Promise((resolve) => setTimeout(resolve, 2000));
+              current = await launchKind('client', args.projectDir, timeoutMs);
+            }
+            const wait = await waitForClientJoin(Math.min(timeoutMs, 90000));
+            attempts.push({
+              attempt: attempt + 1,
+              pid: current.pid,
+              logPath: current.logPath,
+              joined: wait.joined,
+              lastScreen: wait.lastScreen,
+            });
+            if (wait.joined) {
+              current.joined = true;
+              current.lastScreen = wait.lastScreen;
+              current.attempts = attempts;
+              if (attempt > 0) {
+                current.retry = true;
+              }
+              results.push(current);
+              joined = true;
+              break;
+            }
             await stopTracked('client');
-            await new Promise((resolve) => setTimeout(resolve, 2000));
-            const retry = await launchKind('client', args.projectDir, timeoutMs);
-            const retryJoin = await waitForClientJoin(Math.min(timeoutMs, 90000));
-            retry.retry = true;
-            retry.joined = retryJoin.joined;
-            retry.lastScreen = retryJoin.lastScreen;
-            retry.firstAttempt = {
-              pid: client.pid,
-              logPath: client.logPath,
-              lastScreen: join.lastScreen,
-            };
-            results.push(retry);
+          }
+          if (!joined) {
+            results.push({
+              kind: 'client',
+              joined: false,
+              retry: attempts.length > 1,
+              lastScreen: attempts[attempts.length - 1]?.lastScreen ?? null,
+              attempts,
+            });
           }
         }
       }

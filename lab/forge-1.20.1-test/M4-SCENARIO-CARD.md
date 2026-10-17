@@ -85,12 +85,13 @@ mcdev_scenario card=<...>/cards/F-002.yml
 
 根因未完全定位（疑 quickPlay 启动时机/增量 devJar），但重试 + clean 构建已稳定跑通本轮 F-001/F-002。
 
-### 强制失败演练
+### 强制失败 / 恢复演练
 
 - 不启动 server，直接 `mcdev_prepare kind=client timeoutMs=20000`：
-  `joined=false, retry=true, lastScreen=DisconnectedScreen`；
-  `firstAttempt` 带第一次 pid/logPath/lastScreen；
-- 正常 `kind=both`：`joined=true, lastScreen=""`；
+  `joined=false, retry=true, lastScreen=DisconnectedScreen`；`attempts[]` 带每次 pid/logPath/lastScreen；
+- 恢复演练：先起 client，延迟 35s 起 server，`timeoutMs=30000`：
+  attempt1/2 `DisconnectedScreen`，attempt3 `joined=true, lastScreen=""`；
+- 正常 `kind=both`：`joined=true, lastScreen=""`，attempts 长度 1；
 - F-002 卡片随后 `warnings=[]` 通过。
 
 ## 7. 结论

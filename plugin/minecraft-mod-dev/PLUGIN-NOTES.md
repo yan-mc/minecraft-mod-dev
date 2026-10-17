@@ -1,4 +1,4 @@
-# minecraft-mod-dev plugin v0.3.6
+# minecraft-mod-dev plugin v0.3.7
 
 日期：2026-10-18
 位置：`plugin/minecraft-mod-dev`
@@ -7,15 +7,15 @@
 
 ```text
 plugin_manager install_bundle target=...\plugin\minecraft-mod-dev
-application=applied, version=0.3.6
+application=applied, version=0.3.7
 ```
 
-v0.3.6 包含：
+v0.3.7 包含：
 - 14 个 `mcdev_*` 工具；
 - `mcmod` preset（团队默认，Agent Teams 9 工具）；
 - 内置官方实验 Agent Teams 挂载（禁用传统 subagent 四行）；
 - `mcdev_scenario`：YAML 卡片、`dryRun`、`give.select`/`select_item`、`block`（comparator analog）、`wait` action；
-- `mcdev_prepare`：client/both 等待进服，失败自动重试一次，并返回 `lastScreen` / `firstAttempt` 诊断。
+- `mcdev_prepare`：client/both 等待进服；Disconnected 提前失败；最多 3 次尝试，返回 `attempts` 诊断。
 
 ## 工具
 
@@ -58,9 +58,10 @@ v0.3.6 包含：
 | YAML card live F-002 | 客户端 `card=F-002`：8 步全过，打开 ChargerScreen，title/slot 断言通过，warnings=[] |
 | YAML card live F-001 | `give.select` 主手 + use + data get：assert 223 ≥ 100 通过；comparator 警告 |
 | comparator analog | `scenario` 的 `block` 步骤：Energy=5000 → `/world/block` 返回 `analog=7`，assert eq 7 通过 |
-| prepare waitJoin | `kind=both` → server ready + client `joined=true`；ConnectScreen/Disconnected 自动重试一次 |
-| prepare 失败诊断 | 无 server 强制重试：`joined=false, lastScreen=DisconnectedScreen, retry=true`，含 `firstAttempt` pid/logPath |
-| prepare 成功诊断 | `kind=both` → `joined=true, lastScreen=""` |
+| prepare waitJoin | `kind=both` → server ready + client `joined=true`；最多 3 次尝试 |
+| prepare retry 恢复 | 无 server 先起 client，延迟 35s 起 server：attempt1/2 Disconnected，attempt3 `joined=true` |
+| prepare 失败诊断 | 无 server 时 3 次都失败：`joined=false, retry=true, attempts[]`，每次带 pid/logPath/lastScreen |
+| prepare 成功诊断 | `kind=both` → `joined=true, lastScreen=""`，attempts 长度 1 |
 | F-001 card live | `warnings=[]`，give.select/use/data get/assert 5200≥100、block analog=7 全过 |
 | F-002 card live | `warnings=[]`，wait+use+wait+ui/title/slot 全过 |
 
@@ -99,4 +100,4 @@ Windows 下 `spawnSync` 用 `shell: false`，避免 `C:\Program Files\...` 被 s
 
 1. 用 Charger 作为 reference mod，跑完整团队流程。
 2. 卡片解析覆盖更多 assert（recipe/loot/item_bar）。
-3. 公开 beta 的安装包/版本化（v0.3.5 release）。
+3. 公开 beta 的安装包/版本化（v0.3.7 release）。

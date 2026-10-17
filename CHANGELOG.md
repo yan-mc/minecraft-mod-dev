@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.3.7 — 2026-10-18
+
+- `mcdev_prepare` 客户端最多 3 次尝试；`DisconnectedScreen` 提前判失败。
+- 返回 `attempts[]`（每次 pid/logPath/lastScreen）；重试成功带 `retry=true`。
+- 恢复演练：无 server 先起 client，延迟 35s 起 server → attempt1/2 Disconnected，attempt3 `joined=true`。
+- 无 server 失败演练：3 次失败，`joined=false, retry=true, attempts[]`。
+
 ## v0.3.6 — 2026-10-18
 
 - `mcdev_prepare` 失败时返回 `lastScreen`，并在 `firstAttempt` 里保留第一次 pid/logPath/lastScreen。
