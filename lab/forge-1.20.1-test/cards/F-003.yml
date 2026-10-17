@@ -23,5 +23,6 @@ assert:
 ui:
   open: false
   screenshot: false
-evidence: []
-status: pending
+evidence:
+  - "ChargedItem class + GameTest chargedItemEnergy (M4-F001-REPORT.md)"
+status: in_progress

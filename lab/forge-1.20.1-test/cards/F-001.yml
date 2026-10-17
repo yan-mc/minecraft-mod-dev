@@ -21,5 +21,6 @@ assert:
   - {block_entity_nbt: {pos: [0, 64, 0], path: "Energy", op: ">=", value: 100}}
   - {comparator: {pos: [0, 64, 0], op: ">", value: 0}}
   - {no_exception: true}
-evidence: []
-status: pending
+evidence:
+  - "GameTest: All 7 required tests passed (M4-F001-REPORT.md)"
+status: in_progress
