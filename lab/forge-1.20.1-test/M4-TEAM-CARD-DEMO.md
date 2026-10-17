@@ -51,7 +51,7 @@ F-006 → ok=true, warnings=[], 4 steps（无 setup）
 ## 5. 保留的限制
 
 - F-006 客户端视觉已补验：`kind=both` + 热栏截图 `M4-F006-hotbar-full.png` / 放大 `M4-F006-hotbar.png` 可见绿色 6/13 条；`/item/mainhand` 返回 visible/width/color。
-- F-004 loot 不是玩家真实破坏 E2E；recipe assert 不校验 shaped 类型（静态 JSON 补足）。
+- F-004 loot 已补 `loot_break`（server `destroyBlock(pos,true)` + ItemEntity 收集）；仍不是客户端玩家采矿 E2E；recipe assert 不校验 shaped 类型（静态 JSON 补足）。
 - 卡片 `ui.screenshot` 字段仍是文档，不自动执行截图。
 
 ## 6. 结论

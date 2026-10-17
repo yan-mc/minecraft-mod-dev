@@ -94,6 +94,7 @@
 - `assert.comparator` → `block` 步骤 + `data.analog`；
 - `assert.recipe_output` → `recipe` 步骤 + `data.item/count`；
 - `assert.loot_drop` → `loot` 步骤 + `data.drops.0.item/total`；
+- `assert.loot_break` → `setblock` + `break` 步骤 + `data.drops.0.item/total`（实际破坏方块并收集 ItemEntity）；
 - `assert.item_bar` → `item` 步骤 + `data.visible/width/color`；
 - `assert.no_exception` → 跳过（probe 错误本身会让步骤失败）。
 
@@ -106,6 +107,7 @@
 | `status` | `side`, `port` |
 | `command` | `side`, `cmd`, `port` |
 | `block` | `x`, `y`, `z`（server `/world/block`，含 `analog` 比较器输出） |
+| `break` | `x`, `y`, `z`（server `/world/break`，`destroyBlock(pos,true)` + 收集 ItemEntity） |
 | `recipe` | `id`（server `/recipe`，返回 result item/count） |
 | `loot` | `block`, `x/y/z`（server `/loot`，返回 drops/total） |
 | `item` | `item`, `nbt`（server `/item`，返回 item bar visible/width/color） |

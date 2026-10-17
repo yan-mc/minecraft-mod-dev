@@ -702,6 +702,21 @@ function cardToSteps(card) {
       } else {
         warnings.push('loot_drop requires block');
       }
+    } else if (check.loot_break) {
+      const loot = check.loot_break;
+      const x = loot.x ?? 0;
+      const y = loot.y ?? 64;
+      const z = loot.z ?? 0;
+      if (typeof loot.block === 'string') {
+        steps.push({ type: 'command', side: 'server', cmd: `setblock ${x} ${y} ${z} ${loot.block}` });
+      }
+      steps.push({ type: 'break', x, y, z });
+      if (loot.item !== undefined) {
+        steps.push({ type: 'assert', path: 'data.drops.0.item', op: 'eq', value: String(loot.item) });
+      }
+      if (loot.count !== undefined) {
+        steps.push({ type: 'assert', path: 'data.total', op: 'eq', value: String(loot.count) });
+      }
     } else if (check.item_bar) {
       const bar = check.item_bar;
       if (typeof bar.item === 'string') {
@@ -1060,7 +1075,7 @@ export function apply(ctx) {
             type: {
               type: 'string',
               required: true,
-              enum: ['status', 'command', 'block', 'recipe', 'loot', 'item', 'use', 'ui', 'click', 'screenshot', 'run_dump', 'wait', 'assert'],
+              enum: ['status', 'command', 'block', 'break', 'recipe', 'loot', 'item', 'use', 'ui', 'click', 'screenshot', 'run_dump', 'wait', 'assert'],
             },
             side: { type: 'string', enum: ['server', 'client'] },
             port: { type: 'integer' },
@@ -1194,6 +1209,9 @@ export function apply(ctx) {
               break;
             case 'block':
               data = await probeJson('server', `/world/block?x=${step.x ?? 0}&y=${step.y ?? 64}&z=${step.z ?? 0}`, {}, step.port);
+              break;
+            case 'break':
+              data = await probeJson('server', `/world/break?x=${step.x ?? 0}&y=${step.y ?? 64}&z=${step.z ?? 0}`, {}, step.port);
               break;
             case 'recipe':
               data = await probeJson('server', `/recipe?id=${encodeURIComponent(step.id ?? '')}`, {}, step.port);

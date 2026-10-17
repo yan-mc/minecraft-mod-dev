@@ -14,6 +14,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
@@ -21,6 +22,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.io.IOException;
@@ -59,6 +61,7 @@ public final class ProbeServer {
             server.createContext("/log/tail", ProbeServer::handleLogTail);
             server.createContext("/command", ProbeServer::handleCommand);
             server.createContext("/world/block", ProbeServer::handleWorldBlock);
+            server.createContext("/world/break", ProbeServer::handleWorldBreak);
             server.createContext("/recipe", ProbeServer::handleRecipe);
             server.createContext("/loot", ProbeServer::handleLoot);
             server.createContext("/item", ProbeServer::handleItem);
@@ -187,6 +190,48 @@ public final class ProbeServer {
             ok(ex, future.get(10, TimeUnit.SECONDS));
         } catch (Exception e) {
             error(ex, 500, "world query failed: " + e.getMessage());
+        }
+    }
+
+    private static void handleWorldBreak(HttpExchange ex) throws IOException {
+        if (!authorized(ex)) {
+            return;
+        }
+        int x = intQuery(ex, "x", 0);
+        int y = intQuery(ex, "y", 64);
+        int z = intQuery(ex, "z", 0);
+        CompletableFuture<Map<String, Object>> future = new CompletableFuture<>();
+        mc.execute(() -> {
+            try {
+                ServerLevel level = mc.overworld();
+                BlockPos pos = new BlockPos(x, y, z);
+                BlockState state = level.getBlockState(pos);
+                Map<String, Object> data = new LinkedHashMap<>();
+                data.put("pos", x + "," + y + "," + z);
+                data.put("blockBefore", String.valueOf(ForgeRegistries.BLOCKS.getKey(state.getBlock())));
+                data.put("removed", level.destroyBlock(pos, true));
+                AABB box = new AABB(x - 3, y - 3, z - 3, x + 4, y + 4, z + 4);
+                List<Map<String, Object>> drops = new ArrayList<>();
+                int total = 0;
+                for (ItemEntity entity : level.getEntitiesOfClass(ItemEntity.class, box)) {
+                    ItemStack stack = entity.getItem();
+                    Map<String, Object> drop = new LinkedHashMap<>();
+                    drop.put("item", String.valueOf(ForgeRegistries.ITEMS.getKey(stack.getItem())));
+                    drop.put("count", stack.getCount());
+                    drops.add(drop);
+                    total += stack.getCount();
+                }
+                data.put("drops", drops);
+                data.put("total", total);
+                future.complete(data);
+            } catch (Throwable t) {
+                future.completeExceptionally(t);
+            }
+        });
+        try {
+            ok(ex, future.get(10, TimeUnit.SECONDS));
+        } catch (Exception e) {
+            error(ex, 500, "world break failed: " + e.getMessage());
         }
     }
 

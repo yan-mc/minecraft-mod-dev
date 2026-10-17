@@ -14,10 +14,12 @@ actions: []
 assert:
   - {recipe_output: {recipe: "examplemod:charger", item: "examplemod:charger", count: 1}}
   - {loot_drop: {block: "examplemod:charger", item: "examplemod:charger", count: 1}}
+  - {loot_break: {block: "examplemod:charger", x: 0, y: 64, z: 0, item: "examplemod:charger", count: 1}}
   - {no_exception: true}
 evidence:
   - "Recipe JSON + GameTest chargerRecipeExists"
   - "Loot JSON + GameTest chargerLootDrop (1 charger)"
   - "All 12 required tests passed"
   - "mcdev_scenario card=F-004 live: recipe item/count + loot total=1; warnings=[]（server-only，无 setup give）"
+  - "loot_break live: setblock + break removed=true, drops charger×1, total=1; warnings=[]"
 status: passed

@@ -48,7 +48,7 @@
 - 卡片执行：`mcdev_scenario card=cards/F-002.yml` 客户端 live，warnings=[]，wait+use+ui/title/slot 全过（见 `M4-SCENARIO-CARD.md`）
 - 卡片执行：`mcdev_scenario card=cards/F-001.yml` 客户端 live，warnings=[]，give.select+use+data get（5200）+comparator（analog=7）全过
 - 比较器：`block` 步骤 + `/world/block` 返回 `analog=7`，assert eq 7 通过
-- F-004 live：`recipe` 返回 examplemod:charger×1、`loot` total=1，warnings=[]
+- F-004 live：`recipe`×1、`loot` total=1、`loot_break` removed=true+drops charger×1；warnings=[]
 - F-006 live：`item` 返回 visible=true/width=6/color=65280，warnings=[]
 - 启动稳定性：`mcdev_prepare` 最多 3 次尝试；恢复演练 attempt1/2 Disconnected、attempt3 `joined=true`；无 server 失败演练 `joined=false, retry=true, attempts[]`
 - 团队卡片执行：Tester（tester-cards）跑 F-004/F-006，Reviewer（reviewer-cards）复核；发现 server-only `give` 静默失败后，Lead 删除无意义 setup 并重跑 warnings=[]（见 `M4-TEAM-CARD-DEMO.md`）
@@ -66,5 +66,5 @@
 2. F-003 tooltip 视觉。
 3. advancement toast 视觉。
 4. F-006 客户端视觉已验证：热栏截图 `M4-F006-hotbar-full.png` / 放大 `M4-F006-hotbar.png` 可见绿色 6/13 条；`/item/mainhand` 返回 visible/width/color。
-5. F-004 loot 是 `Block.getDrops` 数据包级校验，不是玩家真实破坏 E2E。
+5. F-004 loot 已用服务端 `destroyBlock(pos,true)` + ItemEntity 收集做 E2E；仍不是客户端玩家采矿操作。
 6. 收口后把 Charger 作为参考实现，接 reference-mod 沙箱。

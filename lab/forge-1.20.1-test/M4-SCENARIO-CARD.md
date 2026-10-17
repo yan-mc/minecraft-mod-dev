@@ -59,18 +59,18 @@ mcdev_scenario card=<...>/cards/F-002.yml
 |---|---|---|
 | F-001 | dryRun + live | `warnings=[]`；give.select + use + data get（5200 ≥ 100）+ block analog=7 全过 |
 | F-002 | dryRun + live | `warnings=[]`；wait + use + wait + ui/title/slot 全过 |
-| F-004 | dryRun + live | recipe=examplemod:charger×1、loot total=1；warnings=[] |
+| F-004 | dryRun + live | recipe×1、loot total=1、loot_break removed=true+drops charger×1；warnings=[] |
 | F-006 | dryRun + live | item_bar visible/width=6/color=65280，warnings=[] |
 | S-001 | live（server） | setblock + data merge + data get + assert 123 全过 |
 
 ## 5. 限制
 
 1. `actions.give` 新增 `select=true`（放主手）；也可以用独立 `select_item` action。F-001 已用 `give.select` + `use` live 通过。
-2. `comparator`/`recipe_output`/`loot_drop`/`item_bar` 已支持（`block`/`recipe`/`loot`/`item` 步骤）；`item_nbt`、`craft` action 仍未支持；F-004 用 `recipe_output` 断言，不模拟合成界面。
+2. `comparator`/`recipe_output`/`loot_drop`/`loot_break`/`item_bar` 已支持（`block`/`recipe`/`loot`/`break`/`item` 步骤）；`item_nbt`、`craft` action 仍未支持；F-004 用 `recipe_output` 断言，不模拟合成界面。
 3. 客户端卡片要求 client 已进服（不是只在 `ConnectScreen`）。
 4. 卡片的 `spec`/`tiers`/`ui` 字段只作为文档，不参与执行。
 5. server-only 卡片不再放 `give` setup（无玩家会静默失败）；command 步骤本身不对 `result` 断言。
-6. F-006 客户端视觉已补验：热栏截图 `M4-F006-hotbar-full.png` / 放大 `M4-F006-hotbar.png` 可见绿色 6/13 条；F-004 `loot` 仍是 `Block.getDrops` 数据包级，不是玩家破坏 E2E。
+6. F-006 客户端视觉已补验：热栏截图 `M4-F006-hotbar-full.png` / 放大 `M4-F006-hotbar.png` 可见绿色 6/13 条；F-004 `loot_break` 已做服务端 `destroyBlock(pos,true)` + ItemEntity E2E，但仍不是客户端玩家采矿。
 
 ## 6. 客户端 handshake 排查
 

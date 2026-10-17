@@ -1,4 +1,4 @@
-# minecraft-mod-dev plugin v0.3.8
+# minecraft-mod-dev plugin v0.3.9
 
 日期：2026-10-18
 位置：`plugin/minecraft-mod-dev`
@@ -7,14 +7,14 @@
 
 ```text
 plugin_manager install_bundle target=...\plugin\minecraft-mod-dev
-application=applied, version=0.3.8
+application=applied, version=0.3.9
 ```
 
-v0.3.8 包含：
+v0.3.9 包含：
 - 14 个 `mcdev_*` 工具；
 - `mcmod` preset（团队默认，Agent Teams 9 工具）；
 - 内置官方实验 Agent Teams 挂载（禁用传统 subagent 四行）；
-- `mcdev_scenario`：YAML 卡片、`dryRun`、`give.select`/`select_item`、`block`（comparator analog）、`recipe`/`loot`/`item`（recipe/loot/item_bar assert）、`wait`；
+- `mcdev_scenario`：YAML 卡片、`dryRun`、`give.select`/`select_item`、`block`（comparator）、`break`（loot_break）、`recipe`/`loot`/`item`、`wait`；
 - `mcdev_prepare`：client/both 等待进服；Disconnected 提前失败；最多 3 次尝试，返回 `attempts` 诊断。
 
 ## 工具
@@ -64,7 +64,7 @@ v0.3.8 包含：
 | prepare 成功诊断 | `kind=both` → `joined=true, lastScreen=""`，attempts 长度 1 |
 | F-001 card live | `warnings=[]`，give.select/use/data get/assert 5200≥100、block analog=7 全过 |
 | F-002 card live | `warnings=[]`，wait+use+wait+ui/title/slot 全过 |
-| F-004 card live | `recipe` 返回 examplemod:charger ×1；`loot` total=1；warnings=[] |
+| F-004 card live | `recipe`×1、`loot` total=1；`loot_break` removed=true + drops charger×1；warnings=[] |
 | F-006 card live | `item` 返回 visible=true/width=6/color=65280；warnings=[] |
 
 ## install_probe 的校验
@@ -101,5 +101,5 @@ Windows 下 `spawnSync` 用 `shell: false`，避免 `C:\Program Files\...` 被 s
 ## 待办
 
 1. 用 Charger 作为 reference mod，跑完整团队流程。
-2. 公开 beta 的安装包/版本化（v0.3.8 release）。
+2. 公开 beta 的安装包/版本化（v0.3.9 release）。
 3. `craft` action 仍未实现；F-004 用 `recipe_output` 断言验证配方，不模拟合成界面。
