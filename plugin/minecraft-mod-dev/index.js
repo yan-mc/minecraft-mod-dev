@@ -630,6 +630,20 @@ function cardToSteps(card) {
       } else {
         warnings.push('block_entity_nbt requires pos=[x,y,z]');
       }
+    } else if (check.comparator) {
+      const comparator = check.comparator;
+      if (Array.isArray(comparator.pos) && comparator.pos.length === 3) {
+        const [x, y, z] = comparator.pos;
+        steps.push({ type: 'block', x, y, z });
+        steps.push({
+          type: 'assert',
+          path: 'data.analog',
+          op: mapCardOp(comparator.op),
+          value: String(comparator.value),
+        });
+      } else {
+        warnings.push('comparator requires pos=[x,y,z]');
+      }
     } else if (check.no_exception !== undefined) {
       // no-op: the executor already fails on probe errors
     } else {
@@ -910,7 +924,7 @@ export function apply(ctx) {
 
   ctx.tools.register(stringTool(
     'mcdev_scenario',
-    'Execute an ordered list of probe/scenario steps, or translate a card YAML file into steps. Steps: status, command, use, ui, click, screenshot, run_dump, wait, assert. Stops at the first failure (ok=false). assert uses path/op/value against the latest data step or an explicit step index.',
+    'Execute an ordered list of probe/scenario steps, or translate a card YAML file into steps. Steps: status, command, block, use, ui, click, screenshot, run_dump, wait, assert. Stops at the first failure (ok=false). assert uses path/op/value against the latest data step or an explicit step index.',
     {
       steps: {
         type: 'array',
@@ -922,7 +936,7 @@ export function apply(ctx) {
             type: {
               type: 'string',
               required: true,
-              enum: ['status', 'command', 'use', 'ui', 'click', 'screenshot', 'run_dump', 'wait', 'assert'],
+              enum: ['status', 'command', 'block', 'use', 'ui', 'click', 'screenshot', 'run_dump', 'wait', 'assert'],
             },
             side: { type: 'string', enum: ['server', 'client'] },
             port: { type: 'integer' },
@@ -1049,6 +1063,9 @@ export function apply(ctx) {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ cmd: step.cmd }),
               }, step.port);
+              break;
+            case 'block':
+              data = await probeJson('server', `/world/block?x=${step.x ?? 0}&y=${step.y ?? 64}&z=${step.z ?? 0}`, {}, step.port);
               break;
             case 'use':
               data = await probeJson('client', '/player/use', {

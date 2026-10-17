@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.3.3 — 2026-10-18
+
+- 新增 `block` 步骤：调用 server `/world/block`，返回 block state、block entity、`analog` 比较器输出。
+- 卡片 `assert.comparator` 现在可执行：`block` + `data.analog`。
+- 服务端实测：Energy=5000 → `analog=7`，assert eq 7 通过。
+
 ## v0.3.2 — 2026-10-18
 
 - 卡片 actions 支持 `give.select=true` 与 `select_item`（放主手，可带 NBT）。

@@ -165,6 +165,7 @@ public final class ProbeServer {
                 data.put("pos", x + "," + y + "," + z);
                 data.put("block", String.valueOf(ForgeRegistries.BLOCKS.getKey(state.getBlock())));
                 data.put("state", state.toString());
+                data.put("analog", state.getAnalogOutputSignal(level, pos));
                 data.put("blockEntity", be == null ? null : be.saveWithoutMetadata().toString());
                 future.complete(data);
             } catch (Throwable t) {

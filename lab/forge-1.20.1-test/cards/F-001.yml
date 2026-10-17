@@ -26,4 +26,5 @@ evidence:
   - "Client use: block Energy 0->100, item Energy 500->400"
   - "GameTest chargerLootDrop: 1 charger"
   - "mcdev_scenario card=F-001 live: give.select + use + data get, assert 223 >= 100"
+  - "comparator: block step data.analog = 7 (Energy 5000)"
 status: passed

@@ -57,7 +57,7 @@ mcdev_scenario card=<...>/cards/F-002.yml
 
 | 卡片 | 模式 | 结果 |
 |---|---|---|
-| F-001 | dryRun + live | 生成 setblock/give/select/use/data get/assert；comparator 警告；live assert 223 ≥ 100 通过 |
+| F-001 | dryRun + live | setblock/give/select/use/data get/assert；comparator 已支持 `block` 步骤；live assert 223 ≥ 100 通过 |
 | F-002 | dryRun + live | warnings=[]；客户端执行 8 步全过 |
 | F-006 | dryRun | set_item_energy / item_bar_* 警告，只生成 give |
 | S-001 | live（server） | setblock + data merge + data get + assert 123 全过 |
@@ -65,7 +65,7 @@ mcdev_scenario card=<...>/cards/F-002.yml
 ## 5. 限制
 
 1. `actions.give` 新增 `select=true`（放主手）；也可以用独立 `select_item` action。F-001 已用 `give.select` + `use` live 通过。
-2. 暂不支持 `comparator`、`recipe_output`、`loot_drop`、`item_nbt`、`item_bar_*` assert，会进 `warnings`。
+2. `comparator` 已支持（`block` 步骤 + `data.analog`）；`recipe_output`、`loot_drop`、`item_nbt`、`item_bar_*` 仍会进 `warnings`。
 3. 客户端卡片要求 client 已进服（不是只在 `ConnectScreen`）。
 4. 卡片的 `spec`/`tiers`/`ui` 字段只作为文档，不参与执行。
 
