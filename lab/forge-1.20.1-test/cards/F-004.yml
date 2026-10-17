@@ -21,5 +21,7 @@ assert:
   - {loot_drop: {block: "examplemod:charger", item: "examplemod:charger", count: 1}}
   - {no_exception: true}
 evidence:
-  - "Recipe JSON + GameTest chargerRecipeExists (All 8 required tests passed)"
-status: in_progress
+  - "Recipe JSON + GameTest chargerRecipeExists"
+  - "Loot JSON + GameTest chargerLootDrop (1 charger)"
+  - "All 11 required tests passed"
+status: passed

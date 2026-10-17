@@ -9,21 +9,22 @@
 | 项 | 结果 |
 |---|---|
 | 构建 | `mcdev_build` exit 0 |
-| GameTest | `mcdev_gametest` exit 0，**10/10** |
+| GameTest | `mcdev_gametest` exit 0，**11/11** |
 | 注入 bug | 5 个全部检出，5 个全部修复 |
 | 静态审计 | 8 个必需资源，missing=0 |
 | 客户端 | GUI 打开/槽位/能量条/shift-click/关闭再打开通过 |
 | 服务端交互 | 方块充能 500→100+400；物品空中使用 500→400 |
 | advancement | `inventory_changed` 触发成功 |
+| loot | `chargerLootDrop` GameTest：掉落 1 个 charger |
 
 ## 卡片矩阵
 
 | 卡 | 功能 | 静态 | GameTest | 服务端 | 客户端 | 状态 |
 |---|---|---|---|---|---|---|
-| F-001 | 充能方块 | ✅ 注册/模型/lang | ✅ 能量/比较器/NBT | ✅ 右键充能 | ✅ 交互 | 基本通过；loot 掉落待实测 |
+| F-001 | 充能方块 | ✅ 注册/模型/lang | ✅ 能量/比较器/NBT | ✅ 右键充能 | ✅ 交互 | **通过** |
 | F-002 | 充能 GUI | ✅ Menu/Screen 注册 | ✅ shift-click 不复制（mock player） | ✅ 打开/关闭 | ✅ 截图/槽位/能量条/重开 | **通过** |
 | F-003 | 充能物品 | ✅ 模型/lang | ✅ 能量 clamp | ✅ 空中右键 500→400 | ⚠️ tooltip 未视觉验证 | 基本通过 |
-| F-004 | 配方/掉落 | ✅ recipe/loot JSON | ✅ recipe 结果 | — | — | recipe 通过；loot 掉落待实测 |
+| F-004 | 配方/掉落 | ✅ recipe/loot JSON | ✅ recipe 结果 + loot 掉落 | — | — | **通过** |
 | F-005 | 命令/进度 | ✅ advancement JSON | ✅ `/charger info <pos>` | ✅ advancement 触发 | ⚠️ 玩家 raycast 未测 | 基本通过 |
 
 ## 注入 bug 矩阵
@@ -51,8 +52,7 @@
 
 ## 未完成 / 下一步
 
-1. loot table 实际掉落。
-2. `/charger info` 玩家 raycast 路径。
-3. F-003 tooltip 视觉。
-4. advancement toast 视觉。
-5. 收口后把 Charger 作为参考实现，接 reference-mod 沙箱。
+1. `/charger info` 玩家 raycast 路径（本轮客户端重连时 `Timed out`，未完成；命令 pos 路径已测）。
+2. F-003 tooltip 视觉。
+3. advancement toast 视觉。
+4. 收口后把 Charger 作为参考实现，接 reference-mod 沙箱。

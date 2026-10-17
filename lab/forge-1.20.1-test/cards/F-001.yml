@@ -22,6 +22,7 @@ assert:
   - {comparator: {pos: [0, 64, 0], op: ">", value: 0}}
   - {no_exception: true}
 evidence:
-  - "GameTest: All 10 required tests passed (M4-F001-REPORT.md)"
+  - "GameTest: All 11 required tests passed (M4-F001-REPORT.md)"
   - "Client use: block Energy 0->100, item Energy 500->400"
-status: in_progress
+  - "GameTest chargerLootDrop: 1 charger"
+status: passed

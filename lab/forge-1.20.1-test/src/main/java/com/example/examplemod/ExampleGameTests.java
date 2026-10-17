@@ -7,11 +7,14 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.gametest.GameTestHolder;
 import net.minecraftforge.gametest.PrefixGameTestTemplate;
+
+import java.util.List;
 
 @GameTestHolder(ExampleMod.MODID)
 @PrefixGameTestTemplate(false)
@@ -150,6 +153,24 @@ public final class ExampleGameTests {
         }
         helper.assertTrue(charger.getItem(0).isEmpty(), "charger slot should be empty");
         helper.assertTrue(total == 1, "total item count should stay 1, got " + total);
+        helper.succeed();
+    }
+
+    @GameTest(template = "empty")
+    public static void chargerLootDrop(GameTestHelper helper) {
+        helper.setBlock(1, 1, 1, ModRegistry.CHARGER.get());
+        BlockPos pos = helper.absolutePos(new BlockPos(1, 1, 1));
+        BlockState state = helper.getLevel().getBlockState(pos);
+        BlockEntity be = helper.getLevel().getBlockEntity(pos);
+        List<ItemStack> drops = Block.getDrops(
+                state, helper.getLevel(), pos, be, null, ItemStack.EMPTY);
+        int count = 0;
+        for (ItemStack stack : drops) {
+            if (stack.is(ModRegistry.CHARGER_ITEM.get())) {
+                count += stack.getCount();
+            }
+        }
+        helper.assertTrue(count == 1, "charger should drop exactly 1, got " + count);
         helper.succeed();
     }
 }
