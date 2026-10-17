@@ -22,4 +22,5 @@ evidence:
   - "All 12 required tests passed"
   - "mcdev_scenario card=F-004 live: recipe item/count + loot total=1; warnings=[]（server-only，无 setup give）"
   - "loot_break live: setblock + break removed=true, drops charger×1, total=1; warnings=[]"
+  - "client break: creative /player/break before=charger after=air; server block=air（无掉落）"
 status: passed

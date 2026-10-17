@@ -70,7 +70,7 @@ mcdev_scenario card=<...>/cards/F-002.yml
 3. 客户端卡片要求 client 已进服（不是只在 `ConnectScreen`）。
 4. 卡片的 `spec`/`tiers`/`ui` 字段只作为文档，不参与执行。
 5. server-only 卡片不再放 `give` setup（无玩家会静默失败）；command 步骤本身不对 `result` 断言。
-6. F-006 客户端视觉已补验：热栏截图 `M4-F006-hotbar-full.png` / 放大 `M4-F006-hotbar.png` 可见绿色 6/13 条；F-004 `loot_break` 已做服务端 `destroyBlock(pos,true)` + ItemEntity E2E，但仍不是客户端玩家采矿。
+6. F-006 客户端视觉已补验：热栏截图 `M4-F006-hotbar-full.png` / 放大 `M4-F006-hotbar.png` 可见绿色 6/13 条；F-004 `loot_break` 已做服务端 `destroyBlock(pos,true)` + ItemEntity E2E；客户端 `/player/break` 仅验证 creative 破坏（无掉落），survival 挖掘未测。
 
 ## 6. 客户端 handshake 排查
 

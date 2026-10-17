@@ -5,6 +5,7 @@
 - 探针新增 `/world/break`：`destroyBlock(pos,true)` + 收集 ItemEntity。
 - `mcdev_scenario` 新增 `break` 步骤与卡片 `assert.loot_break`。
 - F-004 live：setblock charger → break → `removed=true`、drops charger×1、total=1；warnings=[]。
+- 客户端探针新增 `/player/break`（`startDestroyBlock` + `continueDestroyBlock` + `stopDestroyBlock`）；creative 实测 before=charger / after=air，server 端也变 air。
 - 这是服务端实际破坏 + loot 掉落 E2E，但仍不是客户端玩家采矿操作。
 
 ## v0.3.8 — 2026-10-18

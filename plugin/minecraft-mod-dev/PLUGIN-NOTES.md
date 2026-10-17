@@ -65,6 +65,7 @@ v0.3.9 包含：
 | F-001 card live | `warnings=[]`，give.select/use/data get/assert 5200≥100、block analog=7 全过 |
 | F-002 card live | `warnings=[]`，wait+use+wait+ui/title/slot 全过 |
 | F-004 card live | `recipe`×1、`loot` total=1；`loot_break` removed=true + drops charger×1；warnings=[] |
+| client break | creative + `/player/break`：before=charger，after=air，server `/world/block` 也变 air（无掉落） |
 | F-006 card live | `item` 返回 visible=true/width=6/color=65280；warnings=[] |
 
 ## install_probe 的校验

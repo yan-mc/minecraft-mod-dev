@@ -66,6 +66,7 @@ public final class ClientProbeServer {
             server.createContext("/command", ClientProbeServer::handleCommand);
             server.createContext("/player/use", ClientProbeServer::handlePlayerUse);
             server.createContext("/player/use_item", ClientProbeServer::handlePlayerUseItem);
+            server.createContext("/player/break", ClientProbeServer::handlePlayerBreak);
             server.createContext("/item/mainhand", ClientProbeServer::handleMainhandItem);
             server.createContext("/screenshot", ClientProbeServer::handleScreenshot);
             server.createContext("/quit", ClientProbeServer::handleQuit);
@@ -404,6 +405,41 @@ public final class ClientProbeServer {
             ok(ex, data);
         } catch (Exception e) {
             error(ex, 500, "use item failed: " + e.getMessage());
+        }
+    }
+
+    private static void handlePlayerBreak(HttpExchange ex) throws IOException {
+        if (!authorized(ex)) {
+            return;
+        }
+        int x = intQuery(ex, "x", 0);
+        int y = intQuery(ex, "y", 64);
+        int z = intQuery(ex, "z", 0);
+        try {
+            Map<String, Object> data = onClient(() -> {
+                Minecraft mc = Minecraft.getInstance();
+                Map<String, Object> d = new LinkedHashMap<>();
+                if (mc.player == null || mc.level == null || mc.gameMode == null) {
+                    d.put("ok", false);
+                    d.put("error", "player not in world");
+                    return d;
+                }
+                BlockPos pos = new BlockPos(x, y, z);
+                d.put("pos", x + "," + y + "," + z);
+                d.put("before", String.valueOf(ForgeRegistries.BLOCKS.getKey(mc.level.getBlockState(pos).getBlock())));
+                d.put("started", mc.gameMode.startDestroyBlock(pos, Direction.UP));
+                boolean continued = false;
+                for (int i = 0; i < 10; i++) {
+                    continued = mc.gameMode.continueDestroyBlock(pos, Direction.UP);
+                }
+                mc.gameMode.stopDestroyBlock();
+                d.put("continued", continued);
+                d.put("after", String.valueOf(ForgeRegistries.BLOCKS.getKey(mc.level.getBlockState(pos).getBlock())));
+                return d;
+            });
+            ok(ex, data);
+        } catch (Exception e) {
+            error(ex, 500, "player break failed: " + e.getMessage());
         }
     }
 
