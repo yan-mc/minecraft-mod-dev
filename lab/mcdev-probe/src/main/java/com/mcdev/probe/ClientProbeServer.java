@@ -17,8 +17,10 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.io.File;
 import java.io.IOException;
@@ -64,6 +66,7 @@ public final class ClientProbeServer {
             server.createContext("/command", ClientProbeServer::handleCommand);
             server.createContext("/player/use", ClientProbeServer::handlePlayerUse);
             server.createContext("/player/use_item", ClientProbeServer::handlePlayerUseItem);
+            server.createContext("/item/mainhand", ClientProbeServer::handleMainhandItem);
             server.createContext("/screenshot", ClientProbeServer::handleScreenshot);
             server.createContext("/quit", ClientProbeServer::handleQuit);
             executor = Executors.newFixedThreadPool(2);
@@ -401,6 +404,35 @@ public final class ClientProbeServer {
             ok(ex, data);
         } catch (Exception e) {
             error(ex, 500, "use item failed: " + e.getMessage());
+        }
+    }
+
+    private static void handleMainhandItem(HttpExchange ex) throws IOException {
+        if (!authorized(ex)) {
+            return;
+        }
+        try {
+            Map<String, Object> data = onClient(() -> {
+                Minecraft mc = Minecraft.getInstance();
+                Map<String, Object> d = new LinkedHashMap<>();
+                if (mc.player == null) {
+                    d.put("found", false);
+                    return d;
+                }
+                ItemStack stack = mc.player.getMainHandItem();
+                d.put("found", true);
+                d.put("item", stack.isEmpty() ? null
+                        : String.valueOf(ForgeRegistries.ITEMS.getKey(stack.getItem())));
+                d.put("nbt", stack.getTag() == null ? null : stack.getTag().toString());
+                d.put("count", stack.getCount());
+                d.put("barVisible", stack.isBarVisible());
+                d.put("barWidth", stack.getBarWidth());
+                d.put("barColor", stack.getBarColor());
+                return d;
+            });
+            ok(ex, data);
+        } catch (Exception e) {
+            error(ex, 500, "mainhand item query failed: " + e.getMessage());
         }
     }
 

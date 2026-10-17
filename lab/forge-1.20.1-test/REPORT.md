@@ -26,7 +26,7 @@
 | F-003 | 充能物品 | ✅ 模型/lang | ✅ 能量 clamp | ✅ 空中右键 500→400 | ⚠️ tooltip 未视觉验证 | 基本通过 |
 | F-004 | 配方/掉落 | ✅ recipe/loot JSON | ✅ recipe 结果 + loot 掉落 | — | — | **通过** |
 | F-005 | 命令/进度 | ✅ advancement JSON | ✅ `/charger info <pos>` | ✅ advancement 触发 | ⚠️ 玩家 raycast 未测 | 基本通过 |
-| F-006 | 物品能量条 | ✅ 模型/lang | ✅ bar visible/width/color | — | 物品栏截图待补 | **通过**（团队实现） |
+| F-006 | 物品能量条 | ✅ 模型/lang | ✅ bar visible/width/color | — | ✅ 热栏截图绿色 6/13 条 | **通过**（团队实现） |
 
 ## 注入 bug 矩阵
 
@@ -65,6 +65,6 @@
 1. `/charger info` 玩家 raycast 路径（本轮客户端重连时 `Timed out`，未完成；命令 pos 路径已测）。
 2. F-003 tooltip 视觉。
 3. advancement toast 视觉。
-4. F-006 客户端视觉（物品栏/手持能量条）未验证；`item_bar` 是服务端 Item 方法级检查。
+4. F-006 客户端视觉已验证：热栏截图 `M4-F006-hotbar-full.png` / 放大 `M4-F006-hotbar.png` 可见绿色 6/13 条；`/item/mainhand` 返回 visible/width/color。
 5. F-004 loot 是 `Block.getDrops` 数据包级校验，不是玩家真实破坏 E2E。
 6. 收口后把 Charger 作为参考实现，接 reference-mod 沙箱。

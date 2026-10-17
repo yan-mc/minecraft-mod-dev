@@ -70,7 +70,7 @@ mcdev_scenario card=<...>/cards/F-002.yml
 3. 客户端卡片要求 client 已进服（不是只在 `ConnectScreen`）。
 4. 卡片的 `spec`/`tiers`/`ui` 字段只作为文档，不参与执行。
 5. server-only 卡片不再放 `give` setup（无玩家会静默失败）；command 步骤本身不对 `result` 断言。
-6. F-006 `item_bar` 是服务端 Item 方法级检查，不是客户端物品栏视觉证据；F-004 `loot` 是 `Block.getDrops` 数据包级，不是玩家破坏 E2E。
+6. F-006 客户端视觉已补验：热栏截图 `M4-F006-hotbar-full.png` / 放大 `M4-F006-hotbar.png` 可见绿色 6/13 条；F-004 `loot` 仍是 `Block.getDrops` 数据包级，不是玩家破坏 E2E。
 
 ## 6. 客户端 handshake 排查
 

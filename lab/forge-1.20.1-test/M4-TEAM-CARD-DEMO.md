@@ -50,7 +50,7 @@ F-006 → ok=true, warnings=[], 4 steps（无 setup）
 
 ## 5. 保留的限制
 
-- F-006 客户端视觉（物品栏/手持能量条）仍未验证；本轮只证明 Item 方法值。
+- F-006 客户端视觉已补验：`kind=both` + 热栏截图 `M4-F006-hotbar-full.png` / 放大 `M4-F006-hotbar.png` 可见绿色 6/13 条；`/item/mainhand` 返回 visible/width/color。
 - F-004 loot 不是玩家真实破坏 E2E；recipe assert 不校验 shaped 类型（静态 JSON 补足）。
 - 卡片 `ui.screenshot` 字段仍是文档，不自动执行截图。
 
@@ -58,4 +58,4 @@ F-006 → ok=true, warnings=[], 4 steps（无 setup）
 
 - 团队“Tester 跑卡 + Reviewer 复核 + Lead 修正”闭环跑通。
 - Reviewer 的发现直接导致卡片修正，而不是只写“通过”。
-- 下一步：F-006 用 `kind=both` 补客户端截图；F-004 用真实玩家破坏补 E2E。
+- 下一步：F-004 用真实玩家破坏补 E2E；`ui.screenshot` 做成自动执行。
