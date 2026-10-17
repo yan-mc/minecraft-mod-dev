@@ -83,7 +83,8 @@
 卡片转换支持：
 
 - `setup.commands` → `command`；
-- `actions.give` → `give`；
+- `actions.give` → `give`；`give.select=true` 额外把物品放到主手（`item replace ... weapon.mainhand`）；
+- `actions.select_item` → 直接放主手（支持 `nbt`）；
 - `actions.use_on` / `use_item_on` → `use`；
 - `actions.command` → `command`；
 - `assert.screen_title` → `ui` + `data.title`；

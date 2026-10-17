@@ -15,7 +15,7 @@ setup:
   commands:
     - "setblock 0 64 0 examplemod:charger"
 actions:
-  - {give: {player: Dev, item: "examplemod:charged_item", count: 1}}
+  - {give: {player: Dev, item: "examplemod:charged_item", count: 1, select: true, nbt: "Energy:100"}}
   - {use_item_on: {x: 0, y: 64, z: 0, face: up}}
 assert:
   - {block_entity_nbt: {pos: [0, 64, 0], path: "Energy", op: ">=", value: 100}}
@@ -25,4 +25,5 @@ evidence:
   - "GameTest: All 11 required tests passed (M4-F001-REPORT.md)"
   - "Client use: block Energy 0->100, item Energy 500->400"
   - "GameTest chargerLootDrop: 1 charger"
+  - "mcdev_scenario card=F-001 live: give.select + use + data get, assert 223 >= 100"
 status: passed

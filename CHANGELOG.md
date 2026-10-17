@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.3.2 — 2026-10-18
+
+- 卡片 actions 支持 `give.select=true` 与 `select_item`（放主手，可带 NBT）。
+- `cards/F-001.yml` 客户端 live：give/select/use/data get/assert 通过（energy 223 ≥ 100）。
+- 修正 `mcdev_scenario` 可选参数 schema（可选字段省略 `required`，不能写 `required:false`）。
+
 ## v0.3.1 — 2026-10-18
 
 - `mcdev_scenario` 支持 `card=<path>` 解析 YAML 卡片 + `dryRun`。

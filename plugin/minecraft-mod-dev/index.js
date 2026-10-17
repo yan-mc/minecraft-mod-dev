@@ -561,6 +561,26 @@ function cardToSteps(card) {
       const count = give.count ?? 1;
       if (typeof item === 'string') {
         steps.push({ type: 'command', side: 'server', cmd: `give ${player} ${item} ${count}` });
+        if (give.select) {
+          const tagged = give.nbt ? `${item}{${give.nbt}}` : item;
+          steps.push({
+            type: 'command',
+            side: 'server',
+            cmd: `item replace entity ${player} weapon.mainhand with ${tagged} ${count}`,
+          });
+        }
+      }
+    } else if (action.select_item) {
+      const select = action.select_item;
+      const player = select.player ?? 'Dev';
+      const count = select.count ?? 1;
+      if (typeof select.item === 'string') {
+        const tagged = select.nbt ? `${select.item}{${select.nbt}}` : select.item;
+        steps.push({
+          type: 'command',
+          side: 'server',
+          cmd: `item replace entity ${player} weapon.mainhand with ${tagged} ${count}`,
+        });
       }
     } else if (action.use_on || action.use_item_on) {
       const use = action.use_on ?? action.use_item_on;

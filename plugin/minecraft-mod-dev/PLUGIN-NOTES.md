@@ -1,4 +1,4 @@
-# minecraft-mod-dev plugin v0.3.1
+# minecraft-mod-dev plugin v0.3.2
 
 日期：2026-10-18
 位置：`plugin/minecraft-mod-dev`
@@ -7,14 +7,14 @@
 
 ```text
 plugin_manager install_bundle target=...\plugin\minecraft-mod-dev
-application=applied, version=0.3.1
+application=applied, version=0.3.2
 ```
 
-v0.3.1 包含：
+v0.3.2 包含：
 - 14 个 `mcdev_*` 工具；
 - `mcmod` preset（团队默认，Agent Teams 9 工具）；
 - 内置官方实验 Agent Teams 挂载（禁用传统 subagent 四行）；
-- `mcdev_scenario` 支持 YAML 卡片解析 + `dryRun`。
+- `mcdev_scenario` 支持 YAML 卡片解析 + `dryRun` + `give.select`/`select_item`。
 
 ## 工具
 
@@ -55,6 +55,7 @@ v0.3.1 包含：
 | YAML card dryRun | F-001/F-002 正常翻译；F-006 对不支持的 action/assert 给 warnings |
 | YAML card live | S-001：setblock + data merge + data get + assert 123 全过 |
 | YAML card live F-002 | 客户端 `card=F-002`：8 步全过，打开 ChargerScreen，title/slot 断言通过，warnings=[] |
+| YAML card live F-001 | `give.select` 主手 + use + data get：assert 223 ≥ 100 通过；comparator 警告 |
 
 ## install_probe 的校验
 
