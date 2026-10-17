@@ -5,6 +5,7 @@ import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -126,6 +127,29 @@ public final class ExampleGameTests {
         int result = helper.getLevel().getServer().getCommands().performPrefixedCommand(
                 source, "charger info " + pos.getX() + " " + pos.getY() + " " + pos.getZ());
         helper.assertTrue(result == 1, "charger info command should return 1");
+        helper.succeed();
+    }
+
+    @GameTest(template = "empty")
+    public static void chargerMenuShiftClickNoDuplication(GameTestHelper helper) {
+        helper.setBlock(1, 1, 1, ModRegistry.CHARGER.get());
+        BlockPos pos = helper.absolutePos(new BlockPos(1, 1, 1));
+        BlockEntity be = helper.getLevel().getBlockEntity(pos);
+        if (!(be instanceof ChargerBlockEntity charger)) {
+            helper.assertTrue(false, "charger block entity missing");
+            return;
+        }
+        charger.setItem(0, new ItemStack(ModRegistry.CHARGED_ITEM.get()));
+        Player player = helper.makeMockPlayer();
+        ChargerMenu menu = new ChargerMenu(1, player.getInventory(), charger, charger);
+        menu.quickMoveStack(player, 0);
+
+        int total = charger.getItem(0).getCount();
+        for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
+            total += player.getInventory().getItem(i).getCount();
+        }
+        helper.assertTrue(charger.getItem(0).isEmpty(), "charger slot should be empty");
+        helper.assertTrue(total == 1, "total item count should stay 1, got " + total);
         helper.succeed();
     }
 }
