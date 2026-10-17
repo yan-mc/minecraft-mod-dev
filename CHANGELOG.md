@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.3.5 — 2026-10-18
+
+- `mcdev_prepare` client/both 默认等待进服（`joined`），卡 ConnectScreen/Disconnected 自动 stop + 重启 client 一次。
+- quickPlay handshake 偶发卡死：记录客户端 `Starting new vanilla impl connection`、server 22 个 handshake 包、30s 超时；改为 clean devJar + waitJoin/retry 兜底。
+- F-001/F-002 卡片 live 全过：F-001 warnings=[]、energy 5200、analog=7；F-002 warnings=[]。
+- `cards/F-002.yml` 增加 use 后的 wait，避免 UI 切换竞态。
+
+## v0.3.4 — 2026-10-18
+
+- 卡片 actions 支持 `wait`（`{wait: 300}`）。
+
 ## v0.3.3 — 2026-10-18
 
 - 新增 `block` 步骤：调用 server `/world/block`，返回 block state、block entity、`analog` 比较器输出。

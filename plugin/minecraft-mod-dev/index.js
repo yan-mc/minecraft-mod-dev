@@ -191,6 +191,30 @@ async function waitForProbe(kind, port, timeoutMs) {
   return false;
 }
 
+async function waitForClientJoin(timeoutMs) {
+  const deadline = Date.now() + Math.max(5000, timeoutMs);
+  while (Date.now() < deadline) {
+    try {
+      const response = await fetch(`http://127.0.0.1:${DEFAULT_PORTS.client}/status`, {
+        headers: { 'X-Mcdev-Token': TOKEN },
+        signal: AbortSignal.timeout(2000),
+      });
+      if (response.ok) {
+        const body = await response.json();
+        const data = body?.data;
+        const screen = data?.screen ?? '';
+        if (data?.player && !/ConnectScreen|DisconnectedScreen|ReceivingLevelScreen/.test(screen)) {
+          return true;
+        }
+      }
+    } catch {
+      // keep waiting
+    }
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+  }
+  return false;
+}
+
 async function launchKind(kind, projectDir, timeoutMs) {
   const port = DEFAULT_PORTS[kind];
   if (await probeStatusOnce(kind, port, 1000)) {
@@ -591,6 +615,8 @@ function cardToSteps(card) {
         z: use.z,
         face: use.face ?? 'up',
       });
+    } else if (typeof action.wait === 'number') {
+      steps.push({ type: 'wait', ms: action.wait });
     } else if (typeof action.command === 'string') {
       steps.push({ type: 'command', side: 'server', cmd: action.command });
     } else {
@@ -691,6 +717,10 @@ export function apply(ctx) {
         type: 'integer',
         description: 'Per-process readiness timeout. Default 180000 ms.',
       },
+      waitJoin: {
+        type: 'boolean',
+        description: 'For client/both, wait until the player is in-game and retry once on ConnectScreen/Disconnected. Default true.',
+      },
     },
     async (args) => {
       if (!existsSync(args.projectDir)) {
@@ -705,7 +735,27 @@ export function apply(ctx) {
         results.push(await launchKind('server', args.projectDir, timeoutMs));
       }
       if (args.kind === 'client' || args.kind === 'both') {
-        results.push(await launchKind('client', args.projectDir, timeoutMs));
+        if (args.kind === 'both') {
+          // Give the server a moment to finish post-start work before the client handshake.
+          await new Promise((resolve) => setTimeout(resolve, 2000));
+        }
+        const client = await launchKind('client', args.projectDir, timeoutMs);
+        if (args.waitJoin === false) {
+          results.push(client);
+        } else {
+          const joined = await waitForClientJoin(Math.min(timeoutMs, 90000));
+          if (joined) {
+            client.joined = true;
+            results.push(client);
+          } else {
+            await stopTracked('client');
+            await new Promise((resolve) => setTimeout(resolve, 2000));
+            const retry = await launchKind('client', args.projectDir, timeoutMs);
+            retry.retry = true;
+            retry.joined = await waitForClientJoin(Math.min(timeoutMs, 90000));
+            results.push(retry);
+          }
+        }
       }
       return JSON.stringify({ ok: true, results });
     },

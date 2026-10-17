@@ -22,9 +22,8 @@ assert:
   - {comparator: {pos: [0, 64, 0], op: ">", value: 0}}
   - {no_exception: true}
 evidence:
-  - "GameTest: All 11 required tests passed (M4-F001-REPORT.md)"
+  - "GameTest: All 12 required tests passed (M4-F001-REPORT.md)"
   - "Client use: block Energy 0->100, item Energy 500->400"
   - "GameTest chargerLootDrop: 1 charger"
-  - "mcdev_scenario card=F-001 live: give.select + use + data get, assert 223 >= 100"
-  - "comparator: block step data.analog = 7 (Energy 5000)"
+  - "mcdev_scenario card=F-001 live: warnings=[], give.select + use + data get 5200, comparator analog=7"
 status: passed

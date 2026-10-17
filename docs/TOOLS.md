@@ -87,6 +87,7 @@
 - `actions.select_item` → 直接放主手（支持 `nbt`）；
 - `actions.use_on` / `use_item_on` → `use`；
 - `actions.command` → `command`；
+- `actions.wait` → `wait`（`{wait: 300}`）；
 - `assert.screen_title` → `ui` + `data.title`；
 - `assert.slot_exists` → `ui` + `data.slots.<n>.index`；
 - `assert.block_entity_nbt` → `data get block ...` + `data.result`；
@@ -145,11 +146,13 @@ mcdev_scenario card=<repo>/lab/forge-1.20.1-test/cards/S-001-server-smoke.yml
 
 ### `mcdev_prepare`
 
-参数：`projectDir`、`kind`（server|client|both）、`timeoutMs`（默认 180000）。
+参数：`projectDir`、`kind`（server|client|both）、`timeoutMs`（默认 180000）、`waitJoin`（默认 true）。
 
 - 用 `gradlew runServer/runClient` 启动；
 - 等待对应 probe `/status` 返回正确 side；
 - 返回 pid/port/logPath；已 ready 时 `alreadyRunning=true`；
+- client/both 默认等待玩家进服，返回 `joined`；
+- 若卡在 ConnectScreen/Disconnected，自动 stop + 重启 client 一次（`retry=true`）；
 - 日志写 `<projectDir>/.mcdev/launch-<kind>-<ts>.log`。
 
 > 等待的是 **probe ready**，不是“客户端进服”。

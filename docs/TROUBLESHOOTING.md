@@ -38,6 +38,22 @@ server 和 client 都想用 39001。
 - 客户端用 `--quickPlayMultiplayer 127.0.0.1:25566`；
 - 重启时确认旧 client/server 进程已退出。
 
+### quickPlay 偶发 handshake 卡死
+
+症状：
+
+- client `Starting new vanilla impl connection` 后没有 modded handshake；
+- server 已发 22 个 handshake 包，30 秒后 `lost connection: Disconnected`；
+- client Render thread 正常 tick，Netty 线程 selector 空闲。
+
+已做的稳定性处理：
+
+1. 改 probe 后执行 `.\gradlew.bat clean devJar`，再 `mcdev_install_probe`；
+2. 用 `mcdev_prepare kind=client|both`，默认等待进服；卡 ConnectScreen/Disconnected 会自动重试一次；
+3. 卡片里 use 前后加 `wait`，避免 UI 切换竞态。
+
+根因尚未完全定位（疑与 quickPlay 启动时机/增量 devJar 有关），但重试 + clean 构建可稳定跑通。
+
 ## 5. `mcdev_prepare` 超时
 
 看它返回的 `logPath`：
@@ -51,7 +67,7 @@ server 和 client 都想用 39001。
 - Gradle 还在下载依赖；
 - 端口被占；
 - `runClient` 没有配置 quickPlay；
-- 客户端在 `ConnectScreen` 但 probe 已 ready（工具只等 probe，不等进服）。
+- 客户端卡在 `ConnectScreen`：`mcdev_prepare` 会等 `joined` 并重试一次；仍失败时看 client `logs/latest.log` 的 handshake。
 
 ## 6. `mcdev_install_probe` 拒绝 jar
 

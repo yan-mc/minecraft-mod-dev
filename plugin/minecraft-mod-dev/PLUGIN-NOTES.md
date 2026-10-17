@@ -1,4 +1,4 @@
-# minecraft-mod-dev plugin v0.3.3
+# minecraft-mod-dev plugin v0.3.5
 
 日期：2026-10-18
 位置：`plugin/minecraft-mod-dev`
@@ -7,14 +7,15 @@
 
 ```text
 plugin_manager install_bundle target=...\plugin\minecraft-mod-dev
-application=applied, version=0.3.3
+application=applied, version=0.3.5
 ```
 
-v0.3.3 包含：
+v0.3.5 包含：
 - 14 个 `mcdev_*` 工具；
 - `mcmod` preset（团队默认，Agent Teams 9 工具）；
 - 内置官方实验 Agent Teams 挂载（禁用传统 subagent 四行）；
-- `mcdev_scenario` 支持 YAML 卡片 + `dryRun` + `give.select`/`select_item` + `block` 步骤（比较器 analog）。
+- `mcdev_scenario`：YAML 卡片、`dryRun`、`give.select`/`select_item`、`block`（comparator analog）、`wait` action；
+- `mcdev_prepare`：client/both 等待进服，ConnectScreen/Disconnected 自动重试一次。
 
 ## 工具
 
@@ -57,6 +58,9 @@ v0.3.3 包含：
 | YAML card live F-002 | 客户端 `card=F-002`：8 步全过，打开 ChargerScreen，title/slot 断言通过，warnings=[] |
 | YAML card live F-001 | `give.select` 主手 + use + data get：assert 223 ≥ 100 通过；comparator 警告 |
 | comparator analog | `scenario` 的 `block` 步骤：Energy=5000 → `/world/block` 返回 `analog=7`，assert eq 7 通过 |
+| prepare waitJoin | `kind=both` → server ready + client `joined=true`；ConnectScreen/Disconnected 自动重试一次 |
+| F-001 card live | `warnings=[]`，give.select/use/data get/assert 5200≥100、block analog=7 全过 |
+| F-002 card live | `warnings=[]`，wait+use+wait+ui/title/slot 全过 |
 
 ## install_probe 的校验
 
@@ -73,8 +77,24 @@ Windows 下 `spawnSync` 用 `shell: false`，避免 `C:\Program Files\...` 被 s
 - `task-1` 创建 → 分配给 docs-checker → `wait_agent` 收到总结 → complete；
 - `mcmod` preset 需要在**新会话**里选一次，确认 roster/UI 正常。
 
+## 客户端 handshake 诊断
+
+失败时：
+
+- client：`Starting new vanilla impl connection` 后不再有 modded handshake；
+- server：已发 22 个 handshake 包，30s 后 `lost connection: Disconnected`；
+- client Netty 线程在 selector 空闲，Render thread 正常 tick。
+
+已做：
+
+1. 每次改 probe 后 **`clean devJar`**，再 `mcdev_install_probe`；
+2. `mcdev_prepare` client/both 等待进服（`joined`），失败自动 stop + 重启 client 一次；
+3. 卡片加 `wait` action，避免 use→ui 的界面切换竞态。
+
+仍未完全定位 quickPlay 偶发失败的根因；以上是稳定性兜底。
+
 ## 待办
 
 1. 用 Charger 作为 reference mod，跑完整团队流程。
 2. 卡片解析覆盖更多 assert（recipe/loot/item_bar）。
-3. 公开 beta 的安装包/版本化（v0.3.1 release）。
+3. 公开 beta 的安装包/版本化（v0.3.5 release）。

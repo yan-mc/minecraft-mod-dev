@@ -57,8 +57,8 @@ mcdev_scenario card=<...>/cards/F-002.yml
 
 | 卡片 | 模式 | 结果 |
 |---|---|---|
-| F-001 | dryRun + live | setblock/give/select/use/data get/assert；comparator 已支持 `block` 步骤；live assert 223 ≥ 100 通过 |
-| F-002 | dryRun + live | warnings=[]；客户端执行 8 步全过 |
+| F-001 | dryRun + live | `warnings=[]`；give.select + use + data get（5200 ≥ 100）+ block analog=7 全过 |
+| F-002 | dryRun + live | `warnings=[]`；wait + use + wait + ui/title/slot 全过 |
 | F-006 | dryRun | set_item_energy / item_bar_* 警告，只生成 give |
 | S-001 | live（server） | setblock + data merge + data get + assert 123 全过 |
 
@@ -69,8 +69,24 @@ mcdev_scenario card=<...>/cards/F-002.yml
 3. 客户端卡片要求 client 已进服（不是只在 `ConnectScreen`）。
 4. 卡片的 `spec`/`tiers`/`ui` 字段只作为文档，不参与执行。
 
-## 6. 结论
+## 6. 客户端 handshake 排查
 
-- `mcdev_scenario card=F-002.yml` 一条命令跑通客户端打开 GUI + UI 断言。
+失败时：
+
+- client：`Starting new vanilla impl connection` 后没有 modded handshake；
+- server：已发 22 个 handshake 包，30 秒后 `lost connection: Disconnected`；
+- client Render thread 正常 tick，Netty thread 在 selector 空闲。
+
+处理：
+
+1. 改 probe 后 `clean devJar` + `mcdev_install_probe`；
+2. `mcdev_prepare client/both` 等待进服，失败自动重试一次；
+3. 卡片 use 前后加 `wait`。
+
+根因未完全定位（疑 quickPlay 启动时机/增量 devJar），但重试 + clean 构建已稳定跑通本轮 F-001/F-002。
+
+## 7. 结论
+
+- `mcdev_scenario card=F-001.yml` / `card=F-002.yml` 客户端 live 全过，warnings=[]。
 - YAML 解析器覆盖现有卡片结构；不支持的字段显式警告，不静默通过。
-- 下一步扩展 comparator/recipe/loot/item_bar assert，并给 `give` 加“选中主手”选项。
+- 下一步扩展 recipe/loot/item_bar assert；quickPlay 根因继续查。

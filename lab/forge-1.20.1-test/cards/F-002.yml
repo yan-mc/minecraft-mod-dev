@@ -16,7 +16,9 @@ setup:
     - "tp Dev 0.5 64 1.5 180 0"
     - "item replace entity Dev weapon.mainhand with minecraft:air"
 actions:
+  - {wait: 300}
   - {use_on: {x: 0, y: 64, z: 0, face: up}}
+  - {wait: 300}
 assert:
   - {screen_title: "Charger"}
   - {slot_exists: 0}
@@ -32,6 +34,6 @@ evidence:
   - "shift-click 0->36 and 36->0, Charged Item count stays 1"
   - "Energy 5000/10000 bar + text; close/reopen keeps item + energy"
   - "screenshots mcdev-1792258312165.png / mcdev-1792258351039.png + read_image"
-  - "mcdev_scenario card=F-002 live: ok=true, warnings=[]"
+  - "mcdev_scenario card=F-002 live: warnings=[], wait+use+wait+ui/title/slot"
   - "M4-F002-REPORT.md; M4-CLIENT-CHECKS.md; M4-SCENARIO-CARD.md"
 status: passed
