@@ -52,6 +52,30 @@ public class ChargedItem extends Item {
     }
 
     @Override
+    public boolean isBarVisible(ItemStack stack) {
+        int energy = getEnergy(stack);
+        return energy > 0 && energy < MAX_ENERGY;
+    }
+
+    @Override
+    public int getBarWidth(ItemStack stack) {
+        int energy = getEnergy(stack);
+        return Math.max(1, energy * 13 / MAX_ENERGY);
+    }
+
+    @Override
+    public int getBarColor(ItemStack stack) {
+        int energy = getEnergy(stack);
+        if (energy >= 5000) {
+            return 0x00FF00;
+        }
+        if (energy >= 2000) {
+            return 0xFFFF00;
+        }
+        return 0xFF0000;
+    }
+
+    @Override
     public void appendHoverText(ItemStack stack, @Nullable Level level,
                                 List<Component> tooltip, TooltipFlag flag) {
         tooltip.add(Component.literal("Energy: " + getEnergy(stack) + "/" + MAX_ENERGY)

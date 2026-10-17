@@ -7,6 +7,7 @@
 | F-003 | 充能物品 | 模型/贴图/语言 | NBT/tooltip 数据 | 右键空中 | tooltip 文本 | run_id + 截图 |
 | F-004 | 配方/掉落 | recipe/loot JSON | 合成/破坏 | — | — | 断言 + 审计 |
 | F-005 | 命令/进度 | advancement JSON | 命令执行 | `/charger info` | — | 日志 + 断言 |
+| F-006 | 物品能量条 | 模型/语言 | bar width/color/visible | — | 物品栏截图 | GameTest + 截图 |
 
 ## 执行顺序
 

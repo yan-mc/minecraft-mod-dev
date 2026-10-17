@@ -1,0 +1,32 @@
+id: F-006
+title: 充能物品能量条
+spec:
+  - charged_item 在物品栏显示类似耐久条的能量条
+  - Energy 为 0 或 10000 时不显示
+  - 0 < Energy < 10000 时显示，宽度 = max(1, energy * 13 / 10000)
+  - energy >= 5000 绿色，>= 2000 黄色，否则红色
+  - 不改变 NBT/tooltip/右键使用
+tiers:
+  static: true
+  gametest: true
+  server_scenario: false
+  client_ui: true
+setup:
+  commands:
+    - "give Dev examplemod:charged_item 1"
+actions:
+  - {set_item_energy: {player: Dev, value: 5000}}
+assert:
+  - {item_bar_visible: true}
+  - {item_bar_width: 6}
+  - {item_bar_color: "green"}
+  - {no_exception: true}
+ui:
+  open: false
+  screenshot: true
+evidence:
+  - "builder-item: ChargedItem isBarVisible/getBarWidth/getBarColor; mcdev_build exit 0"
+  - "tester-item: GameTest chargedItemBar, 11 assertions"
+  - "Lead verification: mcdev_gametest All 12 required tests passed"
+  - "M4-TEAM-WORKFLOW.md"
+status: passed

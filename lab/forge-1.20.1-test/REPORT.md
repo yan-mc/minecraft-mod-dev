@@ -2,14 +2,14 @@
 
 日期：2026-10-18
 工程：`lab/forge-1.20.1-test`
-范围：5 张功能卡 + 5 类注入 bug + GameTest/服务端/客户端检查。
+范围：5 张功能卡 + F-006 追加载荷 + 5 类注入 bug + GameTest/服务端/客户端检查。
 
 ## 总结
 
 | 项 | 结果 |
 |---|---|
 | 构建 | `mcdev_build` exit 0 |
-| GameTest | `mcdev_gametest` exit 0，**11/11** |
+| GameTest | `mcdev_gametest` exit 0，**12/12** |
 | 注入 bug | 5 个全部检出，5 个全部修复 |
 | 静态审计 | 8 个必需资源，missing=0 |
 | 客户端 | GUI 打开/槽位/能量条/shift-click/关闭再打开通过 |
@@ -26,6 +26,7 @@
 | F-003 | 充能物品 | ✅ 模型/lang | ✅ 能量 clamp | ✅ 空中右键 500→400 | ⚠️ tooltip 未视觉验证 | 基本通过 |
 | F-004 | 配方/掉落 | ✅ recipe/loot JSON | ✅ recipe 结果 + loot 掉落 | — | — | **通过** |
 | F-005 | 命令/进度 | ✅ advancement JSON | ✅ `/charger info <pos>` | ✅ advancement 触发 | ⚠️ 玩家 raycast 未测 | 基本通过 |
+| F-006 | 物品能量条 | ✅ 模型/lang | ✅ bar visible/width/color | — | 物品栏截图待补 | **通过**（团队实现） |
 
 ## 注入 bug 矩阵
 
@@ -41,7 +42,8 @@
 
 ## 证据
 
-- GameTest：`All 10 required tests passed`
+- GameTest：`All 12 required tests passed`
+- F-006：builder-item + tester-item 团队实现，Lead 复核 12/12（见 `M4-TEAM-WORKFLOW.md`）
 - 客户端截图：
   - `run-client/screenshots/mcdev-1792257239553.png`（GUI 第一版）
   - `run-client/screenshots/mcdev-1792258312165.png`（Energy 5000/10000）

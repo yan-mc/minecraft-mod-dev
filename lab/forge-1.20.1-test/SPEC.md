@@ -44,6 +44,18 @@
 - Advancement `examplemod:charger/root`：玩家首次获得 `charged_item` 时触发；JSON 合法。
 - 命令在单人/服务端均可执行；无权限崩溃。
 
+## F-006 充能物品能量条
+
+- `examplemod:charged_item` 在物品栏显示类似耐久条的能量条。
+- Energy 为 0 或 MAX（10000）时不显示能量条。
+- 0 < Energy < MAX 时显示；宽度 = `max(1, energy * 13 / 10000)`。
+- 颜色：
+  - energy >= 5000：绿色；
+  - energy >= 2000：黄色；
+  - 其他：红色。
+- 不改变现有 NBT、tooltip、右键使用行为。
+- 客户端物品栏/手持时可见能量条。
+
 ## 非目标
 
 - 不要求真实 FE 能量网络（Forge Energy capability 可选）。

@@ -106,6 +106,41 @@ public final class ExampleGameTests {
     }
 
     @GameTest(template = "empty")
+    public static void chargedItemBar(GameTestHelper helper) {
+        ItemStack stack = new ItemStack(ModRegistry.CHARGED_ITEM.get());
+        ChargedItem item = (ChargedItem) stack.getItem();
+
+        ChargedItem.setEnergy(stack, 0);
+        helper.assertTrue(!item.isBarVisible(stack), "bar should be hidden at energy 0");
+
+        ChargedItem.setEnergy(stack, 10000);
+        helper.assertTrue(!item.isBarVisible(stack), "bar should be hidden at energy 10000");
+
+        ChargedItem.setEnergy(stack, 5000);
+        helper.assertTrue(item.isBarVisible(stack), "bar should be visible at energy 5000");
+        helper.assertTrue(item.getBarWidth(stack) == 6,
+                "bar width should be 6 at energy 5000, got " + item.getBarWidth(stack));
+        helper.assertTrue(item.getBarColor(stack) == 0x00FF00,
+                "bar color should be green at energy 5000, got " + item.getBarColor(stack));
+
+        ChargedItem.setEnergy(stack, 2000);
+        helper.assertTrue(item.isBarVisible(stack), "bar should be visible at energy 2000");
+        helper.assertTrue(item.getBarWidth(stack) == 2,
+                "bar width should be 2 at energy 2000, got " + item.getBarWidth(stack));
+        helper.assertTrue(item.getBarColor(stack) == 0xFFFF00,
+                "bar color should be yellow at energy 2000, got " + item.getBarColor(stack));
+
+        ChargedItem.setEnergy(stack, 500);
+        helper.assertTrue(item.isBarVisible(stack), "bar should be visible at energy 500");
+        helper.assertTrue(item.getBarWidth(stack) == 1,
+                "bar width should be 1 at energy 500, got " + item.getBarWidth(stack));
+        helper.assertTrue(item.getBarColor(stack) == 0xFF0000,
+                "bar color should be red at energy 500, got " + item.getBarColor(stack));
+
+        helper.succeed();
+    }
+
+    @GameTest(template = "empty")
     public static void chargerRecipeExists(GameTestHelper helper) {
         var recipe = helper.getLevel().getRecipeManager()
                 .byKey(new ResourceLocation(ExampleMod.MODID, "charger"));
