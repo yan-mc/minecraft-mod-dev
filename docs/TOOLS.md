@@ -153,9 +153,8 @@ mcdev_scenario card=<repo>/lab/forge-1.20.1-test/cards/S-001-server-smoke.yml
 - 返回 pid/port/logPath；已 ready 时 `alreadyRunning=true`；
 - client/both 默认等待玩家进服，返回 `joined`；
 - 若卡在 ConnectScreen/Disconnected，自动 stop + 重启 client 一次（`retry=true`）；
+- 仍失败时返回 `joined=false`、`lastScreen`，并在 `firstAttempt` 保留第一次的 pid/logPath/lastScreen；
 - 日志写 `<projectDir>/.mcdev/launch-<kind>-<ts>.log`。
-
-> 等待的是 **probe ready**，不是“客户端进服”。
 
 ### `mcdev_stop`
 

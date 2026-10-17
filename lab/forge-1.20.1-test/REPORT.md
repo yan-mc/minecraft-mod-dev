@@ -48,7 +48,7 @@
 - 卡片执行：`mcdev_scenario card=cards/F-002.yml` 客户端 live，warnings=[]，wait+use+ui/title/slot 全过（见 `M4-SCENARIO-CARD.md`）
 - 卡片执行：`mcdev_scenario card=cards/F-001.yml` 客户端 live，warnings=[]，give.select+use+data get（5200）+comparator（analog=7）全过
 - 比较器：`block` 步骤 + `/world/block` 返回 `analog=7`，assert eq 7 通过
-- 启动稳定性：`mcdev_prepare kind=both` 返回 `joined=true`；quickPlay 卡死时自动重试一次
+- 启动稳定性：`mcdev_prepare kind=both` 返回 `joined=true`；强制失败演练（无 server）返回 `joined=false, lastScreen=DisconnectedScreen, retry=true` + `firstAttempt` 诊断
 - 客户端截图：
   - `run-client/screenshots/mcdev-1792257239553.png`（GUI 第一版）
   - `run-client/screenshots/mcdev-1792258312165.png`（Energy 5000/10000）

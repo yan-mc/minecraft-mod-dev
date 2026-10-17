@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.3.6 — 2026-10-18
+
+- `mcdev_prepare` 失败时返回 `lastScreen`，并在 `firstAttempt` 里保留第一次 pid/logPath/lastScreen。
+- 强制失败演练：无 server 时 `joined=false, lastScreen=DisconnectedScreen, retry=true`。
+- 成功路径复测：`kind=both` → `joined=true, lastScreen=""`；F-002 卡片随后通过。
+
 ## v0.3.5 — 2026-10-18
 
 - `mcdev_prepare` client/both 默认等待进服（`joined`），卡 ConnectScreen/Disconnected 自动 stop + 重启 client 一次。

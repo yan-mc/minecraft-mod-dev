@@ -193,6 +193,7 @@ async function waitForProbe(kind, port, timeoutMs) {
 
 async function waitForClientJoin(timeoutMs) {
   const deadline = Date.now() + Math.max(5000, timeoutMs);
+  let lastScreen = null;
   while (Date.now() < deadline) {
     try {
       const response = await fetch(`http://127.0.0.1:${DEFAULT_PORTS.client}/status`, {
@@ -203,8 +204,9 @@ async function waitForClientJoin(timeoutMs) {
         const body = await response.json();
         const data = body?.data;
         const screen = data?.screen ?? '';
+        lastScreen = screen;
         if (data?.player && !/ConnectScreen|DisconnectedScreen|ReceivingLevelScreen/.test(screen)) {
-          return true;
+          return { joined: true, lastScreen };
         }
       }
     } catch {
@@ -212,7 +214,7 @@ async function waitForClientJoin(timeoutMs) {
     }
     await new Promise((resolve) => setTimeout(resolve, 2000));
   }
-  return false;
+  return { joined: false, lastScreen };
 }
 
 async function launchKind(kind, projectDir, timeoutMs) {
@@ -743,16 +745,24 @@ export function apply(ctx) {
         if (args.waitJoin === false) {
           results.push(client);
         } else {
-          const joined = await waitForClientJoin(Math.min(timeoutMs, 90000));
-          if (joined) {
+          const join = await waitForClientJoin(Math.min(timeoutMs, 90000));
+          if (join.joined) {
             client.joined = true;
+            client.lastScreen = join.lastScreen;
             results.push(client);
           } else {
             await stopTracked('client');
             await new Promise((resolve) => setTimeout(resolve, 2000));
             const retry = await launchKind('client', args.projectDir, timeoutMs);
+            const retryJoin = await waitForClientJoin(Math.min(timeoutMs, 90000));
             retry.retry = true;
-            retry.joined = await waitForClientJoin(Math.min(timeoutMs, 90000));
+            retry.joined = retryJoin.joined;
+            retry.lastScreen = retryJoin.lastScreen;
+            retry.firstAttempt = {
+              pid: client.pid,
+              logPath: client.logPath,
+              lastScreen: join.lastScreen,
+            };
             results.push(retry);
           }
         }

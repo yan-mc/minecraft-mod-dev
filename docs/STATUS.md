@@ -32,7 +32,7 @@ bug drill      → 1 failure → fix → 12/12
 4. `mcdev_scenario` 已支持 YAML 卡片子集（setup/actions/screen_title/slot/block_entity_nbt/comparator），recipe/loot/item_bar 等 assert 仍未覆盖。
 5. Agent Teams 是实验性的，可能有成员/任务状态不同步。
 6. 公开 beta 的安装包/版本化还未做；目前是本地 link 安装。
-7. quickPlay 偶发 handshake 卡死：已加 `clean devJar`、`mcdev_prepare` waitJoin/retry 兜底，根因未完全定位。
+7. quickPlay 偶发 handshake 卡死：已加 `clean devJar`、`mcdev_prepare` waitJoin/retry、`lastScreen` 诊断；强制失败演练通过，根因未完全定位。
 
 ## 路线图
 
