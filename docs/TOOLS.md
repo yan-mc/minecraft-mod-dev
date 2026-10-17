@@ -74,7 +74,24 @@
 
 ### `mcdev_scenario`
 
-参数：`steps`（数组，必填）。
+参数（二选一）：
+
+- `steps`（数组）：直接执行；
+- `card`（字符串）：YAML 卡片绝对路径，先翻译成 steps；
+- `dryRun`（可选）：只翻译/报告，不执行。
+
+卡片转换支持：
+
+- `setup.commands` → `command`；
+- `actions.give` → `give`；
+- `actions.use_on` / `use_item_on` → `use`；
+- `actions.command` → `command`；
+- `assert.screen_title` → `ui` + `data.title`；
+- `assert.slot_exists` → `ui` + `data.slots.<n>.index`；
+- `assert.block_entity_nbt` → `data get block ...` + `data.result`；
+- `assert.no_exception` → 跳过（probe 错误本身会让步骤失败）。
+
+暂不支持的 action/assert 会进入 `warnings`，不会静默当通过。
 
 步骤：
 
@@ -91,11 +108,18 @@
 | `assert` | `path`, `op`, `value`, `step`（可选） |
 
 `assert` 的 `path` 是点路径（如 `data.version`、`data.slots.0.item`），
-`op` 支持 `eq/ne/contains/gt/lt/exists`；默认对最近一个数据步骤断言。
+`op` 支持 `eq/ne/contains/gt/gte/lt/lte/exists`；默认对最近一个数据步骤断言。
 失败立即停止，返回：
 
 ```json
 {"ok":false,"failedAt":1,"steps":[...]}
+```
+
+卡片示例：
+
+```text
+mcdev_scenario card=<repo>/lab/forge-1.20.1-test/cards/F-002.yml dryRun=true
+mcdev_scenario card=<repo>/lab/forge-1.20.1-test/cards/S-001-server-smoke.yml
 ```
 
 ### `mcdev_build`

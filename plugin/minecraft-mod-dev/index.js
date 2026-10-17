@@ -311,6 +311,315 @@ async function stopTracked(kind) {
   };
 }
 
+function unquote(value) {
+  const s = String(value).trim();
+  if ((s.startsWith('"') && s.endsWith('"')) || (s.startsWith("'") && s.endsWith("'"))) {
+    return s.slice(1, -1);
+  }
+  return s;
+}
+
+function splitTopLevel(text, separator) {
+  const parts = [];
+  let depth = 0;
+  let quote = null;
+  let start = 0;
+  for (let i = 0; i < text.length; i += 1) {
+    const c = text[i];
+    if (quote) {
+      if (c === quote && text[i - 1] !== '\\') {
+        quote = null;
+      }
+      continue;
+    }
+    if (c === '"' || c === "'") {
+      quote = c;
+      continue;
+    }
+    if (c === '{' || c === '[') {
+      depth += 1;
+    } else if (c === '}' || c === ']') {
+      depth -= 1;
+    } else if (c === separator && depth === 0) {
+      parts.push(text.slice(start, i));
+      start = i + 1;
+    }
+  }
+  parts.push(text.slice(start));
+  return parts;
+}
+
+function splitKeyValue(text) {
+  let depth = 0;
+  let quote = null;
+  for (let i = 0; i < text.length; i += 1) {
+    const c = text[i];
+    if (quote) {
+      if (c === quote && text[i - 1] !== '\\') {
+        quote = null;
+      }
+      continue;
+    }
+    if (c === '"' || c === "'") {
+      quote = c;
+      continue;
+    }
+    if (c === '{' || c === '[') {
+      depth += 1;
+    } else if (c === '}' || c === ']') {
+      depth -= 1;
+    } else if (c === ':' && depth === 0) {
+      return [text.slice(0, i), text.slice(i + 1)];
+    }
+  }
+  return null;
+}
+
+function parseInlineValue(text) {
+  const s = String(text).trim();
+  if (s.startsWith('{') && s.endsWith('}')) {
+    const object = {};
+    const inner = s.slice(1, -1).trim();
+    if (!inner) {
+      return object;
+    }
+    for (const part of splitTopLevel(inner, ',')) {
+      const kv = splitKeyValue(part);
+      if (!kv) {
+        continue;
+      }
+      object[unquote(kv[0])] = parseInlineValue(kv[1]);
+    }
+    return object;
+  }
+  if (s.startsWith('[') && s.endsWith(']')) {
+    const inner = s.slice(1, -1).trim();
+    if (!inner) {
+      return [];
+    }
+    return splitTopLevel(inner, ',').map((item) => parseInlineValue(item));
+  }
+  if (s.startsWith('"') && s.endsWith('"')) {
+    return JSON.parse(s);
+  }
+  if (s.startsWith("'") && s.endsWith("'")) {
+    return s.slice(1, -1).replace(/''/g, "'");
+  }
+  if (s === 'true') {
+    return true;
+  }
+  if (s === 'false') {
+    return false;
+  }
+  if (s === 'null' || s === '~') {
+    return null;
+  }
+  if (/^-?\d+$/.test(s)) {
+    return Number(s);
+  }
+  if (/^-?\d+\.\d+$/.test(s)) {
+    return Number(s);
+  }
+  return s;
+}
+
+function parseYaml(text) {
+  const lines = String(text)
+    .split(/\r?\n/)
+    .filter((line) => line.trim() !== '' && !line.trim().startsWith('#'))
+    .map((line) => ({
+      indent: (line.match(/^ */) || [''])[0].length,
+      content: line.trim(),
+    }));
+  let index = 0;
+
+  function parseBlock(indent) {
+    if (index >= lines.length) {
+      return null;
+    }
+    const line = lines[index];
+    if (line.indent < indent) {
+      return null;
+    }
+    if (line.content.startsWith('-')) {
+      return parseSequence(line.indent);
+    }
+    return parseMapping(line.indent);
+  }
+
+  function parseSequence(indent) {
+    const result = [];
+    while (index < lines.length) {
+      const line = lines[index];
+      if (line.indent !== indent || !line.content.startsWith('-')) {
+        break;
+      }
+      const rest = line.content.slice(1).trim();
+      index += 1;
+      if (rest === '') {
+        const next = lines[index];
+        if (next && next.indent > indent) {
+          result.push(parseBlock(next.indent));
+        } else {
+          result.push(null);
+        }
+      } else if (rest.startsWith('{') || rest.startsWith('[')) {
+        result.push(parseInlineValue(rest));
+      } else if (/^[A-Za-z0-9_.-]+\s*:/.test(rest)) {
+        const kv = splitKeyValue(rest);
+        const object = {};
+        object[unquote(kv[0])] = parseInlineValue(kv[1]);
+        result.push(object);
+      } else {
+        result.push(parseInlineValue(rest));
+      }
+    }
+    return result;
+  }
+
+  function parseMapping(indent) {
+    const result = {};
+    while (index < lines.length) {
+      const line = lines[index];
+      if (line.indent !== indent || line.content.startsWith('-')) {
+        break;
+      }
+      const kv = splitKeyValue(line.content);
+      if (!kv) {
+        break;
+      }
+      const key = unquote(kv[0]);
+      const rest = kv[1].trim();
+      index += 1;
+      if (rest === '') {
+        const next = lines[index];
+        if (next && next.indent > indent) {
+          result[key] = parseBlock(next.indent);
+        } else {
+          result[key] = null;
+        }
+      } else {
+        result[key] = parseInlineValue(rest);
+      }
+    }
+    return result;
+  }
+
+  if (lines.length === 0) {
+    return {};
+  }
+  return parseBlock(lines[0].indent);
+}
+
+function mapCardOp(op) {
+  const value = String(op ?? 'eq').trim();
+  const mapping = {
+    '==': 'eq',
+    '=': 'eq',
+    eq: 'eq',
+    '!=': 'ne',
+    ne: 'ne',
+    '>': 'gt',
+    gt: 'gt',
+    '>=': 'gte',
+    gte: 'gte',
+    '<': 'lt',
+    lt: 'lt',
+    '<=': 'lte',
+    lte: 'lte',
+    contains: 'contains',
+    exists: 'exists',
+  };
+  return mapping[value] ?? value;
+}
+
+function cardToSteps(card) {
+  const steps = [];
+  const warnings = [];
+  const commands = card?.setup?.commands;
+  if (Array.isArray(commands)) {
+    for (const cmd of commands) {
+      if (typeof cmd === 'string' && cmd.trim() !== '') {
+        steps.push({ type: 'command', side: 'server', cmd });
+      }
+    }
+  }
+
+  const actions = Array.isArray(card?.actions) ? card.actions : [];
+  for (const action of actions) {
+    if (typeof action === 'string') {
+      steps.push({ type: 'command', side: 'server', cmd: action });
+      continue;
+    }
+    if (!action || typeof action !== 'object') {
+      continue;
+    }
+    if (action.give) {
+      const give = action.give;
+      const player = give.player ?? 'Dev';
+      const item = give.item;
+      const count = give.count ?? 1;
+      if (typeof item === 'string') {
+        steps.push({ type: 'command', side: 'server', cmd: `give ${player} ${item} ${count}` });
+      }
+    } else if (action.use_on || action.use_item_on) {
+      const use = action.use_on ?? action.use_item_on;
+      steps.push({
+        type: 'use',
+        x: use.x,
+        y: use.y,
+        z: use.z,
+        face: use.face ?? 'up',
+      });
+    } else if (typeof action.command === 'string') {
+      steps.push({ type: 'command', side: 'server', cmd: action.command });
+    } else {
+      warnings.push(`unsupported action: ${JSON.stringify(action)}`);
+    }
+  }
+
+  const asserts = Array.isArray(card?.assert) ? card.assert : [];
+  for (const check of asserts) {
+    if (!check || typeof check !== 'object') {
+      continue;
+    }
+    if (check.screen_title !== undefined) {
+      steps.push({ type: 'ui' });
+      steps.push({ type: 'assert', path: 'data.title', op: 'eq', value: String(check.screen_title) });
+    } else if (check.slot_exists !== undefined) {
+      const slot = Number(check.slot_exists);
+      steps.push({ type: 'ui' });
+      steps.push({
+        type: 'assert',
+        path: `data.slots.${slot}.index`,
+        op: 'eq',
+        value: String(slot),
+      });
+    } else if (check.block_entity_nbt) {
+      const nbt = check.block_entity_nbt;
+      if (Array.isArray(nbt.pos) && nbt.pos.length === 3) {
+        const [x, y, z] = nbt.pos;
+        const path = nbt.path ?? 'Energy';
+        steps.push({ type: 'command', side: 'server', cmd: `data get block ${x} ${y} ${z} ${path}` });
+        steps.push({
+          type: 'assert',
+          path: 'data.result',
+          op: mapCardOp(nbt.op),
+          value: String(nbt.value),
+        });
+      } else {
+        warnings.push('block_entity_nbt requires pos=[x,y,z]');
+      }
+    } else if (check.no_exception !== undefined) {
+      // no-op: the executor already fails on probe errors
+    } else {
+      const key = Object.keys(check)[0] ?? 'unknown';
+      warnings.push(`unsupported assert: ${key}`);
+    }
+  }
+  return { steps, warnings };
+}
+
 export function apply(ctx) {
   if (typeof ctx.effect === 'function') {
     try {
@@ -581,12 +890,11 @@ export function apply(ctx) {
 
   ctx.tools.register(stringTool(
     'mcdev_scenario',
-    'Execute an ordered list of probe/scenario steps and return per-step results. Steps: status, command, use, ui, click, screenshot, run_dump, wait, assert. Stops at the first failure (ok=false). assert uses path/op/value against the latest data step or an explicit step index.',
+    'Execute an ordered list of probe/scenario steps, or translate a card YAML file into steps. Steps: status, command, use, ui, click, screenshot, run_dump, wait, assert. Stops at the first failure (ok=false). assert uses path/op/value against the latest data step or an explicit step index.',
     {
       steps: {
         type: 'array',
-        required: true,
-        description: 'Ordered scenario steps.',
+        description: 'Ordered scenario steps. Omit when using card.',
         items: {
           type: 'object',
           additionalProperties: true,
@@ -609,18 +917,45 @@ export function apply(ctx) {
             ms: { type: 'integer' },
             step: { type: 'integer' },
             path: { type: 'string' },
-            op: { type: 'string', enum: ['eq', 'ne', 'contains', 'gt', 'lt', 'exists'] },
+            op: { type: 'string', enum: ['eq', 'ne', 'contains', 'gt', 'gte', 'lt', 'lte', 'exists'] },
             value: { type: 'string' },
             label: { type: 'string' },
             n: { type: 'integer' },
           },
         },
       },
+      card: {
+        type: 'string',
+        description: 'Absolute path to a card YAML (F-001..F-006 style). Translates setup/actions/assert into steps.',
+      },
+      dryRun: {
+        type: 'boolean',
+        description: 'Translate/report steps without executing them.',
+      },
     },
     async (args) => {
-      const steps = Array.isArray(args.steps) ? args.steps : [];
+      let steps = Array.isArray(args.steps) ? args.steps : [];
+      let warnings = [];
+      if (typeof args.card === 'string' && args.card.trim() !== '') {
+        if (!existsSync(args.card)) {
+          throw new Error(`card not found: ${args.card}`);
+        }
+        const card = parseYaml(readFileSync(args.card, 'utf8'));
+        const translated = cardToSteps(card);
+        steps = translated.steps;
+        warnings = translated.warnings;
+      }
       if (steps.length === 0) {
-        throw new Error('steps must be a non-empty array');
+        throw new Error('provide steps or a card with supported steps');
+      }
+      if (args.dryRun) {
+        return JSON.stringify({
+          ok: true,
+          dryRun: true,
+          card: args.card ?? null,
+          warnings,
+          steps,
+        });
       }
       const results = [];
       let lastDataIndex = -1;
@@ -656,8 +991,14 @@ export function apply(ctx) {
               case 'gt':
                 ok = Number(actual) > Number(expected);
                 break;
+              case 'gte':
+                ok = Number(actual) >= Number(expected);
+                break;
               case 'lt':
                 ok = Number(actual) < Number(expected);
+                break;
+              case 'lte':
+                ok = Number(actual) <= Number(expected);
                 break;
               case 'exists':
                 ok = actual !== undefined;
@@ -740,10 +1081,10 @@ export function apply(ctx) {
             ok: false,
             error: String(error?.message ?? error),
           });
-          return JSON.stringify({ ok: false, failedAt: i, steps: results });
+          return JSON.stringify({ ok: false, failedAt: i, warnings, steps: results });
         }
       }
-      return JSON.stringify({ ok: true, steps: results });
+      return JSON.stringify({ ok: true, warnings, steps: results });
     },
   ));
 
@@ -796,3 +1137,4 @@ export function apply(ctx) {
     },
   ));
 }
+

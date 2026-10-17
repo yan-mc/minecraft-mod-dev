@@ -29,7 +29,7 @@ bug drill      → 1 failure → fix → 12/12
 1. `/charger info` 的玩家 raycast 路径、advancement toast、tooltip 视觉未测。
 2. 探针 Mixin 是 dev-only（`remap=false` + 字面量 `tick`）；生产 SRG 未支持。
 3. `mcdev_prepare`/`mcdev_scenario` 只在 `lab/forge-1.20.1-test` 实测过。
-4. `mcdev_scenario` 目前吃 JSON steps，不直接解析 `cards/*.yml`。
+4. `mcdev_scenario` 已支持 YAML 卡片子集（setup/actions/screen_title/slot/block_entity_nbt），comparator/recipe/loot/item_bar 等 assert 仍未覆盖，会进 warnings。
 5. Agent Teams 是实验性的，可能有成员/任务状态不同步。
 6. 公开 beta 的安装包/版本化还未做；目前是本地 link 安装。
 

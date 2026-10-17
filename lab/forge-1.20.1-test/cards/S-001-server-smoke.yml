@@ -1,0 +1,9 @@
+id: S-001
+title: server smoke（YAML 卡片解析）
+setup:
+  commands:
+    - "setblock 0 64 0 examplemod:charger"
+    - "data merge block 0 64 0 {Energy:123}"
+actions: []
+assert:
+  - {block_entity_nbt: {pos: [0, 64, 0], path: "Energy", op: "==", value: 123}}

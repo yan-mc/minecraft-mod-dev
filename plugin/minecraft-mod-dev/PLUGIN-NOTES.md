@@ -1,4 +1,4 @@
-# minecraft-mod-dev plugin v0.3.0
+# minecraft-mod-dev plugin v0.3.1
 
 日期：2026-10-18
 位置：`plugin/minecraft-mod-dev`
@@ -7,13 +7,14 @@
 
 ```text
 plugin_manager install_bundle target=...\plugin\minecraft-mod-dev
-application=applied, version=0.3.0
+application=applied, version=0.3.1
 ```
 
-v0.3.0 包含：
+v0.3.1 包含：
 - 14 个 `mcdev_*` 工具；
 - `mcmod` preset（团队默认，Agent Teams 9 工具）；
-- 内置官方实验 Agent Teams 挂载（禁用传统 subagent 四行）。
+- 内置官方实验 Agent Teams 挂载（禁用传统 subagent 四行）；
+- `mcdev_scenario` 支持 YAML 卡片解析 + `dryRun`。
 
 ## 工具
 
@@ -29,7 +30,7 @@ v0.3.0 包含：
 | `mcdev_build` | 在指定 Forge 项目跑 `gradlew build` |
 | `mcdev_gametest` | 跑 `gradlew runGameTestServer` |
 | `mcdev_install_probe` | 校验并把 dev probe jar 放进一个或多个 `<runDir>/mods` |
-| `mcdev_scenario` | 顺序执行 status/command/use/ui/click/screenshot/run_dump/wait/assert，返回每步结果 |
+| `mcdev_scenario` | 顺序执行 steps，或把 card YAML 转成 steps；支持 dryRun |
 | `mcdev_prepare` | 启动 `runServer`/`runClient`，等待 probe ready，返回 pid/port/logPath |
 | `mcdev_stop` | 停止 prepare 启动的进程（先 probe stop/quit，再强杀进程树） |
 | `mcdev_launch_status` | 查看 prepare 启动的进程列表/pid/port/logPath/running |
@@ -51,6 +52,8 @@ v0.3.0 包含：
 | `mcdev_prepare kind=server` | pid=12620, port=39001, logPath=`.mcdev/launch-server-*.log`, ready=true |
 | `mcdev_prepare kind=both` | server pid=26068 + client pid=7944，两个 probe 都 ready |
 | `mcdev_stop side=all` | 两个进程都 stopped，之后 `launch_status=[]`，无 Java 残留 |
+| YAML card dryRun | F-001/F-002 正常翻译；F-006 对不支持的 action/assert 给 warnings |
+| YAML card live | S-001：setblock + data merge + data get + assert 123 全过 |
 
 ## install_probe 的校验
 
@@ -70,5 +73,5 @@ Windows 下 `spawnSync` 用 `shell: false`，避免 `C:\Program Files\...` 被 s
 ## 待办
 
 1. 用 Charger 作为 reference mod，跑完整团队流程。
-2. `mcdev_scenario` 接 YAML 卡片解析（目前传 JSON steps）。
-3. 公开 beta 的安装/文档/演示。 
+2. 卡片解析覆盖更多 assert（comparator/recipe/loot/item_bar）。
+3. 公开 beta 的安装包/版本化（v0.3.1 release）。

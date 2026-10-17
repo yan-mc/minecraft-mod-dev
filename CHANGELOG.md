@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.3.1 — 2026-10-18
+
+- `mcdev_scenario` 支持 `card=<path>` 解析 YAML 卡片 + `dryRun`。
+- 卡片子集：`setup.commands`、`actions.give/use_on/use_item_on/command`、`assert.screen_title/slot_exists/block_entity_nbt/no_exception`。
+- 不支持的 action/assert 进入 `warnings`，不静默当通过。
+- 新增 `cards/S-001-server-smoke.yml`，服务端实跑通过。
+- `assert` 新增 `gte` / `lte`。
+
 ## v0.3.0 — 2026-10-18（public beta）
 
 - 插件升级到 14 个 `mcdev_*` 工具。
