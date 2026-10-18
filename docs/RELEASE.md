@@ -4,7 +4,7 @@
 
 - 插件版本在 `plugin/minecraft-mod-dev/package.json`；
 - 文档/仓库里程碑版本用 git tag `vX.Y.Z`；
-- 当前：插件 `0.4.1`，tag `v0.4.1`，标记为 **pre-release**（公开 beta）。
+- 当前：插件 `0.5.0`，tag `v0.5.0`，标记为 **pre-release**（公开 beta）。
 
 ## 发布前检查
 
@@ -17,8 +17,8 @@ git status                                        → clean
 ## 打 tag
 
 ```powershell
-git tag -a v0.4.1 -m "v0.4.1 public beta: deterministic F-007, regression, tooltip/toast visuals"
-git push origin v0.4.1
+git tag -a v0.5.0 -m "v0.5.0 public beta: craft, explicit connect, client packet mine, demo"
+git push origin v0.5.0
 ```
 
 ## GitHub Release
@@ -28,8 +28,8 @@ git push origin v0.4.1
 ```text
 POST /repos/yan-mc/minecraft-mod-dev/releases
 {
-  "tag_name": "v0.4.1",
-  "name": "v0.4.1 — public beta",
+  "tag_name": "v0.5.0",
+  "name": "v0.5.0 — public beta",
   "prerelease": true,
   "body": "..."
 }
@@ -38,20 +38,20 @@ POST /repos/yan-mc/minecraft-mod-dev/releases
 Release notes 应包含：
 
 - 14 个工具列表；
-- `mcdev_scenario` YAML 卡片 + recipe/loot/loot_break/loot_mine/mine/client_mine/items/item_bar；
-- F-001..F-007 live；
-- F-007 生存挖掘根因修复（mineable/pickaxe tag）；F-007 用服务端在线玩家 survival mine；
+- `mcdev_scenario` YAML 卡片 + recipe/loot/loot_break/craft/mine/client_mine/items/item_bar；
+- **craft action**：`/craft` 检查/消耗在线玩家背包并产出 result；
+- **quickPlay 根因修复**：移除 quickPlay，TitleScreen 后 `/connect` 显式连接；3/3 attempt1 joined；
+- F-007 客户端 `START_DESTROY_BLOCK` 包 + 服务端权威；
+- F-001..F-007 live；GameTest 12/12；
 - F-003 tooltip、F-005 raycast/toast、F-006 能量条截图；
-- F-001/F-004 卡片回归修复；F-001..F-007 全量顺序执行 warnings=[]；
-- `mcdev_prepare` 最多 3 次等待/重试；
-- Charger 12/12、5/5 bug；
+- `docs/DEMO.md` 演示；
 - 安装入口 `docs/INSTALL.md`；
 - 已知限制（Windows + 1.20.1 Forge only、dev-only Mixin、实验 Agent Teams）。
 
 ## Release 附件
 
 ```powershell
-dist/minecraft-mod-dev-0.4.1.zip
+dist/minecraft-mod-dev-0.5.0.zip
 dist/mcdev_probe-0.1.0-dev.jar
 ```
 
