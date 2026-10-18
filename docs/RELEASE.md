@@ -4,7 +4,7 @@
 
 - 插件版本在 `plugin/minecraft-mod-dev/package.json`；
 - 文档/仓库里程碑版本用 git tag `vX.Y.Z`；
-- 当前：插件 `0.3.9`，tag `v0.3.9`，标记为 **pre-release**（公开 beta）。
+- 当前：插件 `0.4.0`，tag `v0.4.0`，标记为 **pre-release**（公开 beta）。
 
 ## 发布前检查
 
@@ -17,8 +17,8 @@ git status                                        → clean
 ## 打 tag
 
 ```powershell
-git tag -a v0.3.9 -m "v0.3.9 public beta: loot_break E2E, F-006 client visual"
-git push origin v0.3.9
+git tag -a v0.4.0 -m "v0.4.0 public beta: survival mining fix, F-007, tooltip/toast visuals"
+git push origin v0.4.0
 ```
 
 ## GitHub Release
@@ -28,8 +28,8 @@ git push origin v0.3.9
 ```text
 POST /repos/yan-mc/minecraft-mod-dev/releases
 {
-  "tag_name": "v0.3.9",
-  "name": "v0.3.9 — public beta",
+  "tag_name": "v0.4.0",
+  "name": "v0.4.0 — public beta",
   "prerelease": true,
   "body": "..."
 }
@@ -38,13 +38,31 @@ POST /repos/yan-mc/minecraft-mod-dev/releases
 Release notes 应包含：
 
 - 14 个工具列表；
-- `mcdev_scenario` YAML 卡片 + recipe/loot/loot_break/item_bar assert；
-- F-001/F-002/F-004/F-006 live；
-- F-006 热栏绿色能量条截图；
-- `mcdev_prepare` 最多 3 次等待/重试，恢复演练 attempt3 joined；
+- `mcdev_scenario` YAML 卡片 + recipe/loot/loot_break/loot_mine/mine/client_mine/items/item_bar；
+- F-001..F-007 live；
+- F-007 生存挖掘根因修复（mineable/pickaxe tag）；
+- F-003 tooltip、F-005 raycast/toast、F-006 能量条截图；
+- `mcdev_prepare` 最多 3 次等待/重试；
 - Charger 12/12、5/5 bug；
 - 安装入口 `docs/INSTALL.md`；
 - 已知限制（Windows + 1.20.1 Forge only、dev-only Mixin、实验 Agent Teams）。
+
+## Release 附件
+
+```powershell
+dist/minecraft-mod-dev-0.4.0.zip
+dist/mcdev_probe-0.1.0-dev.jar
+```
+
+- 插件 zip：`plugin/minecraft-mod-dev/` 目录；
+- 探针 jar：`lab/mcdev-probe/build/libs/mcdev_probe-0.1.0-dev.jar`（dev-mapped，仅 dev run 可用）。
+
+上传：
+
+```text
+POST /repos/yan-mc/minecraft-mod-dev/releases/{id}/assets?name=<file>
+Content-Type: application/octet-stream
+```
 
 ## 安装方式（beta）
 
