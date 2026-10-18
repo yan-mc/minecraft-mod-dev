@@ -46,7 +46,7 @@ DeepSeek Harness 插件 + Minecraft 1.20.1 Forge 探针：写代码、构建、�
 
 ### 1. 安装 release
 
-从 [Releases](https://github.com/yan-mc/minecraft-mod-dev/releases/latest) 下载：
+从 [Releases](https://github.com/yan-mc/minecraft-mod-dev/releases) 下载：
 
 - `minecraft-mod-dev-0.5.1.zip`（插件）
 - `mcdev_probe-0.1.0-dev.jar`（dev-mapped 探针）
