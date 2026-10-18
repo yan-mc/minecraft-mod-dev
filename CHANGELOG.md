@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.5.0 — 2026-10-18
+
+- **craft action 实现**：服务端 `/craft` 按 recipe ingredients 检查/消耗在线玩家背包并产出 result；卡片 `actions.craft`。
+- **客户端 keyAttack 修复**：`/player/mine` 改为直接发 `START_DESTROY_BLOCK` 包；服务端权威结果，客户端 block 可能滞后。
+- **quickPlay 根因修复**：runClient 移除 `--quickPlayMultiplayer`；客户端到 TitleScreen 后由 probe `/connect` 显式连接；连续 3 次 `kind=both` 均 attempt1 joined。
+- F-004 live：craft crafted=true/result charger×1，warnings=[]。
+- F-007 live：client packet mine → server block air → items charger×1，warnings=[]。
+- 全量回归 F-001/F-002/F-004/F-006/F-007 warnings=[]。
+
 ## v0.4.1 — 2026-10-18
 
 - F-007 改为确定性的服务端在线玩家生存挖掘（`/world/mine`），不再依赖 flaky 的客户端 keyAttack。

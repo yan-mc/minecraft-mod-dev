@@ -90,7 +90,8 @@
 - `actions.wait` → `wait`（`{wait: 300}`）；
 - `actions.close_ui` → `ui_close`（关闭当前客户端界面）；
 - `actions.mine` → `mine`（服务端在线玩家生存破坏）；
-- `actions.client_mine` → `client_mine`（客户端 keyAttack，实验性）；
+- `actions.client_mine` → `client_mine`（客户端发 START_DESTROY_BLOCK 包，服务端权威）；
+- `actions.craft` → `craft` + `data.crafted` 断言（消耗在线玩家背包材料）；
 - `assert.screen_title` → `ui` + `data.title`；
 - `assert.slot_exists` → `ui` + `data.slots.<n>.index`；
 - `assert.block_entity_nbt` → `data get block ...` + `data.result`；
@@ -115,9 +116,10 @@
 | `block` | `x`, `y`, `z`（server `/world/block`，含 `analog` 比较器输出） |
 | `break` | `x`, `y`, `z`（server `/world/break`，`destroyBlock(pos,true)` + 收集 ItemEntity） |
 | `mine` | `x`, `y`, `z`, `player`（server `/world/mine`，在线玩家生存模式破坏） |
-| `client_mine` | `x`, `y`, `z`, `timeoutMs`（client `/player/mine`，keyAttack，实验性） |
+| `client_mine` | `x`, `y`, `z`, `timeoutMs`（client `/player/mine`，START_DESTROY_BLOCK 包，服务端权威） |
 | `items` | `x`, `y`, `z`, `r`（server `/items`，附近 ItemEntity） |
 | `ui_close` | 关闭当前客户端 Screen |
+| `craft` | `id`, `player`（server `/craft`，检查/消耗背包材料并产出 result） |
 | `recipe` | `id`（server `/recipe`，返回 result item/count） |
 | `loot` | `block`, `x/y/z`（server `/loot`，返回 drops/total） |
 | `item` | `item`, `nbt`（server `/item`，返回 item bar visible/width/color） |
@@ -164,13 +166,14 @@ mcdev_scenario card=<repo>/lab/forge-1.20.1-test/cards/S-001-server-smoke.yml
 
 ### `mcdev_prepare`
 
-参数：`projectDir`、`kind`（server|client|both）、`timeoutMs`（默认 180000）、`waitJoin`（默认 true）。
+参数：`projectDir`、`kind`（server|client|both）、`timeoutMs`（默认 180000）、`waitJoin`（默认 true）、`joinPort`（默认 25566）。
 
 - 用 `gradlew runServer/runClient` 启动；
 - 等待对应 probe `/status` 返回正确 side；
 - 返回 pid/port/logPath；已 ready 时 `alreadyRunning=true`；
-- client/both 默认等待玩家进服，返回 `joined` 和 `attempts`；
-- `DisconnectedScreen` 提前判失败，最多 3 次尝试（stop + 重启 client）；
+- client/both：等客户端到 `TitleScreen`，调用客户端 `/connect?host=127.0.0.1&port=<joinPort>` 显式连接（**不依赖 quickPlay**）；
+- 等待玩家进服，返回 `joined` 和 `attempts`；
+- `DisconnectedScreen` 提前判失败，最多 3 次尝试（stop + 重启 client + 重新 connect）；
 - 成功时 `attempts` 记录每次 pid/logPath/lastScreen；重试成功还有 `retry=true`；
 - 全部失败时返回 `joined=false, retry, lastScreen, attempts[]`；
 - 日志写 `<projectDir>/.mcdev/launch-<kind>-<ts>.log`。

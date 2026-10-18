@@ -18,6 +18,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
@@ -67,6 +68,7 @@ public final class ProbeServer {
             server.createContext("/world/mine", ProbeServer::handleWorldMine);
             server.createContext("/items", ProbeServer::handleItems);
             server.createContext("/recipe", ProbeServer::handleRecipe);
+            server.createContext("/craft", ProbeServer::handleCraft);
             server.createContext("/loot", ProbeServer::handleLoot);
             server.createContext("/item", ProbeServer::handleItem);
             server.createContext("/run/dump", ProbeServer::handleRunDump);
@@ -330,6 +332,104 @@ public final class ProbeServer {
             ok(ex, future.get(10, TimeUnit.SECONDS));
         } catch (Exception e) {
             error(ex, 500, "items query failed: " + e.getMessage());
+        }
+    }
+
+    private static void handleCraft(HttpExchange ex) throws IOException {
+        if (!authorized(ex)) {
+            return;
+        }
+        String recipeId = strQuery(ex, "recipe", "");
+        String playerName = strQuery(ex, "player", "Dev");
+        CompletableFuture<Map<String, Object>> future = new CompletableFuture<>();
+        mc.execute(() -> {
+            try {
+                Map<String, Object> data = new LinkedHashMap<>();
+                data.put("recipe", recipeId);
+                data.put("player", playerName);
+                ServerPlayer player = mc.getPlayerList().getPlayerByName(playerName);
+                if (player == null) {
+                    data.put("found", false);
+                    data.put("crafted", false);
+                    data.put("error", "player not online");
+                    future.complete(data);
+                    return;
+                }
+                ResourceLocation rl = ResourceLocation.tryParse(recipeId);
+                if (rl == null) {
+                    data.put("found", false);
+                    data.put("crafted", false);
+                    data.put("error", "invalid recipe id");
+                    future.complete(data);
+                    return;
+                }
+                var optional = mc.getRecipeManager().byKey(rl);
+                if (optional.isEmpty()) {
+                    data.put("found", false);
+                    data.put("crafted", false);
+                    data.put("error", "recipe not found");
+                    future.complete(data);
+                    return;
+                }
+                Recipe<?> recipe = optional.get();
+                data.put("found", true);
+                List<Map<String, Object>> consumed = new ArrayList<>();
+                List<String> missing = new ArrayList<>();
+                var inventory = player.getInventory().items;
+                for (Ingredient ingredient : recipe.getIngredients()) {
+                    boolean emptyIngredient = true;
+                    for (ItemStack candidate : ingredient.getItems()) {
+                        if (!candidate.isEmpty()) {
+                            emptyIngredient = false;
+                            break;
+                        }
+                    }
+                    if (ingredient.isEmpty() || emptyIngredient) {
+                        continue;
+                    }
+                    boolean matched = false;
+                    for (ItemStack stack : inventory) {
+                        if (!stack.isEmpty() && ingredient.test(stack)) {
+                            Map<String, Object> entry = new LinkedHashMap<>();
+                            entry.put("item", String.valueOf(ForgeRegistries.ITEMS.getKey(stack.getItem())));
+                            entry.put("count", 1);
+                            consumed.add(entry);
+                            stack.shrink(1);
+                            matched = true;
+                            break;
+                        }
+                    }
+                    if (!matched) {
+                        missing.add(ingredient.toString());
+                    }
+                }
+                data.put("consumed", consumed);
+                data.put("missing", missing);
+                if (!missing.isEmpty()) {
+                    data.put("crafted", false);
+                    future.complete(data);
+                    return;
+                }
+                ItemStack result = recipe.getResultItem(mc.registryAccess()).copy();
+                ItemStack output = result.copy();
+                boolean added = player.getInventory().add(result);
+                if (!added) {
+                    player.drop(result, false);
+                }
+                Map<String, Object> out = new LinkedHashMap<>();
+                out.put("item", String.valueOf(ForgeRegistries.ITEMS.getKey(output.getItem())));
+                out.put("count", output.getCount());
+                data.put("crafted", true);
+                data.put("result", out);
+                future.complete(data);
+            } catch (Throwable t) {
+                future.completeExceptionally(t);
+            }
+        });
+        try {
+            ok(ex, future.get(10, TimeUnit.SECONDS));
+        } catch (Exception e) {
+            error(ex, 500, "craft failed: " + e.getMessage());
         }
     }
 

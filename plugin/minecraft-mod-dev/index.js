@@ -220,6 +220,38 @@ async function waitForClientJoin(timeoutMs) {
   return { joined: false, lastScreen };
 }
 
+async function waitForClientReady(timeoutMs) {
+  const deadline = Date.now() + Math.max(5000, timeoutMs);
+  while (Date.now() < deadline) {
+    try {
+      const response = await fetch(`http://127.0.0.1:${DEFAULT_PORTS.client}/status`, {
+        headers: { 'X-Mcdev-Token': TOKEN },
+        signal: AbortSignal.timeout(2000),
+      });
+      if (response.ok) {
+        const body = await response.json();
+        const data = body?.data;
+        const screen = data?.screen ?? '';
+        if (data?.player) return true;
+        if (/TitleScreen|AccessibilityOnboardingScreen/.test(screen)) return true;
+      }
+    } catch {
+      // keep waiting
+    }
+    await new Promise((resolve) => setTimeout(resolve, 500));
+  }
+  return false;
+}
+
+async function connectClient(joinPort) {
+  const port = Math.max(1, Math.min(Number(joinPort) || 25566, 65535));
+  try {
+    await probeJson('client', `/connect?host=127.0.0.1&port=${port}`, {}, DEFAULT_PORTS.client);
+  } catch {
+    // client may already be in world or not have /connect; join wait will surface it
+  }
+}
+
 async function launchKind(kind, projectDir, timeoutMs) {
   const port = DEFAULT_PORTS[kind];
   if (await probeStatusOnce(kind, port, 1000)) {
@@ -620,6 +652,18 @@ function cardToSteps(card) {
         z: use.z,
         face: use.face ?? 'up',
       });
+    } else if (action.craft) {
+      const craft = action.craft;
+      if (typeof craft.recipe === 'string') {
+        steps.push({
+          type: 'craft',
+          id: craft.recipe,
+          player: craft.player ?? 'Dev',
+        });
+        steps.push({ type: 'assert', path: 'data.crafted', op: 'eq', value: 'true' });
+      } else {
+        warnings.push('craft requires recipe');
+      }
     } else if (action.close_ui) {
       steps.push({ type: 'ui_close' });
     } else if (action.mine) {
@@ -836,7 +880,11 @@ export function apply(ctx) {
       },
       waitJoin: {
         type: 'boolean',
-        description: 'For client/both, wait until the player is in-game and retry once on ConnectScreen/Disconnected. Default true.',
+        description: 'For client/both, wait until the player is in-game and retry on ConnectScreen/Disconnected. Default true.',
+      },
+      joinPort: {
+        type: 'integer',
+        description: 'Server port the client should connect to via /connect when quickPlay is disabled. Default 25566.',
       },
     },
     async (args) => {
@@ -868,6 +916,8 @@ export function apply(ctx) {
               await new Promise((resolve) => setTimeout(resolve, 2000));
               current = await launchKind('client', args.projectDir, timeoutMs);
             }
+            await waitForClientReady(Math.min(timeoutMs, 60000));
+            await connectClient(args.joinPort);
             const wait = await waitForClientJoin(Math.min(timeoutMs, 90000));
             attempts.push({
               attempt: attempt + 1,
@@ -1129,7 +1179,7 @@ export function apply(ctx) {
             type: {
               type: 'string',
               required: true,
-              enum: ['status', 'command', 'block', 'break', 'mine', 'client_mine', 'items', 'ui_close', 'recipe', 'loot', 'item', 'use', 'ui', 'click', 'screenshot', 'run_dump', 'wait', 'assert'],
+              enum: ['status', 'command', 'block', 'break', 'mine', 'client_mine', 'items', 'ui_close', 'craft', 'recipe', 'loot', 'item', 'use', 'ui', 'click', 'screenshot', 'run_dump', 'wait', 'assert'],
             },
             side: { type: 'string', enum: ['server', 'client'] },
             port: { type: 'integer' },
@@ -1278,6 +1328,9 @@ export function apply(ctx) {
               break;
             case 'ui_close':
               data = await probeJson('client', '/ui/close', { method: 'POST' }, step.port);
+              break;
+            case 'craft':
+              data = await probeJson('server', `/craft?recipe=${encodeURIComponent(step.id ?? '')}&player=${encodeURIComponent(step.player ?? 'Dev')}`, {}, step.port);
               break;
             case 'items':
               data = await probeJson('server', `/items?x=${step.x ?? 0}&y=${step.y ?? 64}&z=${step.z ?? 0}&r=${step.r ?? 4}`, {}, step.port);

@@ -9,11 +9,16 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.screens.ConnectScreen;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.TitleScreen;
+import net.minecraft.client.multiplayer.ServerData;
+import net.minecraft.client.multiplayer.resolver.ServerAddress;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.inventory.ClickType;
@@ -62,6 +67,7 @@ public final class ClientProbeServer {
         try {
             server = HttpServer.create(new InetSocketAddress("127.0.0.1", port), 0);
             server.createContext("/status", ClientProbeServer::handleStatus);
+            server.createContext("/connect", ClientProbeServer::handleConnect);
             server.createContext("/log/tail", ClientProbeServer::handleLogTail);
             server.createContext("/ui/snapshot", ClientProbeServer::handleUiSnapshot);
             server.createContext("/ui/click", ClientProbeServer::handleUiClick);
@@ -94,6 +100,38 @@ public final class ClientProbeServer {
         if (executor != null) {
             executor.shutdownNow();
             executor = null;
+        }
+    }
+
+    private static void handleConnect(HttpExchange ex) throws IOException {
+        if (!authorized(ex)) {
+            return;
+        }
+        String host = strQuery(ex, "host", "127.0.0.1");
+        int port = intQuery(ex, "port", 25566);
+        try {
+            Map<String, Object> data = onClient(() -> {
+                Minecraft mc = Minecraft.getInstance();
+                Map<String, Object> d = new LinkedHashMap<>();
+                d.put("host", host);
+                d.put("port", port);
+                if (mc.player != null) {
+                    d.put("alreadyInWorld", true);
+                    return d;
+                }
+                if (mc.screen != null && mc.screen.getClass().getName().contains("AccessibilityOnboarding")) {
+                    mc.setScreen(new TitleScreen());
+                }
+                ConnectScreen.startConnecting(new TitleScreen(), mc,
+                        new ServerAddress(host, port),
+                        new ServerData("mcdev", host + ":" + port, false), false);
+                d.put("connecting", true);
+                d.put("screen", mc.screen == null ? null : mc.screen.getClass().getName());
+                return d;
+            });
+            ok(ex, data);
+        } catch (Exception e) {
+            error(ex, 500, "connect failed: " + e.getMessage());
         }
     }
 
@@ -560,7 +598,12 @@ public final class ClientProbeServer {
         Map<String, Object> data = new LinkedHashMap<>();
         data.put("pos", x + "," + y + "," + z);
         data.put("before", String.valueOf(ForgeRegistries.BLOCKS.getKey(mc.level.getBlockState(pos).getBlock())));
-        mc.execute(() -> mc.options.keyAttack.setDown(true));
+        data.put("connection", mc.getConnection() != null);
+        if (mc.getConnection() != null) {
+            mc.execute(() -> mc.getConnection().send(new ServerboundPlayerActionPacket(
+                    ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK,
+                    pos, Direction.UP, 0)));
+        }
         boolean broken = false;
         int ticks = 0;
         long deadline = System.currentTimeMillis() + timeoutMs;
@@ -573,12 +616,16 @@ public final class ClientProbeServer {
                 ticks += 1;
                 Thread.sleep(50L);
             }
-            mc.execute(() -> mc.options.keyAttack.setDown(false));
+            if (mc.getConnection() != null) {
+                mc.execute(() -> mc.getConnection().send(new ServerboundPlayerActionPacket(
+                        ServerboundPlayerActionPacket.Action.STOP_DESTROY_BLOCK,
+                        pos, Direction.UP, 0)));
+            }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
-        data.put("keyDown", true);
         data.put("ticks", ticks);
+        data.put("broken", broken);
         data.put("screen", mc.screen == null ? null : mc.screen.getClass().getName());
         data.put("playerCreative", mc.player.isCreative());
         data.put("localMode", mc.gameMode.getPlayerMode().getName());

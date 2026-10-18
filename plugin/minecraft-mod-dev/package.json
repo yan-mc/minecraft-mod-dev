@@ -1,6 +1,6 @@
 {
   "name": "minecraft-mod-dev",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "private": true,
   "description": "Minecraft 1.20.1 Forge mod development harness for DeepSeek Harness",
   "type": "module",

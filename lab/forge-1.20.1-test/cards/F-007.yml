@@ -2,7 +2,7 @@ id: F-007
 title: 生存模式玩家挖掘掉落
 spec:
   - charger 方块有 mineable/pickaxe 标签，铁镐可正常收获
-  - 在线玩家以 survival 游戏模式挖掉 charger（服务端 ServerPlayerGameMode 路径）
+  - 客户端发送 START_DESTROY_BLOCK，服务端以 survival 权威移除方块
   - 服务端方块变 air，附近 ItemEntity 掉出 charger ×1
 tiers:
   static: true
@@ -21,14 +21,15 @@ setup:
     - "kill @e[type=item]"
 actions:
   - {close_ui: true}
-  - {mine: {x: 0, y: 64, z: 0, player: Dev}}
+  - {wait: 1000}
+  - {client_mine: {x: 0, y: 64, z: 0, timeoutMs: 8000}}
 assert:
   - {block_state: {x: 0, y: 64, z: 0, block: "minecraft:air"}}
   - {loot_items: {x: 0, y: 64, z: 0, r: 4, item: "examplemod:charger", count: 1}}
 evidence:
   - "Root cause: charger requiresCorrectToolForDrops but data/minecraft/tags/blocks/mineable/pickaxe.json missing"
   - "Added mineable/pickaxe tag; mcdev_build exit 0"
-  - "Server /world/mine with Dev: removed=true, drops charger×1, total=1"
-  - "Card live: mine removed=true, block_state=air, loot_items total=1, warnings=[]"
-  - "Client keyAttack endpoint exists but is flaky; card uses deterministic server player mine"
+  - "Client /player/mine sends START_DESTROY_BLOCK packet; server authoritative block air; local client block may lag"
+  - "Card live: client_mine → block_state=air, loot_items total=1, warnings=[]"
+  - "Server /world/mine remains available as deterministic fallback"
 status: passed

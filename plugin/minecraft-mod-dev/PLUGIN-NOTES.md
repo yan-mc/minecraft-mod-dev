@@ -1,4 +1,4 @@
-# minecraft-mod-dev plugin v0.4.1
+# minecraft-mod-dev plugin v0.5.0
 
 日期：2026-10-18
 位置：`plugin/minecraft-mod-dev`
@@ -7,15 +7,15 @@
 
 ```text
 plugin_manager install_bundle target=...\plugin\minecraft-mod-dev
-application=applied, version=0.4.1
+application=applied, version=0.5.0
 ```
 
-v0.4.1 包含：
+v0.5.0 包含：
 - 14 个 `mcdev_*` 工具；
 - `mcmod` preset（团队默认，Agent Teams 9 工具）；
 - 内置官方实验 Agent Teams 挂载（禁用传统 subagent 四行）；
-- `mcdev_scenario`：YAML 卡片、`dryRun`、`give.select`/`select_item`、`block`（comparator）、`break`（loot_break）、`mine`/`client_mine`/`items`、`ui_close`、`recipe`/`loot`/`item`、`wait`；
-- `mcdev_prepare`：client/both 等待进服；Disconnected 提前失败；最多 3 次尝试，返回 `attempts` 诊断。
+- `mcdev_scenario`：YAML 卡片、`dryRun`、`give.select`/`select_item`、`block`（comparator）、`break`（loot_break）、`craft`、`mine`/`client_mine`/`items`、`ui_close`、`recipe`/`loot`/`item`、`wait`；
+- `mcdev_prepare`：等客户端到 TitleScreen 后通过 `/connect` 显式连接（不再依赖 quickPlay）；Disconnected 提前失败；最多 3 次尝试，返回 `attempts` 诊断。
 
 ## 工具
 
@@ -61,13 +61,14 @@ v0.4.1 包含：
 | prepare waitJoin | `kind=both` → server ready + client `joined=true`；最多 3 次尝试 |
 | prepare retry 恢复 | 无 server 先起 client，延迟 35s 起 server：attempt1/2 Disconnected，attempt3 `joined=true` |
 | prepare 失败诊断 | 无 server 时 3 次都失败：`joined=false, retry=true, attempts[]`，每次带 pid/logPath/lastScreen |
-| prepare 成功诊断 | `kind=both` → `joined=true, lastScreen=""`，attempts 长度 1 |
+| prepare 成功诊断 | 等 TitleScreen → `/connect` → `joined=true`，attempts 长度 1 |
+| explicit connect | 连续 3 次 `kind=both` 都是 attempt1 `joined=true`，无 quickPlay |
 | F-001 card live | `warnings=[]`，give.select/use/data get/assert 5200≥100、block analog=7 全过 |
 | F-002 card live | `warnings=[]`，wait+use+wait+ui/title/slot 全过 |
-| F-004 card live | `recipe`×1、`loot` total=1；`loot_break` removed=true + drops charger×1；warnings=[] |
+| F-004 card live | `craft` crafted=true/result charger×1；recipe×1、loot total=1、loot_break drops charger×1；warnings=[] |
 | client break | creative + `/player/break`：before=charger，after=air，server `/world/block` 也变 air（无掉落） |
 | F-006 card live | `item` 返回 visible=true/width=6/color=65280；warnings=[] |
-| F-007 card live | 服务端在线玩家 survival mine：removed=true、block air、`items` charger×1；warnings=[] |
+| F-007 card live | 客户端 packet mine：server block air、`items` charger×1；warnings=[]（client 本地 block 可能滞后） |
 | 全量回归 | F-001/F-002/F-004/F-006/F-007 顺序执行全部 `ok=true, warnings=[]` |
 
 ## install_probe 的校验
@@ -104,5 +105,5 @@ Windows 下 `spawnSync` 用 `shell: false`，避免 `C:\Program Files\...` 被 s
 ## 待办
 
 1. 用 Charger 作为 reference mod，跑完整团队流程。
-2. 公开 beta 的安装包/版本化（v0.4.1 release）。
+2. 公开 beta 的安装包/版本化（v0.5.0 release）。
 3. `craft` action 仍未实现；F-004 用 `recipe_output` 断言验证配方，不模拟合成界面。

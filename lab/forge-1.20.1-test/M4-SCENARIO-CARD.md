@@ -59,20 +59,21 @@ mcdev_scenario card=<...>/cards/F-002.yml
 |---|---|---|
 | F-001 | dryRun + live | `warnings=[]`；give.select + use + data get（5200 ≥ 100）+ block analog=7 全过 |
 | F-002 | dryRun + live | `warnings=[]`；wait + use + wait + ui/title/slot 全过 |
-| F-004 | dryRun + live | recipe×1、loot total=1、loot_break removed=true+drops charger×1；warnings=[] |
+| F-004 | dryRun + live | craft crafted=true/result charger×1；recipe×1、loot total=1、loot_break drops charger×1；warnings=[] |
 | F-006 | dryRun + live | item_bar visible/width=6/color=65280，warnings=[] |
-| F-007 | live（client） | client keyAttack 生存挖掘 → block air、items charger×1，warnings=[] |
+| F-007 | live（client） | client START_DESTROY_BLOCK 包 → server block air、items charger×1，warnings=[] |
 | S-001 | live（server） | setblock + data merge + data get + assert 123 全过 |
 
 ## 5. 限制
 
 1. `actions.give` 新增 `select=true`（放主手）；也可以用独立 `select_item` action。F-001 已用 `give.select` + `use` live 通过。
-2. `comparator`/`recipe_output`/`loot_drop`/`loot_break`/`loot_mine`/`block_state`/`loot_items`/`item_bar` 已支持（`block`/`recipe`/`loot`/`break`/`mine`/`client_mine`/`items`/`item` 步骤）；`item_nbt`、`craft` action 仍未支持；F-004 用 `recipe_output` 断言，不模拟合成界面。
+2. `comparator`/`recipe_output`/`loot_drop`/`loot_break`/`loot_mine`/`block_state`/`loot_items`/`item_bar`/`craft` 已支持（`block`/`recipe`/`loot`/`break`/`mine`/`client_mine`/`items`/`craft` 步骤）；`item_nbt` 仍未支持。
 3. 客户端卡片要求 client 已进服（不是只在 `ConnectScreen`）。
 4. 卡片的 `spec`/`tiers`/`ui` 字段只作为文档，不参与执行。
 5. server-only 卡片不再放 `give` setup（无玩家会静默失败）；command 步骤本身不对 `result` 断言。
-6. F-006 客户端视觉已补验：热栏截图 `M4-F006-hotbar-full.png` / 放大 `M4-F006-hotbar.png` 可见绿色 6/13 条；F-004 `loot_break` 已做服务端 `destroyBlock(pos,true)` + ItemEntity E2E；F-007 覆盖客户端 keyAttack 生存挖掘 + 掉落。
+6. F-006 客户端视觉已补验：热栏截图；F-004 `loot_break` 已做服务端 `destroyBlock(pos,true)` + ItemEntity E2E；F-007 用客户端 `START_DESTROY_BLOCK` 包（服务端权威，客户端本地 block 可能滞后）。
 7. 生存挖掘曾无掉落，根因是 `charger` 缺 `data/minecraft/tags/blocks/mineable/pickaxe.json`；已补标签，F-007 live 通过。
+8. quickPlay 已移除：客户端到 TitleScreen 后 probe `/connect` 显式连接，连续 3 次 `kind=both` attempt1 joined。
 
 ## 6. 客户端 handshake 排查
 
@@ -85,10 +86,11 @@ mcdev_scenario card=<...>/cards/F-002.yml
 处理：
 
 1. 改 probe 后 `clean devJar` + `mcdev_install_probe`；
-2. `mcdev_prepare client/both` 等待进服，失败自动重试一次；
-3. 卡片 use 前后加 `wait`。
+2. `build.gradle` client 去掉 `--quickPlayMultiplayer`；
+3. `mcdev_prepare` 等 TitleScreen 后调 `/connect` 显式连接（带 ServerData，避免 NPE）；
+4. 卡片 use 前后加 `wait`。
 
-根因未完全定位（疑 quickPlay 启动时机/增量 devJar），但重试 + clean 构建已稳定跑通本轮 F-001/F-002。
+根因结论：quickPlay 在客户端 UI/网络初始化完成前发起连接，偶尔卡在 Forge handshake。显式 connect 连续 3 次 `kind=both` 均 attempt1 joined。
 
 ### 强制失败 / 恢复演练
 

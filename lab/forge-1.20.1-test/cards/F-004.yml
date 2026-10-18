@@ -11,8 +11,13 @@ tiers:
   client_ui: false
 setup:
   commands:
+    - "clear Dev"
+    - "give Dev minecraft:iron_ingot 5"
+    - "give Dev minecraft:redstone 4"
+    - "give Dev minecraft:copper_ingot 1"
     - "kill @e[type=item]"
-actions: []
+actions:
+  - {craft: {recipe: "examplemod:charger", player: Dev}}
 assert:
   - {recipe_output: {recipe: "examplemod:charger", item: "examplemod:charger", count: 1}}
   - {loot_drop: {block: "examplemod:charger", item: "examplemod:charger", count: 1}}
@@ -22,7 +27,8 @@ evidence:
   - "Recipe JSON + GameTest chargerRecipeExists"
   - "Loot JSON + GameTest chargerLootDrop (1 charger)"
   - "All 12 required tests passed"
-  - "mcdev_scenario card=F-004 live: recipe item/count + loot total=1; warnings=[]（server-only，无 setup give）"
+  - "mcdev_scenario card=F-004 live: recipe item/count + loot total=1; warnings=[]"
   - "loot_break live: setblock + break removed=true, drops charger×1, total=1; warnings=[]"
+  - "craft live: /craft uses Dev inventory ingredients, crafted=true, result=examplemod:charger×1"
   - "client break: creative /player/break before=charger after=air; server block=air（无掉落）"
 status: passed

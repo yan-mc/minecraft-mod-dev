@@ -29,11 +29,11 @@ bug drill      → 1 failure → fix → 12/12
 1. F-003 tooltip、F-005 raycast/toast、F-006 能量条均已视觉验证（截图见 `lab/forge-1.20.1-test/M4-*.png`）。
 2. 探针 Mixin 是 dev-only（`remap=false` + 字面量 `tick`）；生产 SRG 未支持。
 3. `mcdev_prepare`/`mcdev_scenario` 只在 `lab/forge-1.20.1-test` 实测过。
-4. `mcdev_scenario` 已支持 setup/actions/screen_title/slot/block_entity_nbt/comparator/recipe/loot/loot_break/loot_mine/mine/client_mine/items/item_bar；`craft` action 未支持；F-004 用 `recipe_output` 断言，不模拟合成界面。
-5. 生存挖掘已修复：`charger` 缺 `mineable/pickaxe` 标签导致玩家挖掘无掉落；F-007 用服务端在线玩家 survival mine 验证 drops，客户端 keyAttack 端点仍实验性。
+4. `mcdev_scenario` 已支持 setup/actions/screen_title/slot/block_entity_nbt/comparator/recipe/loot/loot_break/loot_mine/mine/client_mine/items/item_bar/craft；F-004 用 `recipe_output` + `craft` 断言。
+5. 生存挖掘已修复：`charger` 缺 `mineable/pickaxe` 标签导致玩家挖掘无掉落；F-007 用客户端 `START_DESTROY_BLOCK` 包验证，服务端权威（客户端 block 可能短暂滞后）。
 6. Agent Teams 是实验性的，可能有成员/任务状态不同步。
-7. 公开 beta 的安装包/版本化还未做；目前是本地 link 安装。
-8. quickPlay 偶发 handshake 卡死：已加 `clean devJar`、`mcdev_prepare` 最多 3 次等待/重试、`attempts` 诊断；已演练“前两次 Disconnected、第三次 joined”，根因仍未完全定位。
+7. GitHub release 已有 v0.4.1/v0.5.0 资产；正式 npm 包未发（本地 link 安装）。
+8. quickPlay 根因已处理：runClient 移除 quickPlay，等 TitleScreen 后 `/connect` 显式连接；连续 3 次 `kind=both` 均 attempt1 joined。
 
 ## 路线图
 

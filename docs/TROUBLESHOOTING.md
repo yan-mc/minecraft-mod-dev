@@ -35,7 +35,7 @@ server 和 client 都想用 39001。
 
 - 给 server/client 配独立目录，例如 `run-server/`、`run-client/`；
 - 等待 server `Done (...)` 后再启动 client；
-- 客户端用 `--quickPlayMultiplayer 127.0.0.1:25566`；
+- **不要用 `--quickPlayMultiplayer`**：客户端到 TitleScreen 后由 `mcdev_prepare` 调 `/connect` 显式连接；
 - 重启时确认旧 client/server 进程已退出。
 
 ### quickPlay 偶发 handshake 卡死
@@ -46,13 +46,16 @@ server 和 client 都想用 39001。
 - server 已发 22 个 handshake 包，30 秒后 `lost connection: Disconnected`；
 - client Render thread 正常 tick，Netty 线程 selector 空闲。
 
-已做的稳定性处理：
+根因结论：quickPlay 在客户端 UI/网络初始化完成前就发起连接，自动化启动时偶尔卡在 Forge handshake 阶段。
 
-1. 改 probe 后执行 `.\gradlew.bat clean devJar`，再 `mcdev_install_probe`；
-2. 用 `mcdev_prepare kind=client|both`，默认等待进服；卡 ConnectScreen/Disconnected 会自动重试一次；
-3. 卡片里 use 前后加 `wait`，避免 UI 切换竞态。
+修复：
 
-根因尚未完全定位（疑与 quickPlay 启动时机/增量 devJar 有关），但重试 + clean 构建可稳定跑通。
+1. `build.gradle` client 去掉 `--quickPlayMultiplayer`；
+2. `mcdev_prepare` 等客户端到 `TitleScreen`，调 probe `/connect?host=127.0.0.1&port=25566`；
+3. `/connect` 显式传 `ServerData`，避免 NPE；
+4. 仍保留 3 次尝试与 `attempts` 诊断。
+
+实测连续 3 次 `kind=both` 都是 attempt1 `joined=true`。
 
 ## 5. `mcdev_prepare` 超时
 
