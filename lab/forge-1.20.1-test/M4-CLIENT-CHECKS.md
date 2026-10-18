@@ -70,8 +70,10 @@ Couldn't grant advancement [Charger] to Dev as they already have it
 玩家 raycast 路径已补测：客户端站在 charger 前执行 `/charger info`，聊天输出
 `Charger energy: 0/10000 at 0, 64, 0`，截图 `M4-F005-raycast.png`。
 
+advancement toast 已补测：revoke 后给 `charged_item`，截图
+`M4-F005-advancement-toast.png` 显示 `Advancement Made! Charger`。
+
 ## 未覆盖
 
 1. loot table 实际破坏掉落已由服务端 `loot_break` 覆盖；客户端 creative 破坏无掉落。
-2. advancement toast 的客户端视觉。
-3. F-003 tooltip 的客户端视觉（仅代码/语言键）。
+2. F-003 tooltip 的客户端视觉（仅代码/语言键）。

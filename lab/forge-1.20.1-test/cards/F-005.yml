@@ -19,5 +19,6 @@ evidence:
   - "AdvancementList: Loaded 1272 advancements"
   - "Server log: Dev has made the advancement [Charger]"
   - "Client raycast: /charger info -> chat \"Charger energy: 0/10000 at 0, 64, 0\"; screenshot M4-F005-raycast.png"
+  - "Advancement toast: revoke then give charged_item -> screenshot M4-F005-advancement-toast.png"
   - "M4-F005-REPORT.md; M4-CLIENT-CHECKS.md"
 status: passed

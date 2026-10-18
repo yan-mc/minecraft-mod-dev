@@ -71,8 +71,17 @@ Charger energy: 0/10000 at 0, 64, 0
 截图：`M4-F005-raycast.png`。  
 覆盖了 `player.pick(5.0D)` → `BlockHitResult` → charger 查询路径。
 
+### advancement toast
+
+revoke 后给客户端 `charged_item`：
+
+```text
+Advancement Made! Charger
+```
+
+截图：`M4-F005-advancement-toast.png`（toast 黄色标题 + Charger）。
+
 ## 未覆盖 / 下一步
 
-1. 客户端拿到 `charged_item` 时 advancement 实际触发（toast/进度）。
-2. 关闭再打开 GUI 的持久化。
-3. 注入 5 个 bug，开始回归闭环。
+1. 关闭再打开 GUI 的持久化。
+2. 注入 5 个 bug，开始回归闭环。
