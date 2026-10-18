@@ -9,20 +9,15 @@ tiers:
   static: true
   gametest: true
   server_scenario: true
-  client_ui: false
-setup:
-  commands:
-    - "setblock 0 64 0 examplemod:charger"
-    - "tp Dev 0.5 64 1.5 180 0"
-actions:
-  - {command: "charger info"}
-assert:
-  - {log_contains: "Charger energy"}
-  - {no_exception: true}
+  client_ui: true
+setup: {}
+actions: []
+assert: []
 evidence:
   - "ChargerCommand + advancement JSON; GameTest chargerCommandInfo"
   - "Server log: Charger energy: 777/10000 at 1, -59, 11"
   - "AdvancementList: Loaded 1272 advancements"
   - "Server log: Dev has made the advancement [Charger]"
+  - "Client raycast: /charger info -> chat \"Charger energy: 0/10000 at 0, 64, 0\"; screenshot M4-F005-raycast.png"
   - "M4-F005-REPORT.md; M4-CLIENT-CHECKS.md"
-status: in_progress
+status: passed

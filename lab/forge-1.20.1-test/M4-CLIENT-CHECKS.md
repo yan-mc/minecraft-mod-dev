@@ -67,9 +67,11 @@ Couldn't grant advancement [Charger] to Dev as they already have it
 
 说明 advancement 的 `inventory_changed` 触发正常。
 
+玩家 raycast 路径已补测：客户端站在 charger 前执行 `/charger info`，聊天输出
+`Charger energy: 0/10000 at 0, 64, 0`，截图 `M4-F005-raycast.png`。
+
 ## 未覆盖
 
-1. `/charger info` 的玩家 raycast 路径（无 pos）——需要读取客户端聊天 feedback 或加 `/chat` 探针。
-2. loot table 实际破坏掉落（目前仅静态 JSON）。
-3. advancement toast 的客户端视觉。
-4. F-003 tooltip 的客户端视觉（仅代码/语言键）。
+1. loot table 实际破坏掉落已由服务端 `loot_break` 覆盖；客户端 creative 破坏无掉落。
+2. advancement toast 的客户端视觉。
+3. F-003 tooltip 的客户端视觉（仅代码/语言键）。

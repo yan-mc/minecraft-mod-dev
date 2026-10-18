@@ -60,9 +60,19 @@ AdvancementList: Loaded 1272 advancements
 
 （之前 1271；新增的 charger/root 被加载，无 JSON 错误。）
 
+### 客户端 raycast
+
+`mcdev_prepare kind=both`，客户端站在 charger 前面，执行 `/charger info`：
+
+```text
+Charger energy: 0/10000 at 0, 64, 0
+```
+
+截图：`M4-F005-raycast.png`。  
+覆盖了 `player.pick(5.0D)` → `BlockHitResult` → charger 查询路径。
+
 ## 未覆盖 / 下一步
 
-1. 真实客户端里 `/charger info`（玩家看向 charger）的 raycast 路径。
-2. 客户端拿到 `charged_item` 时 advancement 实际触发（toast/进度）。
-3. 关闭再打开 GUI 的持久化。
-4. 注入 5 个 bug，开始回归闭环。
+1. 客户端拿到 `charged_item` 时 advancement 实际触发（toast/进度）。
+2. 关闭再打开 GUI 的持久化。
+3. 注入 5 个 bug，开始回归闭环。
