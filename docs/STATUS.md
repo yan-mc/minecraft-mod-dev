@@ -26,11 +26,11 @@ bug drill      → 1 failure → fix → 12/12
 
 ## 已知缺口
 
-1. `/charger info` 玩家 raycast 已验证（chat `Charger energy: ...` + 截图）；advancement toast、tooltip 视觉未测。
+1. `/charger info` 玩家 raycast 已验证；advancement toast、tooltip 视觉未测。
 2. 探针 Mixin 是 dev-only（`remap=false` + 字面量 `tick`）；生产 SRG 未支持。
 3. `mcdev_prepare`/`mcdev_scenario` 只在 `lab/forge-1.20.1-test` 实测过。
-4. `mcdev_scenario` 已支持 setup/actions/screen_title/slot/block_entity_nbt/comparator/recipe/loot/loot_break/item_bar；`craft` action 未支持；F-004 用 `recipe_output` 断言，不模拟合成界面。
-5. F-004 loot 已用服务端 `destroyBlock(pos,true)` + ItemEntity 收集做 E2E；客户端 `/player/break` 验证了 creative 破坏（无掉落），survival 连续挖掘未测。
+4. `mcdev_scenario` 已支持 setup/actions/screen_title/slot/block_entity_nbt/comparator/recipe/loot/loot_break/loot_mine/mine/client_mine/items/item_bar；`craft` action 未支持；F-004 用 `recipe_output` 断言，不模拟合成界面。
+5. 生存挖掘已修复：`charger` 缺 `mineable/pickaxe` 标签导致玩家挖掘无掉落；F-007 卡片 live 验证 client_mine → air → charger×1。
 6. Agent Teams 是实验性的，可能有成员/任务状态不同步。
 7. 公开 beta 的安装包/版本化还未做；目前是本地 link 安装。
 8. quickPlay 偶发 handshake 卡死：已加 `clean devJar`、`mcdev_prepare` 最多 3 次等待/重试、`attempts` 诊断；已演练“前两次 Disconnected、第三次 joined”，根因仍未完全定位。

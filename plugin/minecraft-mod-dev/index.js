@@ -620,6 +620,15 @@ function cardToSteps(card) {
         z: use.z,
         face: use.face ?? 'up',
       });
+    } else if (action.client_mine) {
+      const mine = action.client_mine;
+      steps.push({
+        type: 'client_mine',
+        x: mine.x ?? 0,
+        y: mine.y ?? 64,
+        z: mine.z ?? 0,
+        timeoutMs: mine.timeoutMs ?? 6000,
+      });
     } else if (typeof action.wait === 'number') {
       steps.push({ type: 'wait', ms: action.wait });
     } else if (typeof action.command === 'string') {
@@ -711,6 +720,40 @@ function cardToSteps(card) {
         steps.push({ type: 'command', side: 'server', cmd: `setblock ${x} ${y} ${z} ${loot.block}` });
       }
       steps.push({ type: 'break', x, y, z });
+      if (loot.item !== undefined) {
+        steps.push({ type: 'assert', path: 'data.drops.0.item', op: 'eq', value: String(loot.item) });
+      }
+      if (loot.count !== undefined) {
+        steps.push({ type: 'assert', path: 'data.total', op: 'eq', value: String(loot.count) });
+      }
+    } else if (check.block_state) {
+      const state = check.block_state;
+      const x = state.x ?? 0;
+      const y = state.y ?? 64;
+      const z = state.z ?? 0;
+      steps.push({ type: 'block', x, y, z });
+      steps.push({ type: 'assert', path: 'data.block', op: 'eq', value: String(state.block) });
+    } else if (check.loot_items) {
+      const loot = check.loot_items;
+      const x = loot.x ?? 0;
+      const y = loot.y ?? 64;
+      const z = loot.z ?? 0;
+      steps.push({ type: 'items', x, y, z, r: loot.r ?? 4 });
+      if (loot.item !== undefined) {
+        steps.push({ type: 'assert', path: 'data.drops.0.item', op: 'eq', value: String(loot.item) });
+      }
+      if (loot.count !== undefined) {
+        steps.push({ type: 'assert', path: 'data.total', op: 'eq', value: String(loot.count) });
+      }
+    } else if (check.loot_mine) {
+      const loot = check.loot_mine;
+      const x = loot.x ?? 0;
+      const y = loot.y ?? 64;
+      const z = loot.z ?? 0;
+      if (typeof loot.block === 'string') {
+        steps.push({ type: 'command', side: 'server', cmd: `setblock ${x} ${y} ${z} ${loot.block}` });
+      }
+      steps.push({ type: 'mine', x, y, z, player: loot.player ?? 'Dev' });
       if (loot.item !== undefined) {
         steps.push({ type: 'assert', path: 'data.drops.0.item', op: 'eq', value: String(loot.item) });
       }
@@ -1075,7 +1118,7 @@ export function apply(ctx) {
             type: {
               type: 'string',
               required: true,
-              enum: ['status', 'command', 'block', 'break', 'recipe', 'loot', 'item', 'use', 'ui', 'click', 'screenshot', 'run_dump', 'wait', 'assert'],
+              enum: ['status', 'command', 'block', 'break', 'mine', 'client_mine', 'items', 'recipe', 'loot', 'item', 'use', 'ui', 'click', 'screenshot', 'run_dump', 'wait', 'assert'],
             },
             side: { type: 'string', enum: ['server', 'client'] },
             port: { type: 'integer' },
@@ -1098,6 +1141,9 @@ export function apply(ctx) {
             block: { type: 'string' },
             item: { type: 'string' },
             nbt: { type: 'string' },
+            player: { type: 'string' },
+            timeoutMs: { type: 'integer' },
+            r: { type: 'integer' },
           },
         },
       },
@@ -1212,6 +1258,15 @@ export function apply(ctx) {
               break;
             case 'break':
               data = await probeJson('server', `/world/break?x=${step.x ?? 0}&y=${step.y ?? 64}&z=${step.z ?? 0}`, {}, step.port);
+              break;
+            case 'mine':
+              data = await probeJson('server', `/world/mine?x=${step.x ?? 0}&y=${step.y ?? 64}&z=${step.z ?? 0}&player=${encodeURIComponent(step.player ?? 'Dev')}`, {}, step.port);
+              break;
+            case 'client_mine':
+              data = await probeJson('client', `/player/mine?x=${step.x ?? 0}&y=${step.y ?? 64}&z=${step.z ?? 0}&timeoutMs=${step.timeoutMs ?? 6000}`, {}, step.port);
+              break;
+            case 'items':
+              data = await probeJson('server', `/items?x=${step.x ?? 0}&y=${step.y ?? 64}&z=${step.z ?? 0}&r=${step.r ?? 4}`, {}, step.port);
               break;
             case 'recipe':
               data = await probeJson('server', `/recipe?id=${encodeURIComponent(step.id ?? '')}`, {}, step.port);

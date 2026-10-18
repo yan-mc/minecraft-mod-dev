@@ -14,10 +14,12 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -62,6 +64,8 @@ public final class ProbeServer {
             server.createContext("/command", ProbeServer::handleCommand);
             server.createContext("/world/block", ProbeServer::handleWorldBlock);
             server.createContext("/world/break", ProbeServer::handleWorldBreak);
+            server.createContext("/world/mine", ProbeServer::handleWorldMine);
+            server.createContext("/items", ProbeServer::handleItems);
             server.createContext("/recipe", ProbeServer::handleRecipe);
             server.createContext("/loot", ProbeServer::handleLoot);
             server.createContext("/item", ProbeServer::handleItem);
@@ -232,6 +236,100 @@ public final class ProbeServer {
             ok(ex, future.get(10, TimeUnit.SECONDS));
         } catch (Exception e) {
             error(ex, 500, "world break failed: " + e.getMessage());
+        }
+    }
+
+    private static void handleWorldMine(HttpExchange ex) throws IOException {
+        if (!authorized(ex)) {
+            return;
+        }
+        int x = intQuery(ex, "x", 0);
+        int y = intQuery(ex, "y", 64);
+        int z = intQuery(ex, "z", 0);
+        String playerName = strQuery(ex, "player", "Dev");
+        CompletableFuture<Map<String, Object>> future = new CompletableFuture<>();
+        mc.execute(() -> {
+            try {
+                ServerPlayer player = mc.getPlayerList().getPlayerByName(playerName);
+                Map<String, Object> data = new LinkedHashMap<>();
+                data.put("pos", x + "," + y + "," + z);
+                data.put("player", playerName);
+                if (player == null) {
+                    data.put("found", false);
+                    data.put("error", "player not online");
+                    future.complete(data);
+                    return;
+                }
+                ServerLevel level = mc.overworld();
+                BlockPos pos = new BlockPos(x, y, z);
+                data.put("before", String.valueOf(ForgeRegistries.BLOCKS.getKey(level.getBlockState(pos).getBlock())));
+                GameType oldMode = player.gameMode.getGameModeForPlayer();
+                player.setGameMode(GameType.SURVIVAL);
+                data.put("removed", player.gameMode.destroyBlock(pos));
+                player.setGameMode(oldMode);
+                AABB box = new AABB(x - 3, y - 3, z - 3, x + 4, y + 4, z + 4);
+                List<Map<String, Object>> drops = new ArrayList<>();
+                int total = 0;
+                for (ItemEntity entity : level.getEntitiesOfClass(ItemEntity.class, box)) {
+                    ItemStack stack = entity.getItem();
+                    Map<String, Object> drop = new LinkedHashMap<>();
+                    drop.put("item", String.valueOf(ForgeRegistries.ITEMS.getKey(stack.getItem())));
+                    drop.put("count", stack.getCount());
+                    drops.add(drop);
+                    total += stack.getCount();
+                }
+                data.put("drops", drops);
+                data.put("total", total);
+                data.put("after", String.valueOf(ForgeRegistries.BLOCKS.getKey(level.getBlockState(pos).getBlock())));
+                future.complete(data);
+            } catch (Throwable t) {
+                future.completeExceptionally(t);
+            }
+        });
+        try {
+            ok(ex, future.get(10, TimeUnit.SECONDS));
+        } catch (Exception e) {
+            error(ex, 500, "world mine failed: " + e.getMessage());
+        }
+    }
+
+    private static void handleItems(HttpExchange ex) throws IOException {
+        if (!authorized(ex)) {
+            return;
+        }
+        int x = intQuery(ex, "x", 0);
+        int y = intQuery(ex, "y", 64);
+        int z = intQuery(ex, "z", 0);
+        int r = Math.min(16, Math.max(1, intQuery(ex, "r", 4)));
+        CompletableFuture<Map<String, Object>> future = new CompletableFuture<>();
+        mc.execute(() -> {
+            try {
+                ServerLevel level = mc.overworld();
+                AABB box = new AABB(x - r, y - r, z - r, x + r + 1, y + r + 1, z + r + 1);
+                List<Map<String, Object>> drops = new ArrayList<>();
+                int total = 0;
+                for (ItemEntity entity : level.getEntitiesOfClass(ItemEntity.class, box)) {
+                    ItemStack stack = entity.getItem();
+                    Map<String, Object> drop = new LinkedHashMap<>();
+                    drop.put("item", String.valueOf(ForgeRegistries.ITEMS.getKey(stack.getItem())));
+                    drop.put("count", stack.getCount());
+                    drops.add(drop);
+                    total += stack.getCount();
+                }
+                Map<String, Object> data = new LinkedHashMap<>();
+                data.put("pos", x + "," + y + "," + z);
+                data.put("radius", r);
+                data.put("drops", drops);
+                data.put("total", total);
+                future.complete(data);
+            } catch (Throwable t) {
+                future.completeExceptionally(t);
+            }
+        });
+        try {
+            ok(ex, future.get(10, TimeUnit.SECONDS));
+        } catch (Exception e) {
+            error(ex, 500, "items query failed: " + e.getMessage());
         }
     }
 

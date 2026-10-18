@@ -1,0 +1,33 @@
+id: F-007
+title: 生存模式玩家挖掘掉落
+spec:
+  - charger 方块有 mineable/pickaxe 标签，铁镐可正常收获
+  - 客户端生存模式按住攻击键挖掉 charger
+  - 服务端方块变 air，附近 ItemEntity 掉出 charger ×1
+tiers:
+  static: true
+  gametest: false
+  server_scenario: false
+  client_ui: true
+setup:
+  commands:
+    - "difficulty peaceful"
+    - "fill -2 63 -2 2 63 2 minecraft:stone"
+    - "setblock 0 64 0 examplemod:charger"
+    - "gamemode survival Dev"
+    - "effect give Dev minecraft:instant_health 1 10"
+    - "tp Dev 0.5 64 2.5 180 30"
+    - "item replace entity Dev weapon.mainhand with minecraft:iron_pickaxe 1"
+    - "kill @e[type=item]"
+actions:
+  - {client_mine: {x: 0, y: 64, z: 0, timeoutMs: 8000}}
+assert:
+  - {block_state: {x: 0, y: 64, z: 0, block: "minecraft:air"}}
+  - {loot_items: {x: 0, y: 64, z: 0, r: 4, item: "examplemod:charger", count: 1}}
+evidence:
+  - "Root cause: charger requiresCorrectToolForDrops but data/minecraft/tags/blocks/mineable/pickaxe.json missing"
+  - "Added mineable/pickaxe tag; mcdev_build exit 0"
+  - "Server /world/mine with Dev: removed=true, drops charger×1, total=1"
+  - "Client /player/mine survival: before=charger, after=air; /items total=1"
+  - "Card live: block_state=air, loot_items total=1, warnings=[]"
+status: passed

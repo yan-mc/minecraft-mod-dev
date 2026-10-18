@@ -67,6 +67,7 @@ public final class ClientProbeServer {
             server.createContext("/player/use", ClientProbeServer::handlePlayerUse);
             server.createContext("/player/use_item", ClientProbeServer::handlePlayerUseItem);
             server.createContext("/player/break", ClientProbeServer::handlePlayerBreak);
+            server.createContext("/player/mine", ClientProbeServer::handlePlayerMine);
             server.createContext("/item/mainhand", ClientProbeServer::handleMainhandItem);
             server.createContext("/screenshot", ClientProbeServer::handleScreenshot);
             server.createContext("/quit", ClientProbeServer::handleQuit);
@@ -441,6 +442,53 @@ public final class ClientProbeServer {
         } catch (Exception e) {
             error(ex, 500, "player break failed: " + e.getMessage());
         }
+    }
+
+    private static void handlePlayerMine(HttpExchange ex) throws IOException {
+        if (!authorized(ex)) {
+            return;
+        }
+        int x = intQuery(ex, "x", 0);
+        int y = intQuery(ex, "y", 64);
+        int z = intQuery(ex, "z", 0);
+        int timeoutMs = Math.min(15000, Math.max(1000, intQuery(ex, "timeoutMs", 6000)));
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null || mc.level == null || mc.gameMode == null) {
+            error(ex, 409, "player not in world");
+            return;
+        }
+        BlockPos pos = new BlockPos(x, y, z);
+        Map<String, Object> data = new LinkedHashMap<>();
+        data.put("pos", x + "," + y + "," + z);
+        data.put("before", String.valueOf(ForgeRegistries.BLOCKS.getKey(mc.level.getBlockState(pos).getBlock())));
+        mc.execute(() -> mc.options.keyAttack.setDown(true));
+        boolean broken = false;
+        int ticks = 0;
+        long deadline = System.currentTimeMillis() + timeoutMs;
+        try {
+            while (System.currentTimeMillis() < deadline) {
+                if (mc.level.getBlockState(pos).isAir()) {
+                    broken = true;
+                    break;
+                }
+                ticks += 1;
+                Thread.sleep(50L);
+            }
+            mc.execute(() -> mc.options.keyAttack.setDown(false));
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        data.put("keyDown", true);
+        data.put("ticks", ticks);
+        data.put("screen", mc.screen == null ? null : mc.screen.getClass().getName());
+        data.put("playerCreative", mc.player.isCreative());
+        data.put("localMode", mc.gameMode.getPlayerMode().getName());
+        data.put("hitType", mc.hitResult == null ? null : mc.hitResult.getType().name());
+        data.put("hitPos", mc.hitResult instanceof BlockHitResult hit ? hit.getBlockPos().toShortString() : null);
+        data.put("playerPos", mc.player.blockPosition().toShortString());
+        data.put("look", mc.player.getYRot() + "/" + mc.player.getXRot());
+        data.put("after", String.valueOf(ForgeRegistries.BLOCKS.getKey(mc.level.getBlockState(pos).getBlock())));
+        ok(ex, data);
     }
 
     private static void handleMainhandItem(HttpExchange ex) throws IOException {

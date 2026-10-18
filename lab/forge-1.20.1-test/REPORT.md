@@ -27,6 +27,7 @@
 | F-004 | 配方/掉落 | ✅ recipe/loot JSON | ✅ recipe 结果 + loot 掉落 | — | — | **通过** |
 | F-005 | 命令/进度 | ✅ advancement JSON | ✅ `/charger info <pos>` | ✅ advancement 触发 | ✅ 客户端 raycast chat + 截图 | **通过** |
 | F-006 | 物品能量条 | ✅ 模型/lang | ✅ bar visible/width/color | — | ✅ 热栏截图绿色 6/13 条 | **通过**（团队实现） |
+| F-007 | 生存挖掘 | ✅ mineable/pickaxe tag | ✅ client keyAttack | ✅ 方块变 air | ✅ items charger×1 | **通过** |
 
 ## 注入 bug 矩阵
 
@@ -50,6 +51,7 @@
 - 比较器：`block` 步骤 + `/world/block` 返回 `analog=7`，assert eq 7 通过
 - F-004 live：`recipe`×1、`loot` total=1、`loot_break` removed=true+drops charger×1；warnings=[]
 - F-004 client break：creative `/player/break` before=charger → after=air，server 端也是 air（无掉落）
+- F-007 生存挖掘：补 `mineable/pickaxe` 标签后，客户端 keyAttack 挖掘 → 方块 air，`/items` charger×1，warnings=[]
 - F-006 live：`item` 返回 visible=true/width=6/color=65280，warnings=[]
 - F-005 client raycast：`/charger info` → chat `Charger energy: 0/10000 at 0, 64, 0`；截图 `M4-F005-raycast.png`
 - 启动稳定性：`mcdev_prepare` 最多 3 次尝试；恢复演练 attempt1/2 Disconnected、attempt3 `joined=true`；无 server 失败演练 `joined=false, retry=true, attempts[]`
@@ -66,5 +68,5 @@
 
 1. F-003 tooltip 视觉、advancement toast 视觉未测。
 4. F-006 客户端视觉已验证：热栏截图 `M4-F006-hotbar-full.png` / 放大 `M4-F006-hotbar.png` 可见绿色 6/13 条；`/item/mainhand` 返回 visible/width/color。
-5. F-004 loot 已用服务端 `destroyBlock(pos,true)` + ItemEntity 收集做 E2E；客户端 `/player/break` 只验证了 creative 破坏（无掉落），survival 连续挖掘未测。
+5. F-004 loot 已用服务端 `destroyBlock(pos,true)` + ItemEntity 收集做 E2E；生存玩家挖掘由 F-007 覆盖（补 `mineable/pickaxe` 标签后掉落正常）。
 6. 收口后把 Charger 作为参考实现，接 reference-mod 沙箱。

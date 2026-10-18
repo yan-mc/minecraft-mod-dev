@@ -1,4 +1,4 @@
-# minecraft-mod-dev plugin v0.3.9
+# minecraft-mod-dev plugin v0.4.0
 
 日期：2026-10-18
 位置：`plugin/minecraft-mod-dev`
@@ -7,14 +7,14 @@
 
 ```text
 plugin_manager install_bundle target=...\plugin\minecraft-mod-dev
-application=applied, version=0.3.9
+application=applied, version=0.4.0
 ```
 
-v0.3.9 包含：
+v0.4.0 包含：
 - 14 个 `mcdev_*` 工具；
 - `mcmod` preset（团队默认，Agent Teams 9 工具）；
 - 内置官方实验 Agent Teams 挂载（禁用传统 subagent 四行）；
-- `mcdev_scenario`：YAML 卡片、`dryRun`、`give.select`/`select_item`、`block`（comparator）、`break`（loot_break）、`recipe`/`loot`/`item`、`wait`；
+- `mcdev_scenario`：YAML 卡片、`dryRun`、`give.select`/`select_item`、`block`（comparator）、`break`（loot_break）、`mine`/`client_mine`/`items`（F-007 生存挖掘）、`recipe`/`loot`/`item`、`wait`；
 - `mcdev_prepare`：client/both 等待进服；Disconnected 提前失败；最多 3 次尝试，返回 `attempts` 诊断。
 
 ## 工具
@@ -67,6 +67,7 @@ v0.3.9 包含：
 | F-004 card live | `recipe`×1、`loot` total=1；`loot_break` removed=true + drops charger×1；warnings=[] |
 | client break | creative + `/player/break`：before=charger，after=air，server `/world/block` 也变 air（无掉落） |
 | F-006 card live | `item` 返回 visible=true/width=6/color=65280；warnings=[] |
+| F-007 card live | 生存挖掘：`client_mine` before=charger→air；`block_state` air；`items` charger×1；warnings=[] |
 
 ## install_probe 的校验
 
@@ -102,5 +103,5 @@ Windows 下 `spawnSync` 用 `shell: false`，避免 `C:\Program Files\...` 被 s
 ## 待办
 
 1. 用 Charger 作为 reference mod，跑完整团队流程。
-2. 公开 beta 的安装包/版本化（v0.3.9 release）。
+2. 公开 beta 的安装包/版本化（v0.4.0 release）。
 3. `craft` action 仍未实现；F-004 用 `recipe_output` 断言验证配方，不模拟合成界面。

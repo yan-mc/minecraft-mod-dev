@@ -88,6 +88,7 @@
 - `actions.use_on` / `use_item_on` → `use`；
 - `actions.command` → `command`；
 - `actions.wait` → `wait`（`{wait: 300}`）；
+- `actions.client_mine` → `client_mine`（客户端 keyAttack 生存挖掘）；
 - `assert.screen_title` → `ui` + `data.title`；
 - `assert.slot_exists` → `ui` + `data.slots.<n>.index`；
 - `assert.block_entity_nbt` → `data get block ...` + `data.result`；
@@ -95,6 +96,9 @@
 - `assert.recipe_output` → `recipe` 步骤 + `data.item/count`；
 - `assert.loot_drop` → `loot` 步骤 + `data.drops.0.item/total`；
 - `assert.loot_break` → `setblock` + `break` 步骤 + `data.drops.0.item/total`（实际破坏方块并收集 ItemEntity）；
+- `assert.loot_mine` → `setblock` + `mine` 步骤 + `data.drops.0.item/total`（在线玩家生存模式破坏）；
+- `assert.block_state` → `block` 步骤 + `data.block`；
+- `assert.loot_items` → `items` 步骤 + `data.drops.0.item/total`；
 - `assert.item_bar` → `item` 步骤 + `data.visible/width/color`；
 - `assert.no_exception` → 跳过（probe 错误本身会让步骤失败）。
 
@@ -108,6 +112,9 @@
 | `command` | `side`, `cmd`, `port` |
 | `block` | `x`, `y`, `z`（server `/world/block`，含 `analog` 比较器输出） |
 | `break` | `x`, `y`, `z`（server `/world/break`，`destroyBlock(pos,true)` + 收集 ItemEntity） |
+| `mine` | `x`, `y`, `z`, `player`（server `/world/mine`，在线玩家生存模式破坏） |
+| `client_mine` | `x`, `y`, `z`, `timeoutMs`（client `/player/mine`，keyAttack 生存挖掘） |
+| `items` | `x`, `y`, `z`, `r`（server `/items`，附近 ItemEntity） |
 | `recipe` | `id`（server `/recipe`，返回 result item/count） |
 | `loot` | `block`, `x/y/z`（server `/loot`，返回 drops/total） |
 | `item` | `item`, `nbt`（server `/item`，返回 item bar visible/width/color） |

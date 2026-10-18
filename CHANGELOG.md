@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.4.0 — 2026-10-18
+
+- **根因修复**：`charger` 有 `requiresCorrectToolForDrops()`，但缺少 `data/minecraft/tags/blocks/mineable/pickaxe.json`；生存玩家挖掘一直不掉落。
+- 新增客户端 `/player/mine`（`keyAttack` 真实输入路径）与服务端 `/world/mine`（在线玩家生存破坏）、`/items`。
+- `mcdev_scenario` 新增 `mine` / `client_mine` / `items` 步骤，卡片 `loot_mine` / `block_state` / `loot_items`。
+- F-007 卡片 live：client_mine → block air → items charger×1，warnings=[]。
+- 手工验证：服务端 player mine removed=true/drops charger×1；客户端生存挖掘 before=charger/after=air，`/items` total=1。
+
 ## v0.3.9 — 2026-10-18
 
 - 探针新增 `/world/break`：`destroyBlock(pos,true)` + 收集 ItemEntity。
