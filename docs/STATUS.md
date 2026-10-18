@@ -26,7 +26,7 @@ bug drill      → 1 failure → fix → 12/12
 
 ## 已知缺口
 
-1. `/charger info` 玩家 raycast、advancement toast 已验证；F-003 tooltip 视觉未测。
+1. F-003 tooltip、F-005 raycast/toast、F-006 能量条均已视觉验证（截图见 `lab/forge-1.20.1-test/M4-*.png`）。
 2. 探针 Mixin 是 dev-only（`remap=false` + 字面量 `tick`）；生产 SRG 未支持。
 3. `mcdev_prepare`/`mcdev_scenario` 只在 `lab/forge-1.20.1-test` 实测过。
 4. `mcdev_scenario` 已支持 setup/actions/screen_title/slot/block_entity_nbt/comparator/recipe/loot/loot_break/loot_mine/mine/client_mine/items/item_bar；`craft` action 未支持；F-004 用 `recipe_output` 断言，不模拟合成界面。

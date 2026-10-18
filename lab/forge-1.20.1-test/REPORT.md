@@ -23,7 +23,7 @@
 |---|---|---|---|---|---|---|
 | F-001 | 充能方块 | ✅ 注册/模型/lang | ✅ 能量/比较器/NBT | ✅ 右键充能 | ✅ 交互 | **通过** |
 | F-002 | 充能 GUI | ✅ Menu/Screen 注册 | ✅ shift-click 不复制（mock player） | ✅ 打开/关闭 | ✅ 截图/槽位/能量条/重开 | **通过** |
-| F-003 | 充能物品 | ✅ 模型/lang | ✅ 能量 clamp | ✅ 空中右键 500→400 | ⚠️ tooltip 未视觉验证 | 基本通过 |
+| F-003 | 充能物品 | ✅ 模型/lang | ✅ 能量 clamp | ✅ 空中右键 500→400 | ✅ tooltip 截图 `Energy: 5000/10000` | **通过** |
 | F-004 | 配方/掉落 | ✅ recipe/loot JSON | ✅ recipe 结果 + loot 掉落 | — | — | **通过** |
 | F-005 | 命令/进度 | ✅ advancement JSON | ✅ `/charger info <pos>` | ✅ advancement 触发 | ✅ raycast + toast 截图 | **通过** |
 | F-006 | 物品能量条 | ✅ 模型/lang | ✅ bar visible/width/color | — | ✅ 热栏截图绿色 6/13 条 | **通过**（团队实现） |
@@ -55,6 +55,7 @@
 - F-006 live：`item` 返回 visible=true/width=6/color=65280，warnings=[]
 - F-005 client raycast：`/charger info` → chat `Charger energy: 0/10000 at 0, 64, 0`；截图 `M4-F005-raycast.png`
 - F-005 advancement toast：revoke + give charged_item → 截图 `M4-F005-advancement-toast.png` 显示 `Advancement Made! Charger`
+- F-003 tooltip：inventory hover `charged_item{Energy:5000}` → `Energy: 5000/10000`，截图 `M4-F003-tooltip.png`
 - 启动稳定性：`mcdev_prepare` 最多 3 次尝试；恢复演练 attempt1/2 Disconnected、attempt3 `joined=true`；无 server 失败演练 `joined=false, retry=true, attempts[]`
 - 团队卡片执行：Tester（tester-cards）跑 F-004/F-006，Reviewer（reviewer-cards）复核；发现 server-only `give` 静默失败后，Lead 删除无意义 setup 并重跑 warnings=[]（见 `M4-TEAM-CARD-DEMO.md`）
 - 客户端截图：
@@ -67,7 +68,7 @@
 
 ## 未完成 / 下一步
 
-1. F-003 tooltip 视觉。
-2. F-006 客户端视觉已验证：热栏截图 `M4-F006-hotbar-full.png` / 放大 `M4-F006-hotbar.png` 可见绿色 6/13 条；`/item/mainhand` 返回 visible/width/color。
-3. F-004 loot 已用服务端 `destroyBlock(pos,true)` + ItemEntity 收集做 E2E；生存玩家挖掘由 F-007 覆盖（补 `mineable/pickaxe` 标签后掉落正常）。
+1. F-006 客户端视觉已验证：热栏截图 `M4-F006-hotbar-full.png` / 放大 `M4-F006-hotbar.png` 可见绿色 6/13 条；`/item/mainhand` 返回 visible/width/color。
+2. F-004 loot 已用服务端 `destroyBlock(pos,true)` + ItemEntity 收集做 E2E；生存玩家挖掘由 F-007 覆盖（补 `mineable/pickaxe` 标签后掉落正常）。
+3. F-003 tooltip 已验证：inventory hover `charged_item{Energy:5000}` → `Energy: 5000/10000`，截图 `M4-F003-tooltip.png`。
 4. 收口后把 Charger 作为参考实现，接 reference-mod 沙箱。

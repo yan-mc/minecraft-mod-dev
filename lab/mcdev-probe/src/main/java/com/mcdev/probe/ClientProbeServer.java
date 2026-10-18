@@ -11,6 +11,7 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
@@ -21,10 +22,12 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.registries.ForgeRegistries;
+import org.lwjgl.glfw.GLFW;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.reflect.Field;
 import java.net.InetSocketAddress;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -63,6 +66,9 @@ public final class ClientProbeServer {
             server.createContext("/ui/snapshot", ClientProbeServer::handleUiSnapshot);
             server.createContext("/ui/click", ClientProbeServer::handleUiClick);
             server.createContext("/ui/close", ClientProbeServer::handleUiClose);
+            server.createContext("/ui/hover", ClientProbeServer::handleUiHover);
+            server.createContext("/ui/hover_slot", ClientProbeServer::handleUiHoverSlot);
+            server.createContext("/player/inventory", ClientProbeServer::handlePlayerInventory);
             server.createContext("/command", ClientProbeServer::handleCommand);
             server.createContext("/player/use", ClientProbeServer::handlePlayerUse);
             server.createContext("/player/use_item", ClientProbeServer::handlePlayerUseItem);
@@ -282,6 +288,99 @@ public final class ClientProbeServer {
             ok(ex, data);
         } catch (Exception e) {
             error(ex, 500, "ui close failed: " + e.getMessage());
+        }
+    }
+
+    private static void handleUiHover(HttpExchange ex) throws IOException {
+        if (!authorized(ex)) {
+            return;
+        }
+        int x = intQuery(ex, "x", 0);
+        int y = intQuery(ex, "y", 0);
+        try {
+            Map<String, Object> data = onClient(() -> {
+                Minecraft mc = Minecraft.getInstance();
+                Map<String, Object> d = new LinkedHashMap<>();
+                d.put("x", x);
+                d.put("y", y);
+                if (mc.screen == null) {
+                    d.put("hovered", false);
+                    d.put("error", "no screen");
+                    return d;
+                }
+                mc.screen.mouseMoved(x, y);
+                d.put("hovered", true);
+                d.put("screen", mc.screen.getClass().getName());
+                return d;
+            });
+            ok(ex, data);
+        } catch (Exception e) {
+            error(ex, 500, "ui hover failed: " + e.getMessage());
+        }
+    }
+
+    private static void handleUiHoverSlot(HttpExchange ex) throws IOException {
+        if (!authorized(ex)) {
+            return;
+        }
+        int slotIndex = intQuery(ex, "slot", 0);
+        try {
+            Map<String, Object> data = onClient(() -> {
+                Minecraft mc = Minecraft.getInstance();
+                Map<String, Object> d = new LinkedHashMap<>();
+                d.put("slot", slotIndex);
+                if (!(mc.screen instanceof AbstractContainerScreen<?> screen)) {
+                    d.put("hovered", false);
+                    d.put("error", "not a container screen");
+                    return d;
+                }
+                if (slotIndex < 0 || slotIndex >= screen.getMenu().slots.size()) {
+                    d.put("hovered", false);
+                    d.put("error", "slot out of range");
+                    return d;
+                }
+                Slot slot = screen.getMenu().slots.get(slotIndex);
+                Field field = AbstractContainerScreen.class.getDeclaredField("hoveredSlot");
+                field.setAccessible(true);
+                field.set(screen, slot);
+                double guiX = screen.getGuiLeft() + slot.x + 8;
+                double guiY = screen.getGuiTop() + slot.y + 8;
+                double scale = mc.getWindow().getGuiScale();
+                GLFW.glfwSetCursorPos(mc.getWindow().getWindow(), guiX * scale, guiY * scale);
+                screen.mouseMoved(guiX, guiY);
+                d.put("hovered", true);
+                d.put("item", slot.getItem().isEmpty()
+                        ? null : String.valueOf(ForgeRegistries.ITEMS.getKey(slot.getItem().getItem())));
+                d.put("count", slot.getItem().getCount());
+                return d;
+            });
+            ok(ex, data);
+        } catch (Exception e) {
+            error(ex, 500, "hover slot failed: " + e.getMessage());
+        }
+    }
+
+    private static void handlePlayerInventory(HttpExchange ex) throws IOException {
+        if (!authorized(ex)) {
+            return;
+        }
+        try {
+            Map<String, Object> data = onClient(() -> {
+                Minecraft mc = Minecraft.getInstance();
+                Map<String, Object> d = new LinkedHashMap<>();
+                if (mc.player == null) {
+                    d.put("opened", false);
+                    d.put("error", "player not in world");
+                    return d;
+                }
+                mc.setScreen(new InventoryScreen(mc.player));
+                d.put("opened", true);
+                d.put("screen", mc.screen == null ? null : mc.screen.getClass().getName());
+                return d;
+            });
+            ok(ex, data);
+        } catch (Exception e) {
+            error(ex, 500, "open inventory failed: " + e.getMessage());
         }
     }
 

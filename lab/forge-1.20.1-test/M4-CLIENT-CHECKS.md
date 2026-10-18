@@ -50,6 +50,9 @@ item Energy  = 400
 
 说明 `ChargedItem.use` 的空中右键路径生效。
 
+tooltip 视觉已补测：inventory hover `charged_item{Energy:5000}`，截图
+`M4-F003-tooltip.png` 显示 `Charged Item / Energy: 5000/10000`。
+
 ### F-005 命令与进度
 
 - 命令 `/charger info <pos>` 已由 GameTest 覆盖（777 → result 1）；
@@ -76,4 +79,3 @@ advancement toast 已补测：revoke 后给 `charged_item`，截图
 ## 未覆盖
 
 1. loot table 实际破坏掉落已由服务端 `loot_break` 覆盖；客户端 creative 破坏无掉落。
-2. F-003 tooltip 的客户端视觉（仅代码/语言键）。
