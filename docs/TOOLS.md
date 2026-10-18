@@ -88,7 +88,9 @@
 - `actions.use_on` / `use_item_on` → `use`；
 - `actions.command` → `command`；
 - `actions.wait` → `wait`（`{wait: 300}`）；
-- `actions.client_mine` → `client_mine`（客户端 keyAttack 生存挖掘）；
+- `actions.close_ui` → `ui_close`（关闭当前客户端界面）；
+- `actions.mine` → `mine`（服务端在线玩家生存破坏）；
+- `actions.client_mine` → `client_mine`（客户端 keyAttack，实验性）；
 - `assert.screen_title` → `ui` + `data.title`；
 - `assert.slot_exists` → `ui` + `data.slots.<n>.index`；
 - `assert.block_entity_nbt` → `data get block ...` + `data.result`；
@@ -113,8 +115,9 @@
 | `block` | `x`, `y`, `z`（server `/world/block`，含 `analog` 比较器输出） |
 | `break` | `x`, `y`, `z`（server `/world/break`，`destroyBlock(pos,true)` + 收集 ItemEntity） |
 | `mine` | `x`, `y`, `z`, `player`（server `/world/mine`，在线玩家生存模式破坏） |
-| `client_mine` | `x`, `y`, `z`, `timeoutMs`（client `/player/mine`，keyAttack 生存挖掘） |
+| `client_mine` | `x`, `y`, `z`, `timeoutMs`（client `/player/mine`，keyAttack，实验性） |
 | `items` | `x`, `y`, `z`, `r`（server `/items`，附近 ItemEntity） |
+| `ui_close` | 关闭当前客户端 Screen |
 | `recipe` | `id`（server `/recipe`，返回 result item/count） |
 | `loot` | `block`, `x/y/z`（server `/loot`，返回 drops/total） |
 | `item` | `item`, `nbt`（server `/item`，返回 item bar visible/width/color） |

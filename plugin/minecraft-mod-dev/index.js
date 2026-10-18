@@ -620,6 +620,17 @@ function cardToSteps(card) {
         z: use.z,
         face: use.face ?? 'up',
       });
+    } else if (action.close_ui) {
+      steps.push({ type: 'ui_close' });
+    } else if (action.mine) {
+      const mine = action.mine;
+      steps.push({
+        type: 'mine',
+        x: mine.x ?? 0,
+        y: mine.y ?? 64,
+        z: mine.z ?? 0,
+        player: mine.player ?? 'Dev',
+      });
     } else if (action.client_mine) {
       const mine = action.client_mine;
       steps.push({
@@ -1118,7 +1129,7 @@ export function apply(ctx) {
             type: {
               type: 'string',
               required: true,
-              enum: ['status', 'command', 'block', 'break', 'mine', 'client_mine', 'items', 'recipe', 'loot', 'item', 'use', 'ui', 'click', 'screenshot', 'run_dump', 'wait', 'assert'],
+              enum: ['status', 'command', 'block', 'break', 'mine', 'client_mine', 'items', 'ui_close', 'recipe', 'loot', 'item', 'use', 'ui', 'click', 'screenshot', 'run_dump', 'wait', 'assert'],
             },
             side: { type: 'string', enum: ['server', 'client'] },
             port: { type: 'integer' },
@@ -1264,6 +1275,9 @@ export function apply(ctx) {
               break;
             case 'client_mine':
               data = await probeJson('client', `/player/mine?x=${step.x ?? 0}&y=${step.y ?? 64}&z=${step.z ?? 0}&timeoutMs=${step.timeoutMs ?? 6000}`, {}, step.port);
+              break;
+            case 'ui_close':
+              data = await probeJson('client', '/ui/close', { method: 'POST' }, step.port);
               break;
             case 'items':
               data = await probeJson('server', `/items?x=${step.x ?? 0}&y=${step.y ?? 64}&z=${step.z ?? 0}&r=${step.r ?? 4}`, {}, step.port);

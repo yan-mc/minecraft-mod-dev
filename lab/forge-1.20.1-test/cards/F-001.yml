@@ -14,6 +14,7 @@ tiers:
 setup:
   commands:
     - "setblock 0 64 0 examplemod:charger"
+    - "data merge block 0 64 0 {Energy:5000}"
 actions:
   - {give: {player: Dev, item: "examplemod:charged_item", count: 1, select: true, nbt: "Energy:100"}}
   - {use_item_on: {x: 0, y: 64, z: 0, face: up}}

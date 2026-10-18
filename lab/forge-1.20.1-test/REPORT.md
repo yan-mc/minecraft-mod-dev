@@ -27,7 +27,7 @@
 | F-004 | 配方/掉落 | ✅ recipe/loot JSON | ✅ recipe 结果 + loot 掉落 | — | — | **通过** |
 | F-005 | 命令/进度 | ✅ advancement JSON | ✅ `/charger info <pos>` | ✅ advancement 触发 | ✅ raycast + toast 截图 | **通过** |
 | F-006 | 物品能量条 | ✅ 模型/lang | ✅ bar visible/width/color | — | ✅ 热栏截图绿色 6/13 条 | **通过**（团队实现） |
-| F-007 | 生存挖掘 | ✅ mineable/pickaxe tag | ✅ client keyAttack | ✅ 方块变 air | ✅ items charger×1 | **通过** |
+| F-007 | 生存挖掘 | ✅ mineable/pickaxe tag | ✅ server player mine | ✅ 方块变 air | ✅ items charger×1 | **通过** |
 
 ## 注入 bug 矩阵
 
@@ -51,7 +51,7 @@
 - 比较器：`block` 步骤 + `/world/block` 返回 `analog=7`，assert eq 7 通过
 - F-004 live：`recipe`×1、`loot` total=1、`loot_break` removed=true+drops charger×1；warnings=[]
 - F-004 client break：creative `/player/break` before=charger → after=air，server 端也是 air（无掉落）
-- F-007 生存挖掘：补 `mineable/pickaxe` 标签后，客户端 keyAttack 挖掘 → 方块 air，`/items` charger×1，warnings=[]
+- F-007 生存挖掘：补 `mineable/pickaxe` 标签后，服务端在线玩家 survival mine → 方块 air，`/items` charger×1，warnings=[]
 - F-006 live：`item` 返回 visible=true/width=6/color=65280，warnings=[]
 - F-005 client raycast：`/charger info` → chat `Charger energy: 0/10000 at 0, 64, 0`；截图 `M4-F005-raycast.png`
 - F-005 advancement toast：revoke + give charged_item → 截图 `M4-F005-advancement-toast.png` 显示 `Advancement Made! Charger`

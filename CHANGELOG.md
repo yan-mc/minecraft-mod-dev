@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.4.1 — 2026-10-18
+
+- F-007 改为确定性的服务端在线玩家生存挖掘（`/world/mine`），不再依赖 flaky 的客户端 keyAttack。
+- 新增 `ui_close` / `close_ui` / `mine` action，F-007 先关闭 GUI 再挖。
+- F-001 卡片补 `data merge block Energy:5000`，避免 comparator 断言在 energy=100 时 floor=0。
+- F-004 卡片补 `kill @e[type=item]`，避免残留掉落物把 loot_break total 算多。
+- 全量回归：F-001/F-002/F-004/F-006/F-007 全部 warnings=[]。
+- F-003 tooltip、F-005 raycast/toast、F-006 能量条截图证据齐全。
+
 ## v0.4.0 — 2026-10-18
 
 - **根因修复**：`charger` 有 `requiresCorrectToolForDrops()`，但缺少 `data/minecraft/tags/blocks/mineable/pickaxe.json`；生存玩家挖掘一直不掉落。

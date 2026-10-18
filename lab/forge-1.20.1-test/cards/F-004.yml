@@ -9,7 +9,9 @@ tiers:
   gametest: true
   server_scenario: true
   client_ui: false
-setup: {}
+setup:
+  commands:
+    - "kill @e[type=item]"
 actions: []
 assert:
   - {recipe_output: {recipe: "examplemod:charger", item: "examplemod:charger", count: 1}}
