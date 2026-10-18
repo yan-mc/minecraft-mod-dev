@@ -1,4 +1,4 @@
-# minecraft-mod-dev plugin v0.5.0
+# minecraft-mod-dev plugin v0.5.1
 
 日期：2026-10-18
 位置：`plugin/minecraft-mod-dev`
@@ -7,10 +7,10 @@
 
 ```text
 plugin_manager install_bundle target=...\plugin\minecraft-mod-dev
-application=applied, version=0.5.0
+application=applied, version=0.5.1
 ```
 
-v0.5.0 包含：
+v0.5.1 包含：
 - 14 个 `mcdev_*` 工具；
 - `mcmod` preset（团队默认，Agent Teams 9 工具）；
 - 内置官方实验 Agent Teams 挂载（禁用传统 subagent 四行）；

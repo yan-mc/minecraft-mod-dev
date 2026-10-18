@@ -1,6 +1,6 @@
 # 安装与快速开始
 
-插件版本：`0.5.0`  
+插件版本：`0.5.1`  
 适用：**Windows 10/11 x64 + Minecraft 1.20.1 + Forge 47.4.x + Java 17 + DSH 0.2.1-rc.2**
 
 完整说明书见 [MANUAL.md](MANUAL.md)。
@@ -23,9 +23,9 @@ cd minecraft-mod-dev
 
 ### 方式 A：GitHub Release（推荐）
 
-下载 [v0.5.0 release](https://github.com/yan-mc/minecraft-mod-dev/releases/tag/v0.5.0)：
+下载 [v0.5.1 release](https://github.com/yan-mc/minecraft-mod-dev/releases/tag/v0.5.1)：
 
-- `minecraft-mod-dev-0.5.0.zip`
+- `minecraft-mod-dev-0.5.1.zip`
 - `mcdev_probe-0.1.0-dev.jar`
 
 解压后：
@@ -40,7 +40,7 @@ plugin_manager install_bundle target=<解压目录>\minecraft-mod-dev
 plugin_manager install_bundle target=<仓库绝对路径>\plugin\minecraft-mod-dev
 ```
 
-安装后应看到 **14 个 `mcdev_*` 工具**，插件版本 `0.5.0`，并挂载实验性 Agent Teams（团队模式默认开启）。
+安装后应看到 **14 个 `mcdev_*` 工具**，插件版本 `0.5.1`，并挂载实验性 Agent Teams（团队模式默认开启）。
 
 ## 3. 构建探针 dev jar
 

@@ -1,13 +1,13 @@
 # Demo：Minecraft 1.20.1 Forge 模组开发闭环
 
-版本：插件 `0.5.0`（GitHub Release v0.5.0）
+版本：插件 `0.5.1`（GitHub Release v0.5.1）
 工程：`lab/forge-1.20.1-test`（Charger 参考模组）
 
 ## 0. 安装
 
 从 GitHub Release 下载：
 
-- `minecraft-mod-dev-0.5.0.zip`
+- `minecraft-mod-dev-0.5.1.zip`
 - `mcdev_probe-0.1.0-dev.jar`
 
 ```text

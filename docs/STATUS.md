@@ -1,7 +1,7 @@
 # 当前状态
 
 更新：2026-10-18  
-插件：`0.5.0` · 参考模组：Charger · GameTest：**12/12**
+插件：`0.5.1` · 参考模组：Charger · GameTest：**12/12**
 
 ## 已完成
 
@@ -15,7 +15,7 @@
 | 卡片 | F-001..F-007 全部 live，`warnings=[]` |
 | 视觉证据 | tooltip、raycast、advancement toast、热栏能量条 |
 | 团队 | Builder/Tester/Reviewer 流程；卡片 Tester/Reviewer 复核 |
-| 发布 | GitHub Release [v0.5.0](https://github.com/yan-mc/minecraft-mod-dev/releases/tag/v0.5.0)，含插件 zip + probe jar |
+| 发布 | GitHub Release [v0.5.1](https://github.com/yan-mc/minecraft-mod-dev/releases/tag/v0.5.1)，含插件 zip + probe jar |
 
 ## 关键数字
 

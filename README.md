@@ -48,7 +48,7 @@ DeepSeek Harness 插件 + Minecraft 1.20.1 Forge 探针：写代码、构建、�
 
 从 [Releases](https://github.com/yan-mc/minecraft-mod-dev/releases/latest) 下载：
 
-- `minecraft-mod-dev-0.5.0.zip`（插件）
+- `minecraft-mod-dev-0.5.1.zip`（插件）
 - `mcdev_probe-0.1.0-dev.jar`（dev-mapped 探针）
 
 在 DSH 中安装插件：
@@ -230,11 +230,11 @@ docs/assets/                  README banner 与截图
 
 | 项 | 结果 |
 |---|---|
-| 插件版本 | `0.5.0` |
+| 插件版本 | `0.5.1` |
 | GameTest | **12/12** |
 | 功能卡 | F-001..F-007 全部 live，`warnings=[]` |
 | 注入 bug | 5/5 检出并修复 |
-| Release | [v0.5.0](https://github.com/yan-mc/minecraft-mod-dev/releases/tag/v0.5.0)（beta） |
+| Release | [v0.5.1](https://github.com/yan-mc/minecraft-mod-dev/releases/tag/v0.5.1)（beta） |
 | 测试环境 | Windows 11 + Temurin 17.0.19 + Forge 47.4.28 |
 
 ## 已知限制

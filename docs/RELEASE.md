@@ -4,7 +4,7 @@
 
 - 插件版本在 `plugin/minecraft-mod-dev/package.json`；
 - 文档/仓库里程碑版本用 git tag `vX.Y.Z`；
-- 当前：插件 `0.5.0`，tag `v0.5.0`，标记为 **pre-release**（公开 beta）。
+- 当前：插件 `0.5.1`，tag `v0.5.1`，标记为 **pre-release**（公开 beta）。
 
 ## 发布前检查
 
@@ -17,8 +17,8 @@ git status                                        → clean
 ## 打 tag
 
 ```powershell
-git tag -a v0.5.0 -m "v0.5.0 public beta: craft, explicit connect, client packet mine, demo"
-git push origin v0.5.0
+git tag -a v0.5.1 -m "v0.5.1 public beta: craft, explicit connect, client packet mine, demo"
+git push origin v0.5.1
 ```
 
 ## GitHub Release
@@ -28,8 +28,8 @@ git push origin v0.5.0
 ```text
 POST /repos/yan-mc/minecraft-mod-dev/releases
 {
-  "tag_name": "v0.5.0",
-  "name": "v0.5.0 — public beta",
+  "tag_name": "v0.5.1",
+  "name": "v0.5.1 — public beta",
   "prerelease": true,
   "body": "..."
 }
@@ -51,7 +51,7 @@ Release notes 应包含：
 ## Release 附件
 
 ```powershell
-dist/minecraft-mod-dev-0.5.0.zip
+dist/minecraft-mod-dev-0.5.1.zip
 dist/mcdev_probe-0.1.0-dev.jar
 ```
 

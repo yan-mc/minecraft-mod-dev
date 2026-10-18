@@ -1,6 +1,6 @@
 # minecraft-mod-dev 说明书
 
-版本：`0.5.0`  
+版本：`0.5.1`  
 更新：2026-10-18  
 适用：Windows 10/11 x64 · Minecraft 1.20.1 · Forge 47.4.x · Java 17 · DeepSeek Harness 0.2.1-rc.2
 
@@ -81,9 +81,9 @@
 
 ### 4.1 从 GitHub Release 安装（推荐）
 
-1. 打开 [v0.5.0 release](https://github.com/yan-mc/minecraft-mod-dev/releases/tag/v0.5.0)；
+1. 打开 [v0.5.1 release](https://github.com/yan-mc/minecraft-mod-dev/releases/tag/v0.5.1)；
 2. 下载：
-   - `minecraft-mod-dev-0.5.0.zip`
+   - `minecraft-mod-dev-0.5.1.zip`
    - `mcdev_probe-0.1.0-dev.jar`
 3. 解压插件 zip；
 4. 在 DSH 中：

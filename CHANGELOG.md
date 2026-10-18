@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.5.1 — 2026-10-18
+
+- 文档整备：重写 README 封面，新增完整说明书 `docs/MANUAL.md`。
+- 删除草稿与中间报告（M1/M2/M3/M4-*、方案草稿、临时文件），截图统一到 `docs/assets/`。
+- 更新安装/状态/团队/发布文档到当前实现（0.5.x、显式 /connect、craft、F-007）。
+- 插件 preset 工具列表同步为 14 个工具。
 ## v0.5.0 — 2026-10-18
 
 - **craft action 实现**：服务端 `/craft` 按 recipe ingredients 检查/消耗在线玩家背包并产出 result；卡片 `actions.craft`。
