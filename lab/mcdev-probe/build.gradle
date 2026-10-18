@@ -91,8 +91,7 @@ minecraft {
             workingDirectory project.file('run-client')
             // Comma-separated list of namespaces to load gametests from. Empty = all namespaces.
             property 'forge.enabledGameTestNamespaces', mod_id
-            // Dev-only: auto-join the local probe server for container/UI tests.
-            args '--quickPlayMultiplayer', '127.0.0.1:25566'
+            // No quickPlay: connect explicitly via client probe /connect after TitleScreen.
         }
 
         server {

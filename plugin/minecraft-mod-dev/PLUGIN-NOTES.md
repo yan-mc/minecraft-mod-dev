@@ -45,7 +45,7 @@ v0.5.0 包含：
 | `mcdev_run_dump` | runId/tick/logs/path |
 | `mcdev_screenshot` | exists=true, 854×480 |
 | `mcdev_build` | exitCode=0 |
-| `mcdev_gametest` | exitCode=0，11/11 GameTests |
+| `mcdev_gametest` | exitCode=0，12/12 GameTests |
 | `mcdev_install_probe`（dev jar） | `manifestChecked=true, hasMixinConfigs=true`，3 个 runDir 已复制 |
 | `mcdev_install_probe`（普通 jar） | 被拒绝：`probe jar must be a *-dev.jar` |
 | `mcdev_scenario` 成功 | 8 步全过：status/assert/command/wait/status/assert/run_dump/assert |
@@ -96,14 +96,15 @@ Windows 下 `spawnSync` 用 `shell: false`，避免 `C:\Program Files\...` 被 s
 
 已做：
 
-1. 每次改 probe 后 **`clean devJar`**，再 `mcdev_install_probe`；
-2. `mcdev_prepare` client/both 等待进服（`joined`），失败自动 stop + 重启 client 一次；
-3. 卡片加 `wait` action，避免 use→ui 的界面切换竞态。
+1. runClient 移除 `--quickPlayMultiplayer`；
+2. 客户端到 `TitleScreen` 后 probe `/connect` 显式连接（带 `ServerData`，避免 NPE）；
+3. `mcdev_prepare` 失败最多 3 次尝试并记录 `attempts[]`；
+4. 每次改 probe 后 `clean devJar` + `mcdev_install_probe`。
 
-仍未完全定位 quickPlay 偶发失败的根因；以上是稳定性兜底。
+实测：连续 3 次 `kind=both` 均 attempt1 `joined=true`。
 
 ## 待办
 
-1. 用 Charger 作为 reference mod，跑完整团队流程。
-2. 公开 beta 的安装包/版本化（v0.5.0 release）。
-3. `craft` action 仍未实现；F-004 用 `recipe_output` 断言验证配方，不模拟合成界面。
+1. reference-mod 沙箱：从 Charger 模板生成新模组。
+2. 正式 npm 包/插件目录分发（当前本地 link + GitHub release 资产）。
+3. 更多 item NBT / 容器交互断言。

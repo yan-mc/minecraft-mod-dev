@@ -18,7 +18,7 @@ ui:
   open: false
   screenshot: false
 evidence:
-  - "ChargedItem class + GameTest chargedItemEnergy (M4-F001-REPORT.md)"
+  - "ChargedItem class + GameTest chargedItemEnergy (REPORT.md)"
   - "Client use in air: Energy 500->400"
-  - "Tooltip visual: inventory hover charged_item{Energy:5000} -> Charged Item / Energy: 5000/10000; screenshot M4-F003-tooltip.png"
+  - "Tooltip visual: inventory hover charged_item{Energy:5000} -> Charged Item / Energy: 5000/10000; screenshot docs/assets/tooltip.png"
 status: passed

@@ -56,6 +56,13 @@
 - 不改变现有 NBT、tooltip、右键使用行为。
 - 客户端物品栏/手持时可见能量条。
 
+## F-007 生存挖掘
+
+- `charger` 必须有 `minecraft:mineable/pickaxe` 标签。
+- 玩家 survival + 铁镐挖掘后，服务端方块变 air。
+- 掉落 1 个 `examplemod:charger`（ItemEntity）。
+- 客户端本地 block 状态滞后不影响服务端断言。
+
 ## 非目标
 
 - 不要求真实 FE 能量网络（Forge Energy capability 可选）。
@@ -65,7 +72,8 @@
 ## 完成定义
 
 - `mcdev_build` exit 0。
-- `mcdev_gametest` exit 0，且至少覆盖 F-001/F-003/F-004。
-- F-002 有客户端证据（截图 + 槽位快照）。
-- 5 个注入 bug 至少修 3 个，且 `BUGS.md` 有记录。
+- `mcdev_gametest` exit 0（12/12）。
+- F-001..F-007 卡片 live，warnings=[]。
+- F-002/F-003/F-005/F-006/F-007 有客户端截图或游戏内证据。
+- 5 个注入 bug 全部修复，且 `BUGS.md` 有记录。
 - `REPORT.md` 有卡 × 检查项矩阵。

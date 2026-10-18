@@ -1,8 +1,8 @@
-# M4 REPORT：Charger 测试模组
+# Charger 参考模组报告
 
 日期：2026-10-18
 工程：`lab/forge-1.20.1-test`
-范围：5 张功能卡 + F-006 追加载荷 + 5 类注入 bug + GameTest/服务端/客户端检查。
+范围：7 张功能卡 + GameTest + 服务端/客户端检查 + 注入 bug。
 
 ## 总结
 
@@ -12,10 +12,9 @@
 | GameTest | `mcdev_gametest` exit 0，**12/12** |
 | 注入 bug | 5 个全部检出，5 个全部修复 |
 | 静态审计 | 8 个必需资源，missing=0 |
-| 客户端 | GUI 打开/槽位/能量条/shift-click/关闭再打开通过 |
-| 服务端交互 | 方块充能 500→100+400；物品空中使用 500→400 |
-| advancement | `inventory_changed` 触发成功 |
-| loot | `chargerLootDrop` GameTest：掉落 1 个 charger |
+| 客户端 | GUI/槽位/能量条/shift-click/关闭重开/tooltip/toast/生存挖掘 |
+| 服务端 | 充能、NBT、comparator、recipe、loot、craft、item bar |
+| 卡片 | F-001..F-007 live，warnings=[] |
 
 ## 卡片矩阵
 
@@ -39,36 +38,28 @@
 | B4 shift-click 复制 | GameTest（mock player） | ✅ | ✅ |
 | B5 comparator 恒 0 | GameTest | ✅ | ✅ |
 
-详见 `M4-BUG-REPORT.md`。
+详见 `BUGS.md`。
 
 ## 证据
 
 - GameTest：`All 12 required tests passed`
-- F-006：builder-item + tester-item 团队实现，Lead 复核 12/12（见 `M4-TEAM-WORKFLOW.md`）
-- 团队修 bug：注入 `getBarWidth=14` 回归 → gametest 1 失败 → builder-fix 修复 → reviewer-fix 只读复核通过 → Lead 重跑 12/12（见 `M4-TEAM-BUGFIX.md`）
-- 卡片执行：`mcdev_scenario card=cards/F-002.yml` 客户端 live，warnings=[]，wait+use+ui/title/slot 全过（见 `M4-SCENARIO-CARD.md`）
+- F-006：builder-item + tester-item 团队实现，Lead 复核 12/12（见 [TEAM.md](../../docs/TEAM.md)）
+- 团队修 bug：注入 `getBarWidth=14` 回归 → gametest 1 失败 → builder-fix 修复 → reviewer-fix 只读复核通过 → Lead 重跑 12/12（见 [TEAM.md](../../docs/TEAM.md)）
+- 卡片执行：`mcdev_scenario card=cards/F-002.yml` 客户端 live，warnings=[]，wait+use+ui/title/slot 全过
 - 卡片执行：`mcdev_scenario card=cards/F-001.yml` 客户端 live，warnings=[]，give.select+use+data get（5200）+comparator（analog=7）全过
 - 比较器：`block` 步骤 + `/world/block` 返回 `analog=7`，assert eq 7 通过
 - F-004 live：`recipe`×1、`loot` total=1、`loot_break` drops charger×1；`craft` crafted=true/result charger×1；warnings=[]
 - F-004 client break：creative `/player/break` before=charger → after=air，server 端也是 air（无掉落）
 - F-007 生存挖掘：补 `mineable/pickaxe` 标签后，客户端 `START_DESTROY_BLOCK` 包 → 服务端 block air，`/items` charger×1，warnings=[]
 - F-006 live：`item` 返回 visible=true/width=6/color=65280，warnings=[]
-- F-005 client raycast：`/charger info` → chat `Charger energy: 0/10000 at 0, 64, 0`；截图 `M4-F005-raycast.png`
-- F-005 advancement toast：revoke + give charged_item → 截图 `M4-F005-advancement-toast.png` 显示 `Advancement Made! Charger`
-- F-003 tooltip：inventory hover `charged_item{Energy:5000}` → `Energy: 5000/10000`，截图 `M4-F003-tooltip.png`
-- 启动稳定性：`mcdev_prepare` 最多 3 次尝试；恢复演练 attempt1/2 Disconnected、attempt3 `joined=true`；无 server 失败演练 `joined=false, retry=true, attempts[]`
-- 团队卡片执行：Tester（tester-cards）跑 F-004/F-006，Reviewer（reviewer-cards）复核；发现 server-only `give` 静默失败后，Lead 删除无意义 setup 并重跑 warnings=[]（见 `M4-TEAM-CARD-DEMO.md`）
-- 客户端截图：
-  - `run-client/screenshots/mcdev-1792257239553.png`（GUI 第一版）
-  - `run-client/screenshots/mcdev-1792258312165.png`（Energy 5000/10000）
-  - `run-client/screenshots/mcdev-1792258351039.png`（关闭再打开）
-- 日志：
-  - `final-server.log`：`Dev has made the advancement [Charger]`
-  - GameTest：`Charger energy: 777/10000`
+- F-005 client raycast：`/charger info` → chat `Charger energy: 0/10000 at 0, 64, 0`；截图 [raycast.png](../../docs/assets/raycast.png)
+- F-005 advancement toast：revoke + give charged_item → 截图 [advancement-toast.png](../../docs/assets/advancement-toast.png) 显示 `Advancement Made! Charger`
+- F-003 tooltip：inventory hover `charged_item{Energy:5000}` → `Energy: 5000/10000`，截图 [tooltip.png](../../docs/assets/tooltip.png)
+- 启动稳定性：`mcdev_prepare` 等 TitleScreen 后 `/connect`；连续 3 次 `kind=both` 均 attempt1 `joined=true`
+- 团队卡片执行：Tester（tester-cards）跑 F-004/F-006，Reviewer（reviewer-cards）复核；发现 server-only `give` 静默失败后，Lead 删除无意义 setup 并重跑 warnings=[]
+- GameTest 日志：`Charger energy: 777/10000`
 
-## 未完成 / 下一步
+## 后续
 
-1. F-006 客户端视觉已验证：热栏截图 `M4-F006-hotbar-full.png` / 放大 `M4-F006-hotbar.png` 可见绿色 6/13 条；`/item/mainhand` 返回 visible/width/color。
-2. F-004 loot 已用服务端 `destroyBlock(pos,true)` + ItemEntity 收集做 E2E；生存玩家挖掘由 F-007 覆盖（补 `mineable/pickaxe` 标签后掉落正常）。
-3. F-003 tooltip 已验证：inventory hover `charged_item{Energy:5000}` → `Energy: 5000/10000`，截图 `M4-F003-tooltip.png`。
-4. 收口后把 Charger 作为参考实现，接 reference-mod 沙箱。
+1. 把 Charger 作为参考实现，接 reference-mod 沙箱。
+2. 扩展 item NBT / 容器交互断言。

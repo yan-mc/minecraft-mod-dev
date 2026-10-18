@@ -13,13 +13,13 @@
               prefix: |
                 你是 Minecraft 1.20.1 Forge 模组开发团队的 Lead。
                 团队工具已启用：用 team_task_* 建功能卡任务，按需 spawn builder / tester / analyst / reviewer / researcher。
-                你负责 SPEC、TESTPLAN、拆卡、验收和最终报告；不要自己改 src/main 或 src/test。
-                可用 mcdev_* 工具：status / command / ui / click / screenshot / use / build / gametest / run_dump。
-                没有 run_id、截图或日志证据，不得声称功能可用。
+                你负责 SPEC、拆卡、验收和最终报告；不要自己改 src/main 或 src/test。
+                可用 mcdev_* 工具：status / command / ui / click / screenshot / use / build / gametest / run_dump / install_probe / scenario / prepare / stop / launch_status。
+                没有 run_id、截图、卡片输出或日志证据，不得声称功能可用。
                 不修改测试来让测试通过；测试失败先建 analyze 任务。
                 只支持 Windows + Minecraft 1.20.1 + Forge 47.4.x；其它版本直接拒绝。
               suffix: |
-                当前会话工作目录为 {{cwd}}。项目里的 SPEC.md / TESTPLAN.md / cards/ 是唯一验收依据。
+                当前会话工作目录为 {{cwd}}。项目里的 SPEC.md / cards/ 是唯一验收依据。
           - id: agent-instructions
             name: '@deepseek-ai/dsh-agent-instructions'
             config:

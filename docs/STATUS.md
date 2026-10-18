@@ -1,60 +1,56 @@
-# 当前状态与路线图
+# 当前状态
 
-更新：2026-10-18
+更新：2026-10-18  
+插件：`0.5.0` · 参考模组：Charger · GameTest：**12/12**
 
 ## 已完成
 
-| 里程碑 | 结果 |
+| 能力 | 结果 |
 |---|---|
-| M1 Forge 构建 + GameTest | `gradlew build` / `runGameTestServer` 3/3，exit 0 |
-| M2 服务端 probe | HTTP `/status` `/log/tail` `/command` `/world/block`；fake player；tick freeze/step；run dump |
-| M2b 外部 jar/Mixin | dev-mapped jar + `MixinConfigs` 才能在外部 dev run 生效 |
-| M2c run DB | snapshot JSON → SQLite（`runs`/`logs`） |
-| M3 客户端 probe | UI 控件树、鼠标/槽位/shift-click、截图；容器 63 槽实测 |
-| M3b 连接/容器 | 独立 `run-server`/`run-client`；39001/39002；箱子 shift-click 1→2 |
-| 插件 v0.3.0 | 14 个 `mcdev_*` 工具；团队模式；`mcmod` preset |
-| M4 Charger | GameTest **12/12**；5 个注入 bug 5/5 检出并修复 |
-| M4 团队流程 | Builder/Tester 实现 F-006；Builder/Reviewer 修 bug 演练 |
+| 插件工具 | 14 个 `mcdev_*` 工具 |
+| 构建 / GameTest | `mcdev_build` exit 0；`mcdev_gametest` 12/12 |
+| 服务端探针 | 状态、命令、方块/NBT、recipe、loot、items、craft、world break、run dump |
+| 客户端探针 | UI 树、槽位、点击、右键、截图、inventory hover、显式 connect、packet mine |
+| 启动 | server/client/both；TitleScreen 后 `/connect`；失败最多 3 次重试 |
+| 卡片 | F-001..F-007 全部 live，`warnings=[]` |
+| 视觉证据 | tooltip、raycast、advancement toast、热栏能量条 |
+| 团队 | Builder/Tester/Reviewer 流程；卡片 Tester/Reviewer 复核 |
+| 发布 | GitHub Release [v0.5.0](https://github.com/yan-mc/minecraft-mod-dev/releases/tag/v0.5.0)，含插件 zip + probe jar |
 
 ## 关键数字
 
 ```text
-mcdev_gametest → exit 0, All 12 required tests passed
-mcdev_build    → exit 0
-bug drill      → 1 failure → fix → 12/12
+mcdev_build    → exitCode=0
+mcdev_gametest → exitCode=0, All 12 required tests passed
+F-001..F-007   → ok=true, warnings=[]
+注入 bug        → 5/5 检出并修复
 ```
 
 ## 已知缺口
 
-1. F-003 tooltip、F-005 raycast/toast、F-006 能量条均已视觉验证（截图见 `lab/forge-1.20.1-test/M4-*.png`）。
-2. 探针 Mixin 是 dev-only（`remap=false` + 字面量 `tick`）；生产 SRG 未支持。
-3. `mcdev_prepare`/`mcdev_scenario` 只在 `lab/forge-1.20.1-test` 实测过。
-4. `mcdev_scenario` 已支持 setup/actions/screen_title/slot/block_entity_nbt/comparator/recipe/loot/loot_break/loot_mine/mine/client_mine/items/item_bar/craft；F-004 用 `recipe_output` + `craft` 断言。
-5. 生存挖掘已修复：`charger` 缺 `mineable/pickaxe` 标签导致玩家挖掘无掉落；F-007 用客户端 `START_DESTROY_BLOCK` 包验证，服务端权威（客户端 block 可能短暂滞后）。
-6. Agent Teams 是实验性的，可能有成员/任务状态不同步。
-7. GitHub release 已有 v0.4.1/v0.5.0 资产；正式 npm 包未发（本地 link 安装）。
-8. quickPlay 根因已处理：runClient 移除 quickPlay，等 TitleScreen 后 `/connect` 显式连接；连续 3 次 `kind=both` 均 attempt1 joined。
+1. 仅 Windows + MC 1.20.1 + Forge 47.4.x + Java 17 + DSH 0.2.1-rc.2。
+2. 探针 Mixin 是 dev-only；生产 SRG 未支持。
+3. 只在 `lab/forge-1.20.1-test` 实测；其他工程目录/构建差异需适配。
+4. `mcdev_scenario` 已支持 recipe/loot/loot_break/loot_mine/craft/mine/client_mine/items/item_bar/comparator；`item_nbt` 仍未支持。
+5. 客户端本地 block 可能短暂滞后；断言以服务端 `/world/block` 为准。
+6. Agent Teams 是 DSH 实验特性，成员/任务状态可能不同步。
+7. 正式 npm 包未发布；使用本地 link + GitHub release 资产。
+8. quickPlay 已移除；若手动 runClient，请用 `/connect`，不要加 `--quickPlayMultiplayer`。
 
 ## 路线图
 
-### M5：可重复演示
-
-- `mcdev_scenario` 卡片解析 + recipe/loot/item_bar assert 已完成；补 `craft` action。
-- 把“注入 bug → 建任务 → builder/reviewer → 报告”做成可重复脚本。
-- 录一段从空项目到可玩模组的 demo。
-
-### 公开 beta
-
-- 打包/版本化插件（npm 包或 GitHub Release）。
-- 安装文档、工具文档、已知限制（本 `docs/`）。
-- 一个 reference mod（Charger）+ 5～6 张卡作为模板。
-- 收集外部项目反馈：Forge 版本、目录结构、Gradle 差异。
+- reference-mod 沙箱：从 Charger 模板生成新模组；
+- 更多 item/container 断言；
+- 完整团队 demo 脚本/视频；
+- 生产 SRG 探针（远期）；
+- npm/插件目录分发（远期）。
 
 ## 相关文档
 
+- [完整说明书](MANUAL.md)
 - [安装](INSTALL.md)
 - [工具](TOOLS.md)
 - [团队](TEAM.md)
 - [排错](TROUBLESHOOTING.md)
 - [演示](DEMO.md)
-- [M4 报告](../lab/forge-1.20.1-test/REPORT.md)
+- [参考模组报告](../lab/forge-1.20.1-test/REPORT.md)

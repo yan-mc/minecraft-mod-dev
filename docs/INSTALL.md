@@ -1,7 +1,9 @@
 # 安装与快速开始
 
-本仓库是 **DeepSeek Harness（DSH）插件 + Minecraft 1.20.1 Forge 探针** 的研究原型。
-当前只支持：**Windows 10/11 x64 + Minecraft 1.20.1 + Forge 47.4.x + Java 17 + DSH 0.2.1-rc.2**。
+插件版本：`0.5.0`  
+适用：**Windows 10/11 x64 + Minecraft 1.20.1 + Forge 47.4.x + Java 17 + DSH 0.2.1-rc.2**
+
+完整说明书见 [MANUAL.md](MANUAL.md)。
 
 ## 1. 环境
 
@@ -19,21 +21,32 @@ cd minecraft-mod-dev
 
 ## 2. 安装 DSH 插件
 
-在 DSH 会话里执行：
+### 方式 A：GitHub Release（推荐）
+
+下载 [v0.5.0 release](https://github.com/yan-mc/minecraft-mod-dev/releases/tag/v0.5.0)：
+
+- `minecraft-mod-dev-0.5.0.zip`
+- `mcdev_probe-0.1.0-dev.jar`
+
+解压后：
+
+```text
+plugin_manager install_bundle target=<解压目录>\minecraft-mod-dev
+```
+
+### 方式 B：源码 link
 
 ```text
 plugin_manager install_bundle target=<仓库绝对路径>\plugin\minecraft-mod-dev
 ```
 
-安装后应看到 14 个 `mcdev_*` 工具，插件版本 `0.3.0`。
-
-> 本地 link 安装不需要构建、不需要 npm install。插件会同时挂载实验性 Agent Teams（团队模式默认开启）。
+安装后应看到 **14 个 `mcdev_*` 工具**，插件版本 `0.5.0`，并挂载实验性 Agent Teams（团队模式默认开启）。
 
 ## 3. 构建探针 dev jar
 
 ```powershell
 cd lab\mcdev-probe
-.\gradlew.bat devJar
+.\gradlew.bat clean devJar
 ```
 
 产出：
@@ -42,13 +55,12 @@ cd lab\mcdev-probe
 build\libs\mcdev_probe-0.1.0-dev.jar
 ```
 
-**必须用 `*-dev.jar`**：
-普通 `build` 的 reobf jar 在 dev 环境会 `NoSuchMethodError: Commands.m_82127_(String)`；
-`mcdev_install_probe` 会拒绝非 `*-dev.jar`。
+**必须使用 `*-dev.jar`**：
+
+- 普通 `build` 的 reobf jar 在 dev 环境会 `NoSuchMethodError: Commands.m_82127_(String)`；
+- `mcdev_install_probe` 会拒绝非 `*-dev.jar`。
 
 ## 4. 安装探针到 run 目录
-
-示例（测试工程）：
 
 ```text
 mcdev_install_probe
@@ -57,33 +69,27 @@ mcdev_install_probe
            "F:\...\lab\forge-1.20.1-test\run-client"]
 ```
 
-工具会校验 manifest 里的 `MixinConfigs: mcdev_probe.mixins.json`，再复制到 `<runDir>\mods\`。
+工具会校验 manifest 的 `MixinConfigs: mcdev_probe.mixins.json`，再复制到 `<runDir>\mods\`。
 
 ## 5. 启动
 
-测试工程已配置好：
+测试工程：
 
 - `run-server/`：专用服务端，端口 `25566`，probe `39001`
-- `run-client/`：客户端，probe `39002`，`--quickPlayMultiplayer 127.0.0.1:25566`
-
-一条命令：
+- `run-client/`：客户端，probe `39002`
 
 ```text
 mcdev_prepare projectDir=F:\...\lab\forge-1.20.1-test kind=both
 ```
 
-会依次启动 server、等待 probe ready、再启动 client；返回 pid/port/logPath。
+插件会：
 
-手动启动也可以：
+1. 启动 server，等 probe ready；
+2. 启动 client，等 probe ready；
+3. 等客户端到 TitleScreen，调用客户端 `/connect` 显式连接；
+4. 等玩家进服，返回 `joined=true`。
 
-```powershell
-cd lab\forge-1.20.1-test
-.\gradlew.bat runServer
-.\gradlew.bat runClient
-```
-
-> **不要共用 `run/` 目录**：server 和 client 同目录会登录 `Timed out`。
-> 测试工程的 `build.gradle` 已把 client/server 分到 `run-client`/`run-server`。
+> 客户端**不使用 quickPlay**；不要共用 `run/` 目录，否则登录会超时。
 
 ## 6. 验证
 
@@ -101,16 +107,29 @@ mcdev_gametest projectDir=F:\...\lab\forge-1.20.1-test
 mcdev_gametest → exitCode=0, All 12 required tests passed
 ```
 
-## 7. 停止
+## 7. 跑一张卡片
+
+```text
+mcdev_scenario card=F:\...\lab\forge-1.20.1-test\cards\F-002.yml
+```
+
+期望：
+
+```json
+{"ok":true,"warnings":[],"steps":[...]}
+```
+
+## 8. 停止
 
 ```text
 mcdev_stop side=all
 ```
 
-## 8. 下一步
+## 9. 下一步
 
-- 工具完整列表：[TOOLS.md](TOOLS.md)
-- 团队分工：[TEAM.md](TEAM.md)
-- 常见问题：[TROUBLESHOOTING.md](TROUBLESHOOTING.md)
-- 当前状态与路线图：[STATUS.md](STATUS.md)
-- 10 分钟演示：[DEMO.md](DEMO.md)
+- [完整说明书](MANUAL.md)
+- [工具与卡片](TOOLS.md)
+- [团队模式](TEAM.md)
+- [排障](TROUBLESHOOTING.md)
+- [演示](DEMO.md)
+- [当前状态](STATUS.md)

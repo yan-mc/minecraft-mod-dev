@@ -27,6 +27,4 @@ lab/*.sqlite
 **/__pycache__/
 **/node_modules/
 
-# Scratch / personal notes
-临时文件.txt
 dist/

@@ -67,20 +67,22 @@ Content-Type: application/octet-stream
 
 ## 安装方式（beta）
 
-当前是**本地 link 安装**：
+### 从 GitHub Release
+
+1. 下载 `minecraft-mod-dev-<version>.zip` 并解压；
+2. `plugin_manager install_bundle target=<解压目录>/minecraft-mod-dev`；
+3. 下载 `mcdev_probe-0.1.0-dev.jar`，放入 runDir/mods（或 `mcdev_install_probe`）。
+
+### 从源码
 
 ```text
 plugin_manager install_bundle target=<repo>\plugin\minecraft-mod-dev
 ```
 
-从 GitHub Release 安装时：
+探针 devJar 用本机 `gradlew clean devJar` 构建。
 
-1. 下载源码 zip 并解压；
-2. 用解压目录里的 `plugin/minecraft-mod-dev` 作为 target；
-3. 探针 devJar 仍需本机 `gradlew devJar` 构建。
-
-后续正式版计划：
+## 后续计划
 
 - npm 包 / DSH 插件目录包；
-- release asset 带 `mcdev-probe` devJar；
+- release asset 带完整 reference mod + cards；
 - 版本兼容检查（DSH/Forge/Java）。

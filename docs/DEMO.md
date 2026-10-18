@@ -57,10 +57,10 @@ mcdev_scenario card=...\cards\F-007.yml
 
 ## 3. 视觉证据
 
-- F-003 tooltip：`M4-F003-tooltip.png`（`Energy: 5000/10000`）
-- F-005 raycast：`M4-F005-raycast.png`（聊天 `Charger energy: 0/10000 at 0, 64, 0`）
-- F-005 advancement toast：`M4-F005-advancement-toast.png`
-- F-006 热栏能量条：`M4-F006-hotbar.png`
+- F-003 tooltip：`assets/tooltip.png`（`Energy: 5000/10000`）
+- F-005 raycast：`assets/raycast.png`（聊天 `Charger energy: 0/10000 at 0, 64, 0`）
+- F-005 advancement toast：`assets/advancement-toast.png`
+- F-006 热栏能量条：`assets/hotbar.png`
 
 ## 4. GameTest
 
@@ -79,7 +79,7 @@ summary=All 12 required tests passed
 - Reviewer（reviewer-cards）：只读复核卡片、SPEC、git 状态；
 - Lead：根据 Reviewer 发现修正卡片（删掉 server-only give、补 kill items）。
 
-见 [M4-TEAM-CARD-DEMO.md](../lab/forge-1.20.1-test/M4-TEAM-CARD-DEMO.md)。
+见 [TEAM.md](TEAM.md)。
 
 ## 6. 停止
 
